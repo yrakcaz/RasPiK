@@ -32,7 +32,7 @@
 /* Loop ncycles processor cycles doing anything. */
 static inline void wait(uint32_t ncycles)
 {
-    __asm__ volatile (
+   asm volatile (
                       "__wait_%=: subs %[ncycles], %[ncycles], #1; bne __wait_%=\n"
                       :: [ncycles]"r"(ncycles)
                       :  "cc"

@@ -8,7 +8,7 @@ DFILES := $(shell find . -type f -name '*.d')
 
 DEPENDFLAGS := -MD -MP
 INCLUDES    := -I include
-BASEFLAGS   := -O2 -fpic -pedantic -pedantic-errors -nostdlib
+BASEFLAGS   := -fpic -pedantic -pedantic-errors -nostdlib
 BASEFLAGS   += -ffreestanding -fomit-frame-pointer -mcpu=arm1176jzf-s
 WARNFLAGS   := -Wall -Wextra -Wshadow -Wcast-align -Wwrite-strings
 WARNFLAGS   += -Wredundant-decls -Winline
@@ -25,7 +25,7 @@ WARNFLAGS   += -Wwrite-strings -Wdisabled-optimization -Wpointer-arith
 WARNFLAGS   += -Werror
 SFLAGS      := $(INCLUDES) $(DEPENDFLAGS) -D__ASSEMBLY__
 CFLAGS      := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
-CFLAGS      += -std=c99
+CFLAGS      += -std=gnu99 -g3
 
 include $(DFILES)
 
@@ -50,4 +50,7 @@ distclean: clean
 	$(CROSS_PREFIX)gcc $(SFLAGS) -c $< -o $@
 
 boot: kernel.elf
-	qemu-system-arm -kernel kernel.elf -cpu arm1176 -m 256 -M versatilepb -serial stdio
+	qemu-system-arm -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio
+
+debug: kernel.elf
+	qemu-system-arm -s -S -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio

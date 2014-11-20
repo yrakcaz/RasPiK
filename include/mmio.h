@@ -7,7 +7,7 @@
 static inline void write_mmio(uint32_t reg, uint32_t val)
 {
     uint32_t *addr = (uint32_t *)reg;
-    __asm__ volatile(
+    asm volatile(
                      "str %[val], [%[reg]]"
                      :: [reg]"r"(addr), [val]"r"(val)
                     );
@@ -18,7 +18,7 @@ static inline uint32_t read_mmio(uint32_t reg)
 {
     uint32_t *addr = (uint32_t *)reg;
     uint32_t ret;
-    __asm__ volatile(
+    asm volatile(
                      "ldr %[ret], [%[reg]]"
                      : [ret]"=r"(ret)
                      : [reg]"r"(addr)
