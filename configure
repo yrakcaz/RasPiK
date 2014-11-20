@@ -1,0 +1,15 @@
+#! /bin/sh
+
+if [ $# -eq 0 ]; then
+    echo -n "" > makefile.rules
+elif [ $# -eq 1 ]; then
+    if [ $1 = "--with-debug" ]; then
+        echo "CFLAGS+=-g3" > makefile.rules
+    elif [ $1 = "--help" ]; then
+        echo "./configure: --with-debug (debug mode)"
+    else
+        echo "use ./configure --help"
+    fi
+else
+    echo "use ./configure --help"
+fi

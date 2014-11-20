@@ -25,9 +25,10 @@ WARNFLAGS   += -Wwrite-strings -Wdisabled-optimization -Wpointer-arith
 WARNFLAGS   += -Werror
 SFLAGS      := $(INCLUDES) $(DEPENDFLAGS) -D__ASSEMBLY__
 CFLAGS      := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
-CFLAGS      += -std=gnu99 -g3
+CFLAGS      += -std=gnu99
 
 include $(DFILES)
+-include makefile.rules
 
 all: kernel.img
 
@@ -41,7 +42,7 @@ clean:
 	rm -f $(OBJ) kernel.elf kernel.img
 
 distclean: clean
-	rm -f $(DFILES)
+	rm -f $(DFILES) makefile.rules
 
 %.o: %.c
 	$(CROSS_PREFIX)gcc $(CFLAGS) -c $< -o $@
