@@ -26,4 +26,12 @@ static inline uint32_t read_mmio(uint32_t reg)
     return ret;
 }
 
+static inline void sync_mem(void)
+{
+    asm ("mcr p15, 0, ip, c7, c5, 0");
+    asm ("mcr p15, 0, ip, c7, c5, 6");
+    asm ("mcr p15, 0, ip, c7, c10, 4");
+    asm ("mcr p15, 0, ip, c7, c5, 4");
+}
+
 #endif /* !MMIO_H */
