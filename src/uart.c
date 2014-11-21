@@ -53,8 +53,8 @@ uint8_t getchar_uart(void)
     return read_mmio(DR_UART);
 }
 
-void write_uart(char *str, unsigned int size)
+void write_uart(char *str, uint32_t size)
 {
-    for (unsigned int i = 0; i < size; i++)
+    for (uint32_t i = 0; i < size; i++)
         putchar_uart(str[i]);
 }

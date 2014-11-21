@@ -52,6 +52,6 @@ void putchar_uart(uint8_t byte);
 uint8_t getchar_uart(void);
 
 /* Writes a string to the UART. */
-void write_uart(char *str, unsigned int size);
+void write_uart(char *str, uint32_t size);
 
 #endif /* !UART_H */

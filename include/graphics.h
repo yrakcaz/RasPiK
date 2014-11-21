@@ -19,8 +19,8 @@
 # define FRAME_BUFFER    0x00002000
 # define ARM_BUS_ADDR    0x40000000
 
-# define SCREEN_WIDTH    1024
-# define SCREEN_HEIGHT   768
+# define SCREEN_WIDTH    800
+# define SCREEN_HEIGHT   600
 # define SCREEN_DEPTH    24
 
 # define FONT_SIZE       16

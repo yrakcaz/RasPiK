@@ -1,5 +1,5 @@
 #include "../include/uart.h"
-#include "../include/graphics.h"
+#include "../include/console.h"
 
 //Shut up compiler!
 #define DO_NOTHING_WITH(X) (void)(X)
@@ -15,14 +15,17 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
     DO_NOTHING_WITH(atags);
 
     //Initializations
-    init_graphics();
     init_uart();
+    if (!init_graphics())
+        write_uart((char *)"Error while loading graphics!\n", 30);
+    init_console();
 
-    write_uart((char *)"Kernel Booting", 14);
+    kwrite((char *)"Kernel Booting", 14, WHITE);
 
     //Stay alive...
-    while (1) {
-        write_uart((char *)".", 1);
+    while (1) 
+    {
+        kwrite((char *)".", 1, WHITE);
         wait(HUMAN_TIME);
     }
 }
