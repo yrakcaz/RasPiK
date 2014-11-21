@@ -217,3 +217,20 @@ void putpixel(uint32_t x, uint32_t y, uint32_t color)
     *(uint8_t *)(fb->ptr + offset + 1) = rgb.g;
     *(uint8_t *)(fb->ptr + offset + 2) = rgb.b;
 }
+
+void drawchar(uint32_t x, uint32_t y, char c, uint32_t color)
+{
+    uint8_t character[FONT_SIZE];
+    for (int i = 0; i < FONT_SIZE; i++)
+        character[i] = fonts[(c * FONT_SIZE) + i];
+    for (int i = 0; i < FONT_SIZE; i++)
+    {
+        int display = 0;
+        for (int j = 0; j < 8; j++)
+        {
+            display = (character[i] & (1 << j));
+            if (display)
+                putpixel(x + j, y + i, color);
+        }
+    }
+}

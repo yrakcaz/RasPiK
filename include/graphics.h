@@ -23,6 +23,8 @@
 # define SCREEN_HEIGHT   768
 # define SCREEN_DEPTH    24
 
+# define FONT_SIZE       16
+
 typedef struct color
 {
     uint8_t r;
@@ -51,5 +53,6 @@ uint32_t verify_mailbox(uint8_t chan);
 int init_graphics(void);
 s_color hex_to_rgb(uint32_t color);
 void putpixel(uint32_t x, uint32_t y, uint32_t color);
+void drawchar(uint32_t x, uint32_t y, char c, uint32_t color);
 
 #endif /* !GRAPHICS_H */

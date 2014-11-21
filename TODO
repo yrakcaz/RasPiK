@@ -1,7 +1,9 @@
 TODO:
 =====
 
--> Graphics
+/!\ Fix Makefile...
+
+-> Graphics                                 DONE (Just need comments, and eventually other drawing funcs.)
 
 -> Console
 
