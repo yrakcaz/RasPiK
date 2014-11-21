@@ -12,10 +12,11 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
 
     init_uart();
 
-    putstring_uart("\r\n******************************\r\n");
-    putstring_uart("       KENEL LOADING...\r\n");
-    putstring_uart("******************************\r\n");
+    write_uart((char *)"Kernel Booting", 14);
 
     //Stay alive...
-    while (1) {}
+    while (1) {
+        write_uart((char *)".", 1);
+        wait(100000000);
+    }
 }

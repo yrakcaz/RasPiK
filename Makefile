@@ -10,7 +10,7 @@ DEPENDFLAGS := -MD -MP
 INCLUDES    := -I include
 BASEFLAGS   := -fpic -pedantic -pedantic-errors -nostdlib
 BASEFLAGS   += -ffreestanding -fomit-frame-pointer -mcpu=arm1176jzf-s
-WARNFLAGS   := -Wall -Wextra -Wshadow -Wcast-align -Wwrite-strings
+WARNFLAGS   := -Wall -Wextra -Wshadow -Wcast-align
 WARNFLAGS   += -Wredundant-decls -Winline
 WARNFLAGS   += -Wno-attributes -Wno-deprecated-declarations
 WARNFLAGS   += -Wno-div-by-zero -Wno-endif-labels -Wfloat-equal

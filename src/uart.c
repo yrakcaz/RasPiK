@@ -2,49 +2,59 @@
 
 void init_uart(void)
 {
-    //COMMENT AND MAKE MACCROS!!
+    // Disabling UART
+    write_mmio(CR_UART, MASK32);
 
-    write_mmio(CR_UART, 0x00000000);
+    // Disabling GPIO
+    write_mmio(GPPUD, MASK32);
+    wait(DELAY);
 
-    write_mmio(GPPUD, 0x00000000);
-    wait(150);
-
+    // Disabling pin 14 and 15
     write_mmio(GPPUDCLK0, (1 << 14) | (1 << 15));
-    wait(150);
+    wait(DELAY);
 
-    write_mmio(GPPUDCLK0, 0x00000000);
+    // Make it takin' effect
+    write_mmio(GPPUDCLK0, MASK32);
 
-    write_mmio(ICR_UART, 0x7FF);
+    // Clearing interrupts
+    write_mmio(ICR_UART, CLEAR_INTERRUPTS);
 
-    write_mmio(IBRD_UART, 1);
-    write_mmio(FBRD_UART, 40);
+    // Setting UART Baud Rate
+    write_mmio(IBRD_UART, UART_DIVIDER);
+    write_mmio(FBRD_UART, UART_FRAC_PART_REG);
 
-    write_mmio(LCRH_UART, (1 << 4) | (1 << 5) | (1 << 6));
+    // Setting UART rights
+    write_mmio(LCRH_UART, UART_RIGHTS);
 
-    write_mmio(IMSC_UART, (1 << 1) | (1 << 4) | (1 << 5) | (1 << 6) |
-                          (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10));
+    // Masking all interrupts
+    write_mmio(IMSC_UART, UART_MSK_INTERRUPTS);
 
-    write_mmio(CR_UART, (1 << 1) | (1 << 8) | (1 << 9));
+    // Enabling reading and writing
+    write_mmio(CR_UART, ENABLE_TRANSFERT);
 }
 
 void putchar_uart(uint8_t byte)
 {
+    // Waiting for the device...
     while (1)
-        if (!(read_mmio(FR_UART) & (1 << 5)))
+        if (!(read_mmio(FR_UART) & WRITE_OK))
             break;
+    // Then write data.
     write_mmio(DR_UART, byte);
 }
 
 uint8_t getchar_uart(void)
 {
+    // Waiting for the device...
     while (1)
-        if (!(read_mmio(FR_UART) & (1 << 4)))
+        if (!(read_mmio(FR_UART) & READ_OK))
             break;
+    // Then read data.
     return read_mmio(DR_UART);
 }
 
-void putstring_uart(const char *str)
+void write_uart(char *str, unsigned int size)
 {
-    for (int i = 0; str[i]; i++)
+    for (unsigned int i = 0; i < size; i++)
         putchar_uart(str[i]);
 }
