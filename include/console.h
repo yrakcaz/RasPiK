@@ -3,8 +3,9 @@
 
 # include "graphics.h"
 
-# define BLACK 0x00000000
-# define WHITE 0xFFFFFFFF
+# define NBCOL  97
+# define NBLIN  36
+# define MARGIN 10
 
 typedef struct console
 {

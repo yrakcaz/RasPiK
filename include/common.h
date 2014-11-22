@@ -1,6 +1,8 @@
 #ifndef COMMON_H
 # define COMMON_H
 
+# include <stdint.h>
+
 /* Masks */
 # define MASK32     0x00000000
 # define DATAMASK32 0xFFFFFFF0

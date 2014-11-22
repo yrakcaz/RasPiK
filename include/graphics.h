@@ -24,6 +24,14 @@
 # define SCREEN_DEPTH    24
 
 # define FONT_SIZE       16
+# define CHAR_SIZE       8
+
+# define BLACK 0x000000
+# define WHITE 0xFFFFFF
+# define RED   0xFF0000
+# define GREEN 0x00FF00
+# define BLUE  0x0000FF
+# define BCKG  BLACK
 
 typedef struct color
 {
@@ -52,7 +60,11 @@ void send_to_mailbox(uint8_t chan, uint32_t data);
 uint32_t verify_mailbox(uint8_t chan);
 int init_graphics(void);
 s_color hex_to_rgb(uint32_t color);
+uint32_t rgb_to_hex(s_color color);
 void putpixel(uint32_t x, uint32_t y, uint32_t color);
+uint32_t getpixel(uint32_t x, uint32_t y);
 void drawchar(uint32_t x, uint32_t y, char c, uint32_t color);
+void deletechar(uint32_t x, uint32_t y);
+void replychar(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
 
 #endif /* !GRAPHICS_H */

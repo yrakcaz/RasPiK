@@ -209,6 +209,13 @@ s_color hex_to_rgb(uint32_t color)
     return ret;
 }
 
+uint32_t rgb_to_hex(s_color color)
+{
+    return ((color.r << 16) |
+            (color.g << 8) |
+            (color.b));
+}
+
 void putpixel(uint32_t x, uint32_t y, uint32_t color)
 {
     s_color rgb = hex_to_rgb(color);
@@ -216,6 +223,16 @@ void putpixel(uint32_t x, uint32_t y, uint32_t color)
     *(uint8_t *)(fb->ptr + offset + 0) = rgb.r;
     *(uint8_t *)(fb->ptr + offset + 1) = rgb.g;
     *(uint8_t *)(fb->ptr + offset + 2) = rgb.b;
+}
+
+uint32_t getpixel(uint32_t x, uint32_t y)
+{
+    s_color rgb;
+    uint32_t offset = (y * fb->pitch) + (x * 3);
+    rgb.r = *(uint8_t *)(fb->ptr + offset + 0);
+    rgb.g = *(uint8_t *)(fb->ptr + offset + 1);
+    rgb.b = *(uint8_t *)(fb->ptr + offset + 2);
+    return rgb_to_hex(rgb);
 }
 
 void drawchar(uint32_t x, uint32_t y, char c, uint32_t color)
@@ -226,11 +243,30 @@ void drawchar(uint32_t x, uint32_t y, char c, uint32_t color)
     for (int i = 0; i < FONT_SIZE; i++)
     {
         int display = 0;
-        for (int j = 0; j < 8; j++)
+        for (int j = 0; j < CHAR_SIZE; j++)
         {
             display = (character[i] & (1 << j));
             if (display)
                 putpixel(x + j, y + i, color);
+        }
+    }
+}
+
+void deletechar(uint32_t x, uint32_t y)
+{
+    for (int i = 0; i < FONT_SIZE; i++)
+        for (int j = 0; j < CHAR_SIZE; j++)
+            putpixel(x + j, y + i, BCKG);
+}
+
+void replychar(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2)
+{
+    for (int i = 0; i < FONT_SIZE; i++)
+    {
+        for (int j = 0; j < CHAR_SIZE; j++)
+        {
+            uint32_t color = getpixel(x1 + j, y1 + i);
+            putpixel(x2 + j, y2 + i, color);
         }
     }
 }

@@ -20,12 +20,12 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
         write_uart((char *)"Error while loading graphics!\n", 30);
     init_console();
 
-    kwrite((char *)"Kernel Booting", 14, WHITE);
+    kwrite((char *)"Kernel Booting ", 14, BLUE);
 
     //Stay alive...
-    while (1) 
+    while (1)
     {
-        kwrite((char *)".", 1, WHITE);
-        wait(HUMAN_TIME);
+        kwrite(".", 1, BLUE);
+        wait(HUMAN_TIME / 100);
     }
 }
