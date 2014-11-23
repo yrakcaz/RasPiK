@@ -20,4 +20,6 @@ static inline void wait(uint32_t ncycles)
                      );
 }
 
+uint32_t strlen(char *str);
+
 #endif /* !COMMON_H */
