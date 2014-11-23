@@ -46,7 +46,8 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
     kwrite((char *)"\n\nKernel Booting ", 17, RED);
 
     //Stay alive...
-    int i = 0;
+    uint32_t k = get_timeval();
+    uint32_t i = 0;
     while (1)
     {
         if (i == 3)
@@ -58,5 +59,7 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
             kwrite(".", 1, BLUE);
         wait(HUMAN_TIME);
         i++;
+        if (get_timeval() != k)
+            kwrite("Timer updated!\n", 15, WHITE);
     }
 }

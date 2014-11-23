@@ -10,9 +10,11 @@
 **
 */
 
-# define PAGE_SIZE 4096
-# define PAGE_ROOT (void *)0xFF000
-# define NULL      0x00000000
+# define PAGE_SIZE       4096
+# define PAGE_ROOT       (void *)0xFF000
+# define NULL            0x00000000
+
+# define VIRTUAL_ADDR(X) (X + 0x80000000)
 
 void init_mem(void);
 void *get_next_page(void);
