@@ -3,6 +3,9 @@
 
 # include "console.h"
 
+/* Initialization */
+void init_interrupts(void);
+
 /* Bad exceptions */
 void treat_reset(void);
 void treat_undef(void);
