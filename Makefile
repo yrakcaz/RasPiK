@@ -26,6 +26,7 @@ WARNFLAGS   += -Werror
 SFLAGS      := $(INCLUDES) $(DEPENDFLAGS) -D__ASSEMBLY__
 CFLAGS      := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
 CFLAGS      += -std=gnu99
+LDFLAGS     := -L/usr/local/cross/lib/gcc/arm-bcm2708hardfp-linux-gnueabi/4.7.1 -lgcc
 
 include $(DFILES)
 -include makefile.rules
@@ -33,7 +34,7 @@ include $(DFILES)
 all: kernel.img
 
 kernel.elf: $(OBJ) $(LINK)
-	$(CROSS_PREFIX)ld $(OBJ) -T$(LINK) -o $@
+	$(CROSS_PREFIX)ld $(OBJ) -T$(LINK) -o $@ $(LDFLAGS)
 
 kernel.img: kernel.elf
 	$(CROSS_PREFIX)objcopy kernel.elf -O binary kernel.img

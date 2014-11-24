@@ -3,9 +3,6 @@
 #include "../include/mem.h"
 #include "../include/interrupts.h"
 
-//Shut up compiler!
-#define DO_NOTHING_WITH(X) (void)(X)
-
 //Time delay which a human can feel...
 #define HUMAN_TIME 100000000
 
@@ -46,7 +43,6 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
     kwrite((char *)"\n\nKernel Booting ", 17, RED);
 
     //Stay alive...
-    uint32_t k = get_timeval();
     uint32_t i = 0;
     while (1)
     {
@@ -59,7 +55,5 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
             kwrite(".", 1, BLUE);
         wait(HUMAN_TIME);
         i++;
-        if (get_timeval() != k)
-            kwrite("Timer updated!\n", 15, WHITE);
     }
 }

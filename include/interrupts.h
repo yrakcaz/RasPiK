@@ -34,6 +34,4 @@ void treat_pref_abort(void);
 void treat_data_abort(void);
 void treat_irq(void);
 
-uint32_t get_timeval(void);
-
 #endif /* !INTERRUPTS_H */

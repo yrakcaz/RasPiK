@@ -2,8 +2,20 @@
 .globl start
 
 start:
+    mov r4, #0x8000
+    cps #0x13
+    add sp, r4, #0x2400
+    cps #0x17
+    add sp, r4, #0x2800
+    cps #0x12
+    add sp, r4, #0x2C00
+    cps #0x1F
+    add sp, r4, #0x3C00
+    mrc p15, #0, r4, c1, c0, #0
+    orr r4, #0x400000
+    mcr p15, #0, r4, c1, c0, #0
+
     //Set up registers
-    mov sp, #0x8000
     ldr r4, =_bss_start
     ldr r9, =_bss_end
     mov r5, #0
