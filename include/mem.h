@@ -10,14 +10,8 @@
 **
 */
 
-# define PAGE_SIZE       4096
-# define PAGE_ROOT       (void *)0xFF000
-# define NULL            0x00000000
+# define NULL 0x00000000
 
-void init_mem(void);
 void *sbrk(uint32_t increment);
-void *malloc(uint32_t size);
-
-int brk;
 
 #endif /* !MEM_H */

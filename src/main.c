@@ -38,8 +38,6 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
     print_init("console", 1);
     init_uart();
     print_init("UART", 1);
-    init_mem();
-    print_init("memory", 1);
     init_interrupts();
     print_init("interrupts", 1);
 

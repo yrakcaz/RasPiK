@@ -42,7 +42,7 @@ char *itoa(int val, int base)
 {
     int i = 0;
     int neg = 0;
-    char *str = malloc(numlen(val) + 1);
+    char *str = sbrk(numlen(val) + 1);
     if (!val)
     {
         str[i++] = '0';

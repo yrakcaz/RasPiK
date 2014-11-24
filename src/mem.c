@@ -1,18 +1,24 @@
 #include "../include/mem.h"
 
-void init_mem(void)
-{
-    brk = 0;
-}
+extern char *get_sp();
 
 void *sbrk(uint32_t increment)
 {
-    void *ret = (void *)((char *)PAGE_ROOT + brk);
-    brk += increment;
-    return ret;
-}
+    extern char _end;
+    static char *heap_end;
+    char *previous_heap_end;
 
-void *malloc(uint32_t size)
-{
-    return sbrk(size);
+    if (!heap_end)
+        heap_end = &_end;
+
+    previous_heap_end = heap_end;
+
+    if (heap_end + increment > get_sp())
+    {
+        kwrite ("Heap is full: abort!\n", 21, RED);
+        while (1) {}
+    }
+
+    heap_end += increment;
+    return previous_heap_end;
 }
