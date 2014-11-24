@@ -1,8 +1,6 @@
 TODO:
 =====
 
-/!\ Fix Makefile...
-
 -> Graphics                                 DONE (Add eventually other drawing funcs, more comments..)
 
 -> Console                                  DONE (More comments?)
@@ -11,7 +9,7 @@ TODO:
 
 -> Interrupts                               DONE (With only timer irq handled)
 
--> File system
+-> File system (Probably ext4)
 
 -> Syscalls?
 
