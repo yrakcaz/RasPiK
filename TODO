@@ -9,7 +9,7 @@ TODO:
 
 -> Interrupts                               DONE (With only timer irq handled)
 
--> File system (Probably ext4)
+-> File system (Probably ext2 or ext4)
 
 -> Syscalls?
 

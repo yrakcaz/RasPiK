@@ -53,8 +53,10 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
             char *time = itoa(i, 10);
             kwrite(time, strlen(time), WHITE);
             kwrite("\n", 1, WHITE);
+            if (i == 10)
+                state = 0;
         }
     }
 
-    kwrite("*** SYSTEM HALTING ***\n", 23, RED);
+    kwrite("\n\n*** SYSTEM HALTING ***\n", 23, RED);
 }
