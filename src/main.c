@@ -23,6 +23,8 @@ static void print_init(const char *module, int success)
 //Kernel entry_point...
 void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
 {
+    uint32_t state = 1;
+
     DO_NOTHING_WITH(r0);
     DO_NOTHING_WITH(r1);
     DO_NOTHING_WITH(atags);
@@ -31,6 +33,7 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
     if (!init_graphics())
         return;
     init_console();
+    kwrite((char *)"Kernel Booting ...\n\n", 22, RED);
     print_init("graphics", 1);
     print_init("console", 1);
     init_uart();
@@ -40,20 +43,20 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
     init_interrupts();
     print_init("interrupts", 1);
 
-    kwrite((char *)"\n\nKernel Booting ", 17, RED);
+    kwrite("\n\n", 2, WHITE);
 
     //Stay alive...
-    uint32_t i = 0;
-    while (1)
+    uint32_t i = gettick();
+    while (state)
     {
-        if (i == 3)
+        if (i != gettick())
         {
-            i = -1;
-            kwrite("\b\b\b", 3, WHITE);
+            i = gettick();
+            char *time = itoa(i, 10);
+            kwrite(time, strlen(time), WHITE);
+            kwrite("\n", 1, WHITE);
         }
-        else
-            kwrite(".", 1, BLUE);
-        wait(HUMAN_TIME);
-        i++;
     }
+
+    kwrite("*** SYSTEM HALTING ***\n", 23, RED);
 }

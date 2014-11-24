@@ -1,19 +1,11 @@
 #include "../include/interrupts.h"
 
-static volatile uint32_t *irq1 = (uint32_t *)(IRQ_BASE + IRQ1);
-static volatile uint32_t *irq2 = (uint32_t *)(IRQ_BASE + IRQ2);
 static volatile uint32_t *irqbase = (uint32_t *)(IRQ_BASE + BASE);
 
 static volatile uint32_t *timerload = (uint32_t *)(IRQ_BASE + TMLOAD);
-static volatile uint32_t *timervalue = (uint32_t *)(IRQ_BASE + TMVAL);
 static volatile uint32_t *timerctrl = (uint32_t *)(IRQ_BASE + TMCTRL);
 static volatile uint32_t *timerclear = (uint32_t *)(IRQ_BASE + TMCLR);
-
-void treat_reset(void)
-{
-    kwrite("Bad Exception handled: RESET!\n", 30, RED);
-    while (1) {}
-}
+static uint32_t tick = 0; //Represents approximatively the number of seconds since the interrupts init.
 
 void treat_undef(void)
 {
@@ -51,9 +43,9 @@ void treat_pref_abort(void)
     asm volatile ("mov %[addr], lr"
                  : [addr]"=r"(addr));
 
-    kwrite("PREF\n", 5, BLUE);
+    kwrite("PREFETCH ABORT!\n", 16, BLUE);
 
-    //endloop?
+    while (1) {};
 }
 
 void treat_data_abort(void) 
@@ -65,12 +57,25 @@ void treat_data_abort(void)
     asm volatile("mrc p15, 0, %[addr], c6, c0, 0"
                  : [addr]"=r"(fault_addr));
 
-    kwrite("DATA\n", 5, BLUE);
+    kwrite("DATA ABORT!\n", 12, BLUE);
+    while (1) {}
 }
 
 void treat_irq(void) 
 {
-    *timerclear = 0;
+    static int i = 0;
+    i++;
+    if (i == 4)
+    {
+        i = 0;
+        tick++;
+    }
+    *timerclear = 1; //Will be modified if another IRQ needed.
+}
+
+uint32_t gettick(void)
+{
+    return tick;
 }
 
 extern void vector();
@@ -84,7 +89,4 @@ void init_interrupts(void)
     *irqbase = BASEVAL;
     *timerload = LOADVAL;
     *timerctrl = CTRLVAL;
-    DO_NOTHING_WITH(irq1);
-    DO_NOTHING_WITH(irq2);
-    DO_NOTHING_WITH(timervalue);
 }

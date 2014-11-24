@@ -5,6 +5,7 @@
 # include "mmio.h"
 # include "common.h"
 
+/* Usefull defines for graphic driver. */
 # define MAILBOX_ADDR    0x2000B880
 
 # define MAILBOX_READ    0x00
@@ -26,6 +27,7 @@
 # define FONT_SIZE       16
 # define CHAR_SIZE       8
 
+/* Colors */
 # define BLACK 0x000000
 # define WHITE 0xFFFFFF
 # define RED   0xFF0000
@@ -33,6 +35,7 @@
 # define BLUE  0x0000FF
 # define BCKG  BLACK
 
+/* RGB structure */
 typedef struct color
 {
     uint8_t r;
@@ -40,6 +43,7 @@ typedef struct color
     uint8_t b;
 } s_color;
 
+/* Structure which represents the rpi framebuffer */
 typedef struct framebuffer
 {
     uint32_t width;
@@ -54,8 +58,10 @@ typedef struct framebuffer
     uint32_t size;
 } s_fb;
 
+/* Then its instantiation! */
 s_fb *fb;
 
+/* External functions... */
 void send_to_mailbox(uint8_t chan, uint32_t data);
 uint32_t verify_mailbox(uint8_t chan);
 int init_graphics(void);

@@ -22,6 +22,7 @@ static inline void wait(uint32_t ncycles)
         asm volatile ("mov r0, r0");
 }
 
+/* Some usefull functions... */
 uint32_t strlen(char *str);
 char *itoa(int val, int base);
 
