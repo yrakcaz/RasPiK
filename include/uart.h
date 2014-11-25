@@ -31,6 +31,7 @@
 # define TDR_UART    (BASE_UART + 0x8C)
 
 /* Usefull defines for UART driver. */
+# define DISABLE_1415        (1 << 14) | (1 << 15)
 # define CLEAR_INTERRUPTS    0x7FF
 # define UART_DIVIDER        1
 # define UART_FRAC_PART_REG  40

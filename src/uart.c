@@ -10,7 +10,7 @@ void init_uart(void)
     wait(DELAY);
 
     // Disabling pin 14 and 15
-    write_mmio(GPPUDCLK0, (1 << 14) | (1 << 15));
+    write_mmio(GPPUDCLK0, DISABLE_1415);
     wait(DELAY);
 
     // Make it takin' effect

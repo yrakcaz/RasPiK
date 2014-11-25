@@ -6,7 +6,7 @@
 # include "mem.h"
 
 /* Shut up compiler! */
-#define DO_NOTHING_WITH(X) (void)(X)
+# define DO_NOTHING_WITH(X) (void)(X)
 
 /* Masks */
 # define MASK32     0x00000000
