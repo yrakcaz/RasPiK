@@ -35,7 +35,7 @@ static void scroll(void)
     }
 }
 
-int kwrite(const char *str, uint32_t size, uint32_t color)
+int write_console(const char *str, uint32_t size, uint32_t color)
 {
     int i;
     for (i = 0; i < size && str[i]; i++)

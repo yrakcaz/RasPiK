@@ -1,6 +1,12 @@
 TODO:
 =====
 
+FOR REAL DEVICE :
+/!\ FIX HALT!!
+/!\ FIX Interrupts!!
+/!\ OPTI SCROLLING!!
+
+
 -> Graphics                                 DONE (Add eventually other drawing funcs, more comments..)
 
 -> Console                                  DONE (More comments?)

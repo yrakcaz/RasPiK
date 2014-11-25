@@ -2,26 +2,27 @@
 #include "../include/console.h"
 #include "../include/mem.h"
 #include "../include/interrupts.h"
+#include "../include/atags.h"
 
 //Time delay which a human can feel...
 #define HUMAN_TIME 100000000
 
 static void print_init(const char *module, int success)
 {
-    kwrite("[", 1, WHITE);
+    write_console("[", 1, WHITE);
     if (success)
-        kwrite("OK", 2, GREEN);
+        write_console("OK", 2, GREEN);
     else
-        kwrite("KO", 2, RED);
-    kwrite("]\t\t", 3, WHITE);
-    kwrite("Module ", 7, WHITE);
-    kwrite(module, strlen((char *)module), WHITE);
-    kwrite(" initialization.\n", 17, WHITE);
-    wait(HUMAN_TIME);
+        write_console("KO", 2, RED);
+    write_console("]\t\t", 3, WHITE);
+    write_console("Module ", 7, WHITE);
+    write_console(module, strlen((char *)module), WHITE);
+    write_console(" initialization.\n", 17, WHITE);
+    wait(HUMAN_TIME / 100);
 }
 
 //Kernel entry_point...
-void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
+void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 {
     uint32_t state = 1;
 
@@ -33,7 +34,7 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
     if (!init_graphics())
         return;
     init_console();
-    kwrite((char *)"Kernel Booting ...\n\n", 22, RED);
+    write_console((char *)"Kernel Booting ...\n\n", 22, RED);
     print_init("graphics", 1);
     print_init("console", 1);
     init_uart();
@@ -41,7 +42,7 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
     init_interrupts();
     print_init("interrupts", 1);
 
-    kwrite("\n\n", 2, WHITE);
+    write_console("\n\n", 2, WHITE);
 
     //Stay alive...
     uint32_t i = gettick();
@@ -51,12 +52,12 @@ void k_start(uint32_t r0, uint32_t r1, uint32_t atags)
         {
             i = gettick();
             char *time = itoa(i, 10);
-            kwrite(time, strlen(time), WHITE);
-            kwrite("\n", 1, WHITE);
+            write_console(time, strlen(time), WHITE);
+            write_console("\n", 1, WHITE);
             if (i == 10)
                 state = 0;
         }
     }
 
-    kwrite("\n\n*** SYSTEM HALTING ***\n", 23, RED);
+    write_console("\n\n*** SYSTEM HALTING ***\n", 23, RED);
 }

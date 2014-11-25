@@ -1,6 +1,6 @@
 CROSS_PREFIX ?= /usr/local/cross/bin/arm-linux-
 ASM_SRC := src/asm/boot.S src/asm/interrupts.S src/asm/mem.S
-C_SRC := src/common.c src/graphics.c src/uart.c src/console.c src/mem.c src/interrupts.c src/main.c
+C_SRC := src/common.c src/graphics.c src/uart.c src/console.c src/mem.c src/interrupts.c src/atags.c src/main.c
 OBJ := $(ASM_SRC:.S=.o)
 OBJ += $(C_SRC:.c=.o)
 LINK := src/rpi-link.ld
@@ -56,3 +56,6 @@ boot: kernel.elf
 
 debug: kernel.elf
 	qemu-system-arm -s -S -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio
+
+install: kernel.img
+	$(SHELL) scripts/script.sh

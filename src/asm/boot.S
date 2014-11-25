@@ -2,9 +2,6 @@
 .globl start
 
 start:
-    //We just want to ensure that r0, r1 and r2 will not change before calling k_start.
-    push {r0, r1, r2}
-
     mov r4, #0x8000
     cps #0x13
     add sp, r4, #0x2400
@@ -40,7 +37,6 @@ start:
 
     //Call kernel entry point
     ldr r3, =k_start
-    pop {r0, r1, r2}
     blx r3
 
 halt:

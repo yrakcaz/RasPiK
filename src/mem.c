@@ -15,7 +15,7 @@ void *sbrk(uint32_t increment)
 
     if (heap_end + increment > get_sp())
     {
-        kwrite ("Heap is full: abort!\n", 21, RED);
+        write_console ("Heap is full: abort!\n", 21, RED);
         while (1) {}
     }
 
