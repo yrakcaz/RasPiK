@@ -15,16 +15,16 @@ FOR REAL DEVICE :
 
 -> Interrupts                               DONE (With only timer irq handled)
 
--> File system (Probably ext2 or ext4)
+-> Virtual File system
 
--> Syscalls?
+-> Syscalls
 
 -> Drivers (GPIO, keyboard, mouse, leds...)
 
 -> Execution
 
--> User/Kernel?
+-> Multitasking
 
--> Multitasking?
+-> User/Kernel?
 
 -> Clear utils.c!!!!!!
