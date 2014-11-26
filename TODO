@@ -15,11 +15,15 @@ FOR REAL DEVICE :
 
 -> Interrupts                               DONE (With only timer irq handled)
 
+-> GPIO                                     DONE
+
+-> SD card
+
 -> Virtual File system
 
 -> Syscalls
 
--> Drivers (GPIO, keyboard, mouse, leds...)
+-> Drivers (keyboard, mouse, leds...)
 
 -> Execution
 
