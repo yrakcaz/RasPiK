@@ -1,4 +1,4 @@
-#include "../include/atags.h"
+#include "atags.h"
 
 static void print_afield(const char *name, uint32_t value)
 {

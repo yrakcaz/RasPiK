@@ -25,7 +25,7 @@ WARNFLAGS   += -Wwrite-strings -Wdisabled-optimization -Wpointer-arith
 WARNFLAGS   += -Werror
 SFLAGS      := $(INCLUDES) $(DEPENDFLAGS) -D__ASSEMBLY__
 CFLAGS      := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
-CFLAGS      += -std=gnu99
+CFLAGS      += -I./include -std=gnu99
 LDFLAGS     := -L/usr/local/cross/lib/gcc/arm-bcm2708hardfp-linux-gnueabi/4.7.1 -lgcc
 
 include $(DFILES)

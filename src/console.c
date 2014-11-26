@@ -1,4 +1,4 @@
-#include "../include/console.h"
+#include "console.h"
 
 static void clear_console(void)
 {

@@ -1,4 +1,4 @@
-#include "../include/interrupts.h"
+#include "interrupts.h"
 
 static volatile uint32_t *irqbase = (uint32_t *)(IRQ_BASE + BASE);
 

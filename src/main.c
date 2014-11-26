@@ -1,8 +1,8 @@
-#include "../include/uart.h"
-#include "../include/console.h"
-#include "../include/mem.h"
-#include "../include/interrupts.h"
-#include "../include/atags.h"
+#include "uart.h"
+#include "console.h"
+#include "mem.h"
+#include "interrupts.h"
+#include "atags.h"
 
 //Time delay which a human can feel...
 # define HUMAN_TIME 100000000

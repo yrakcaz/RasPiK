@@ -1,4 +1,4 @@
-#include "../include/graphics.h"
+#include "graphics.h"
 
 uint8_t fonts[] =
 {

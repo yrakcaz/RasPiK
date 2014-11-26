@@ -1,4 +1,4 @@
-#include "../include/mem.h"
+#include "mem.h"
 
 extern char *get_sp();
 
