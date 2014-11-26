@@ -5,7 +5,7 @@
 #include "../include/atags.h"
 
 //Time delay which a human can feel...
-#define HUMAN_TIME 100000000
+# define HUMAN_TIME 100000000
 
 static void print_init(const char *module, int success)
 {
@@ -18,7 +18,7 @@ static void print_init(const char *module, int success)
     write_console("Module ", 7, WHITE);
     write_console(module, strlen((char *)module), WHITE);
     write_console(" initialization.\n", 17, WHITE);
-    wait(HUMAN_TIME / 100);
+    wait(HUMAN_TIME);
 }
 
 //Kernel entry_point...
@@ -28,7 +28,6 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 
     DO_NOTHING_WITH(r0);
     DO_NOTHING_WITH(r1);
-    DO_NOTHING_WITH(atags);
 
     //Initializations
     if (!init_graphics())
@@ -43,6 +42,8 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_init("interrupts", 1);
 
     write_console("\n\n", 2, WHITE);
+
+    DO_NOTHING_WITH(atags);
 
     //Stay alive...
     uint32_t i = gettick();

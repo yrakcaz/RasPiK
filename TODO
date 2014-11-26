@@ -19,7 +19,7 @@ FOR REAL DEVICE :
 
 -> Syscalls?
 
--> Drivers
+-> Drivers (GPIO, keyboard, mouse, leds...)
 
 -> Execution
 
