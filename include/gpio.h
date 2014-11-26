@@ -21,9 +21,12 @@
 # define GPIOP1_24 8
 # define GPIOP1_26 7
 
-# define STCLO  0x0004
-# define FSELIN 0b000
-# define FSELOU 0b001
+# define STCLO   0x0004
+# define FSELIN  0b000
+# define FSELOUT 0b001
+
+# define HI      0x1
+# define LO      0x0
 
 typedef struct gpio
 {
@@ -67,7 +70,7 @@ s_gpio *gpio = (s_gpio *)BASE_GPIO;
 extern void fsel_gpio(uint8_t pin, uint8_t mode);
 void set_gpio(uint8_t pin);
 void clr_gpio(uint8_t pin);
-void lev_gpio(uint8_t pin);
+uint8_t lev_gpio(uint8_t pin);
 void gpio_write(uint8_t pin, uint8_t on);
 
 #endif /* !GPIO_H */

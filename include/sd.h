@@ -1,6 +1,8 @@
 #ifndef SD_H
 # define SD_H
 
+# include "gpio.h"
+
 /* Return values */
 # define SUCCESS 0
 # define ERROR   1
