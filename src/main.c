@@ -5,7 +5,7 @@
 #include "atags.h"
 
 //Time delay which a human can feel...
-# define HUMAN_TIME 100000000
+# define HUMAN_TIME 1000000
 
 static void print_init(const char *module, int success)
 {

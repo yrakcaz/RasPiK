@@ -15,11 +15,13 @@
 /* Status */
 # define ERROR32    0xFFFFFFFF
 
-/* Loop ncycles processor cycles doing anything. */
-static inline void wait(uint32_t ncycles)
+extern uint64_t st_read(void);
+extern void st_delay(uint64_t offset, uint64_t musec);
+
+/* Loop musec microseconds doing anything. */
+static inline void wait(uint64_t musec)
 {
-    while (ncycles-- > 0)
-        asm volatile ("mov r0, r0");
+    st_delay(st_read(), musec);
 }
 
 /* Some usefull functions... */
