@@ -22,3 +22,8 @@ void *sbrk(uint32_t increment)
     heap_end += increment;
     return previous_heap_end;
 }
+
+void *kmalloc(uint32_t size)
+{
+    return sbrk(size);
+}

@@ -1,5 +1,5 @@
-#ifndef COMMON_H
-# define COMMON_H
+#ifndef UTILS_H
+# define UTILS_H
 
 # include <stdint.h>
 # include "console.h"
@@ -26,4 +26,4 @@ static inline void wait(uint32_t ncycles)
 uint32_t strlen(char *str);
 char *itoa(int val, int base);
 
-#endif /* !COMMON_H */
+#endif /* !UTILS_H */

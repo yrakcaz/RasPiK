@@ -1,4 +1,4 @@
-#include "../include/common.h"
+#include "../include/utils.h"
 
 uint32_t strlen(char *str)
 {
@@ -42,7 +42,7 @@ char *itoa(int val, int base)
 {
     int i = 0;
     int neg = 0;
-    char *str = sbrk(numlen(val) + 1);
+    char *str = kmalloc(numlen(val) + 1);
     if (!val)
     {
         str[i++] = '0';

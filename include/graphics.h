@@ -3,7 +3,7 @@
 
 # include <stdint.h>
 # include "mmio.h"
-# include "common.h"
+# include "utils.h"
 
 /* Usefull defines for graphic driver. */
 # define MAILBOX_ADDR    0x2000B880

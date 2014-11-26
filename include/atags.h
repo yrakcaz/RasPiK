@@ -98,6 +98,5 @@ typedef struct acmd
 
 /* External atags functions. */
 void print_atags(s_aheader *atags);
-uint32_t get_root(void);
 
 #endif /* !ATAGS_H */

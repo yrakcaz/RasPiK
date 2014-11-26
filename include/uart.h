@@ -2,7 +2,7 @@
 # define UART_H
 
 # include "mmio.h"
-# include "common.h"
+# include "utils.h"
 
 /* Define GPIO addresses. */
 # define BASE_GPIO   0x20200000

@@ -13,5 +13,6 @@
 # define NULL 0x00000000
 
 void *sbrk(uint32_t increment);
+void *kmalloc(uint32_t size);
 
 #endif /* !MEM_H */
