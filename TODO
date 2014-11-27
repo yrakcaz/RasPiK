@@ -15,20 +15,16 @@ FOR REAL DEVICE :
 
 -> Interrupts                               DONE (With only timer irq handled)
 
--> GPIO                                     DONE
-
--> SD card
-
 -> Virtual File system
 
 -> Syscalls
 
--> Drivers (keyboard, mouse, leds...)
+-> Drivers (GPIO, SD, USB, Ethernet, leds...)
 
--> Execution
+-> Execution / Processes
 
--> Multitasking
+-> Multitasking (Scheduler)
 
 -> User/Kernel?
 
--> Clear utils.c!!!!!!
+-> Clear!

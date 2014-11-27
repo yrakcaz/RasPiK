@@ -3,7 +3,6 @@
 #include "mem.h"
 #include "interrupts.h"
 #include "atags.h"
-#include "sd.h"
 
 //Time delay which a human can feel...
 # define HUMAN_TIME 1000000
