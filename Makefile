@@ -1,10 +1,13 @@
 CROSS_PREFIX ?= /usr/local/cross/bin/arm-linux-
 ASM_SRC := src/asm/boot.S src/asm/interrupts.S src/asm/utils.S
-C_SRC := src/utils.c src/graphics.c src/uart.c src/gpio.c src/console.c src/mem.c src/interrupts.c src/atags.c src/main.c
+C_SRC := src/utils.c src/graphics.c src/uart.c src/gpio.c src/console.c \
+		 src/sd.c src/mem.c src/interrupts.c src/atags.c src/main.c
 OBJ := $(ASM_SRC:.S=.o)
 OBJ += $(C_SRC:.c=.o)
 LINK := src/rpi-link.ld
 DFILES := $(shell find . -type f -name '*.d')
+
+QEMU := 1
 
 DEPENDFLAGS := -MD -MP
 INCLUDES    := -I include
@@ -46,7 +49,11 @@ distclean: clean
 	rm -f $(DFILES) makefile.rules
 
 %.o: %.c
+ifeq ($(QEMU), 1)
+	$(CROSS_PREFIX)gcc -DQEMU $(CFLAGS) -c $< -o $@
+else
 	$(CROSS_PREFIX)gcc $(CFLAGS) -c $< -o $@
+endif
 
 %.o: %.S
 	$(CROSS_PREFIX)gcc $(SFLAGS) -c $< -o $@
@@ -54,8 +61,14 @@ distclean: clean
 boot: kernel.elf
 	qemu-system-arm -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio
 
-debug: kernel.elf
+debug: distclean
+	./configure --with-debug
+	$(MAKE) -C ./ _debug
+
+_debug: kernel.elf
 	qemu-system-arm -s -S -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio
 
 install: kernel.img
 	$(SHELL) scripts/script.sh
+
+.PHONY: kernel.elf kernel.img configure

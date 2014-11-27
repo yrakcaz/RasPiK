@@ -3,6 +3,7 @@
 #include "mem.h"
 #include "interrupts.h"
 #include "atags.h"
+#include "sd.h"
 
 //Time delay which a human can feel...
 # define HUMAN_TIME 1000000
@@ -38,12 +39,21 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_init("console", 1);
     init_uart();
     print_init("UART", 1);
+#ifdef QEMU //Debug it before use it on real device.
     init_interrupts();
     print_init("interrupts", 1);
+#else
+    print_init("interrupts", 0);
+#endif
+    print_init("sdcard", init_sd(0));
 
     write_console("\n\n", 2, WHITE);
 
+#ifdef QEMU
     DO_NOTHING_WITH(atags);
+#else
+    print_atags(atags);
+#endif
 
     //Stay alive...
     uint32_t i = gettick();
@@ -55,10 +65,6 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
             char *time = itoa(i, 10);
             write_console(time, strlen(time), WHITE);
             write_console("\n", 1, WHITE);
-            if (i == 10)
-                state = 0;
         }
     }
-
-    write_console("\n\n*** SYSTEM HALTING ***\n", 23, RED);
 }

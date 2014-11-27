@@ -1,7 +1,7 @@
 #include "sd.h"
 
-static int status = NOTINIT;
-static int type;
+static int sd_status = NOTINIT;
+static int sd_type;
 
 static void port_init(void)
 {
@@ -104,7 +104,7 @@ static int select_sd(void)
     return 0;
 }
 
-static int receive_sdblock(uint8_t *buff, uint32_t count)
+/*static*/ int receive_sdblock(uint8_t *buff, uint32_t count)
 {
     uint8_t val[2];
     volatile uint32_t *stclo = (uint32_t *)STCLO;
@@ -122,7 +122,7 @@ static int receive_sdblock(uint8_t *buff, uint32_t count)
     return 1;
 }
 
-static int transmit_sdblock(const uint8_t *buff, uint8_t tok)
+/*static*/ int transmit_sdblock(const uint8_t *buff, uint8_t tok)
 {
     uint8_t val[2];
     if (!wait_sd())
@@ -161,7 +161,7 @@ static uint8_t send_sdcommand(uint8_t cmd, uint32_t arg)
     n = 0x01;
     if (cmd == CMD0)
         n = 0x95;
-    if (cmd = CMD8)
+    if (cmd == CMD8)
         n = 0x87;
     buff[5] = n;
     transmit_sd(buff, 6);
@@ -174,4 +174,67 @@ static uint8_t send_sdcommand(uint8_t cmd, uint32_t arg)
     return val;
 }
 
-/* EXTERNALS TO BE DONE! */
+int init_sd(uint8_t drive)
+{
+    uint8_t val, type, cmd, buff[4];
+    uint32_t timer;
+
+    if (drive)
+        return NOTRDY;
+    port_init();
+    set_gpio(GPIOP1_07);
+    for (int i = 0; i < 10; i++)
+        receive_sd(&val, 1);
+    clr_gpio(GPIOP1_07);
+    receive_sd(&val, 1);
+    receive_sd(&val, 1);
+    type = 0;
+
+    if (send_sdcommand(CMD0, 0) == 1)
+    {
+        if (send_sdcommand(CMD8, 0x1AA) == 1)
+        {
+            receive_sd(buff, 4);
+            if (buff[2] == 0x01 && buff[3] == 0xAA)
+            {
+                for (timer = 1000; timer > 0; timer--)
+                {
+                    if (!send_sdcommand(ACMD41, 1UL << 30))
+                        break;
+                    wait(1000);
+                }
+                if (timer && !send_sdcommand(CMD58, 0))
+                {
+                    receive_sd(buff, 4);
+                    type = (buff[0] & 0x40) ? SD2 | BLK : SD2;
+                }
+            }
+        }
+        else
+        {
+            if (send_sdcommand(ACMD41, 0) <= 1)
+            {
+                type = SD1;
+                cmd = ACMD41;
+            }
+            else
+            {
+                type = MMC;
+                cmd = CMD1;
+            }
+            for (timer = 1000; timer > 0; timer--)
+            {
+                if (!send_sdcommand(cmd, 0))
+                    break;
+                wait(1000);
+            }
+            if (!timer || send_sdcommand(CMD16, 512))
+                type = 0;
+        }
+    }
+
+    sd_type = type;
+    sd_status = type ? 0 : NOTINIT;
+    unselect_sd();
+    return sd_status;
+}

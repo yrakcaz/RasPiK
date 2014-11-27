@@ -1,5 +1,7 @@
 #include "gpio.h"
 
+static s_gpio *gpio = (s_gpio *)BASE_GPIO;
+
 void set_gpio(uint8_t pin)
 {
     gpio->set0 = (1 << pin);

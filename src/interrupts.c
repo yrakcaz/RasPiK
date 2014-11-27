@@ -25,7 +25,7 @@ void treat_fiq(void)
     while (1) {}
 }
 
-void treat_swi(void) 
+void treat_swi(void)
 {
     uint32_t addr;
     uint32_t number;
@@ -37,7 +37,7 @@ void treat_swi(void)
     write_console("SWI\n", 4, BLUE);
 }
 
-void treat_pref_abort(void) 
+void treat_pref_abort(void)
 {
     uint32_t addr;
     asm volatile ("mov %[addr], lr"
@@ -48,7 +48,7 @@ void treat_pref_abort(void)
     while (1) {};
 }
 
-void treat_data_abort(void) 
+void treat_data_abort(void)
 {
     uint32_t addr, fault_addr;
 
@@ -61,7 +61,7 @@ void treat_data_abort(void)
     while (1) {}
 }
 
-void treat_irq(void) 
+void treat_irq(void)
 {
     static int i = 0;
     i++;
