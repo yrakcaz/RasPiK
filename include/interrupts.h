@@ -3,6 +3,7 @@
 
 # include "console.h"
 # include "mem.h"
+# include "syscall.h"
 
 /* Usefull defines for interrupts.. */
 # define IRQ_BASE 0x2000B000

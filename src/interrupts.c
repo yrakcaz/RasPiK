@@ -25,16 +25,13 @@ void treat_fiq(void)
     while (1) {}
 }
 
+extern void syscall_handler(uint32_t addr);
+
 void treat_swi(void)
 {
-    uint32_t addr;
-    uint32_t number;
-
-    asm volatile ("mov %[addr], lr"
-                  : [addr]"=r"(addr));
-    addr -= 4;
-    number = *((uint32_t *)addr) & 0x00FFFFFF;
-    write_console("SWI\n", 4, BLUE);
+    uint32_t number = 0;
+    asm volatile ("ldrb %0, [lr, #-2]" : "=r" (number));
+    syscall_handler(syscall_table[number]);
 }
 
 void treat_pref_abort(void)

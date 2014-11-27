@@ -3,6 +3,7 @@
 #include "mem.h"
 #include "interrupts.h"
 #include "atags.h"
+#include "syscall.h"
 
 //Time delay which a human can feel...
 # define HUMAN_TIME 1000000
@@ -70,6 +71,10 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 #else
     print_init("interrupts", 0);
 #endif
+    init_syscalls();
+    print_init("syscalls", 1);
+
+    asm volatile ("SWI #1");
 
     write_console("\n\n", 2, WHITE);
 

@@ -15,12 +15,19 @@ vector:
     // Interrupts vector
     b treat_reset
     b treat_undef
-    b treat_swi
+    b swi_handler
     b treat_pref_abort
     b treat_data_abort
     b treat_unused
     b irq_handler
     b treat_fiq
+
+swi_handler:
+    // Save and restore context before and after irq handling
+    stmfd sp!, {r0,r1,r2,r3,r4,r14}
+    bl treat_swi
+    ldmfd sp!, {r0,r1,r2,r3,r4,pc}^
+    bx lr
 
 irq_handler:
     // Save and restore context before and after irq handling
