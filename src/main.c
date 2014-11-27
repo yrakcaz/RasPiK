@@ -22,6 +22,32 @@ static void print_init(const char *module, int success)
     wait(HUMAN_TIME);
 }
 
+static void draw_star(void)
+{
+    static int i = 0;
+    switch (i)
+    {
+        case 0:
+            write_console("-", 1, RED);
+            break;
+        case 1:
+            write_console("\\", 1, GREEN);
+            break;
+        case 2:
+            write_console("|", 1, BLUE);
+            break;
+        case 3:
+            write_console("/", 1, WHITE);
+            i = -1;
+            break;
+        default:
+            break;
+    }
+    wait(HUMAN_TIME / 3);
+    write_console("\b", 1, WHITE);
+    i++;
+}
+
 //Kernel entry_point...
 void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 {
@@ -45,7 +71,7 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 #else
     print_init("interrupts", 0);
 #endif
-    print_init("sdcard", init_sd(0));
+    print_init("sdcard", !init_sd(0));
 
     write_console("\n\n", 2, WHITE);
 
@@ -56,15 +82,6 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 #endif
 
     //Stay alive...
-    uint32_t i = gettick();
     while (state)
-    {
-        if (i != gettick())
-        {
-            i = gettick();
-            char *time = itoa(i, 10);
-            write_console(time, strlen(time), WHITE);
-            write_console("\n", 1, WHITE);
-        }
-    }
+        draw_star();
 }
