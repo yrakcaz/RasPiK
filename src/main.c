@@ -71,7 +71,6 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 #else
     print_init("interrupts", 0);
 #endif
-    print_init("sdcard", !init_sd(0));
 
     write_console("\n\n", 2, WHITE);
 

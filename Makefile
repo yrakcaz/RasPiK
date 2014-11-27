@@ -1,7 +1,7 @@
 CROSS_PREFIX ?= /usr/local/cross/bin/arm-linux-
 ASM_SRC := src/asm/boot.S src/asm/interrupts.S src/asm/utils.S
 C_SRC := src/utils.c src/graphics.c src/uart.c src/gpio.c src/console.c \
-		 src/sd.c src/mem.c src/interrupts.c src/atags.c src/main.c
+		 src/mem.c src/interrupts.c src/atags.c src/main.c
 OBJ := $(ASM_SRC:.S=.o)
 OBJ += $(C_SRC:.c=.o)
 LINK := src/rpi-link.ld
