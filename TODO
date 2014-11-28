@@ -11,7 +11,7 @@ FOR REAL DEVICE :
 
 -> Console                                  DONE (More comments?)
 
--> Memory management                        DONE (TO MUCH SIMPLE, CHANGE IT!) + Comments..
+-> Memory management                        DONE
 
 -> Interrupts                               DONE (With only timer irq handled)
 
