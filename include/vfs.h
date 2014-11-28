@@ -19,6 +19,8 @@
 # define FILE      1
 # define EXEC      2
 
+# define EOF       -1
+
 /* Virtual file system structures */
 
 typedef struct vfsinode
@@ -32,6 +34,7 @@ typedef struct vfsinode
 typedef struct vfsfile
 {
     const char *name;
+    uint32_t size;
     char *data;
 } s_vfsfile;
 
@@ -84,6 +87,8 @@ int write(int fd, const char *buff, uint32_t size);
 int read(int fd, const char *buff, uint32_t size);
 int seek(int fd, uint32_t offset, int whence);
 int close(int fd);
+
+//Stat/getsize??
 
 void print_vfs(void);                                         //DONE
 
