@@ -66,3 +66,11 @@ char *itoa(int val, int base)
     reverse(str);
     return str;
 }
+
+extern uint64_t st_read(void);
+extern void st_delay(uint64_t offset, uint64_t musec);
+
+void wait(uint64_t musec)
+{
+    st_delay(st_read(), musec);
+}

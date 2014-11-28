@@ -4,7 +4,9 @@ static void print_afield(const char *name, uint32_t value)
 {
     write_console(name, strlen((char *)name), WHITE);
     write_console(": 0x", 4, WHITE);
-    write_console(itoa(value, 16), strlen(itoa(value, 16)), WHITE);
+    char *addr = itoa(value, 16);
+    write_console(addr, strlen(addr), WHITE);
+    kfree(addr);
     write_console("\n", 1, WHITE);
 }
 

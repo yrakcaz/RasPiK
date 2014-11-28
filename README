@@ -11,3 +11,6 @@ a GPIO driver, a File System, and a binary execution, to try to drive some
 hardware with it then rate perfs.
 
 Use make boot to try it into qemu.
+
+PS : During the developpement, I will make it works only on QEMU, then I'll fix
+     everything on real device.
