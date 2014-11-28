@@ -74,7 +74,8 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     init_syscalls();
     print_init("syscalls", 1);
 
-    asm volatile ("SWI #1");
+    // Syscall test :
+    asm volatile ("swi #1");
 
     write_console("\n\n", 2, WHITE);
 

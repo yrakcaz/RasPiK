@@ -17,14 +17,14 @@ FOR REAL DEVICE :
 
 -> Virtual File system
 
--> Syscalls
+-> Syscalls - Kernel                        DONE
+
+-> Syscalls - User
 
 -> Drivers (GPIO, SD, USB, Ethernet, leds...)
 
 -> Execution / Processes
 
 -> Multitasking (Scheduler)
-
--> User/Kernel?
 
 -> Clear!

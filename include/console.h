@@ -22,6 +22,6 @@ s_console *console;
 
 /* External functions... */
 void init_console(void);
-int write_console(const char *str, uint32_t size, uint32_t color);
+void write_console(const char *str, uint32_t size, uint32_t color);
 
 #endif /* !CONSOLE_H */

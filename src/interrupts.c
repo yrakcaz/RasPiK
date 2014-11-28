@@ -27,11 +27,11 @@ void treat_fiq(void)
 
 extern void syscall_handler(uint32_t addr);
 
-void treat_swi(void)
+void treat_swi(int r0, int r1, int r2, int r3)
 {
     uint32_t number = 0;
     asm volatile ("ldrb %0, [lr, #-2]" : "=r" (number));
-    syscall_handler(syscall_table[number]);
+    ((funcptr)syscall_table[number])(r0, r1, r2, r3);
 }
 
 void treat_pref_abort(void)

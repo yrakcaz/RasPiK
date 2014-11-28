@@ -24,6 +24,8 @@
 
 # define CTRLVAL  (BITS23 | PRE256 | INTEN | ENABLE)
 
+typedef void (*funcptr)(int, int, int, int);
+
 /* Initialization */
 void init_interrupts(void);
 
@@ -33,7 +35,7 @@ void treat_unused(void);
 void treat_fiq(void);
 
 /* Other interrupts */
-void treat_swi(void);
+void treat_swi(int r0, int r1, int r2, int r3);
 void treat_pref_abort(void);
 void treat_data_abort(void);
 void treat_irq(void);

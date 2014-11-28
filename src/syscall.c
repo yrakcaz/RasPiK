@@ -2,7 +2,7 @@
 
 static void fake_syscall(void)
 {
-    write_console("Syscall test!", 13, GREEN);
+    write_console("Syscall test successful!", 24, GREEN);
 }
 
 void init_syscalls(void)
