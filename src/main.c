@@ -4,6 +4,7 @@
 #include "interrupts.h"
 #include "atags.h"
 #include "syscall.h"
+#include "vfs.h"
 
 //Time delay which a human can feel...
 # define HUMAN_TIME 1000000
@@ -17,9 +18,10 @@ static void print_init(const char *module, int success)
         write_console("KO", 2, RED);
     write_console("]\t\t", 3, WHITE);
     write_console("Module ", 7, WHITE);
-    write_console(module, strlen((char *)module), WHITE);
+    write_console(module, strlen(module), WHITE);
     write_console(" initialization.\n", 17, WHITE);
-    wait(HUMAN_TIME);
+    //FIX IT!
+    //wait(HUMAN_TIME);
 }
 
 static void draw_star(void)
@@ -74,8 +76,8 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     init_syscalls();
     print_init("syscalls", 1);
 
-    // Syscall test :
-    asm volatile ("swi #1");
+    print_init("vfs", init_vfs());
+    print_vfs();
 
     write_console("\n\n", 2, WHITE);
 

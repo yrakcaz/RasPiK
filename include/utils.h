@@ -16,8 +16,9 @@
 # define ERROR32    0xFFFFFFFF
 
 /* Some usefull functions... */
-uint32_t strlen(char *str);
+uint32_t strlen(const char *str);
 char *itoa(int val, int base);
 void wait(uint64_t musec);
+char *strcat(const char *str1, const char *str2);
 
 #endif /* !UTILS_H */

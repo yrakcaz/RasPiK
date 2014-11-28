@@ -1,6 +1,6 @@
 #include "utils.h"
 
-uint32_t strlen(char *str)
+uint32_t strlen(const char *str)
 {
     uint32_t i = 0;
     while (str[i])
@@ -70,7 +70,20 @@ char *itoa(int val, int base)
 extern uint64_t st_read(void);
 extern void st_delay(uint64_t offset, uint64_t musec);
 
+//FIX IT!!
 void wait(uint64_t musec)
 {
     st_delay(st_read(), musec);
+}
+
+char *strcat(const char *str1, const char *str2)
+{
+    char *ret = kmalloc(strlen(str1) + strlen(str2) + 1);
+    int i = 0;
+    for (int j = 0; str1[j]; i++, j++)
+        ret[i] = str1[j];
+    for (int j = 0; str2[j]; i++, j++)
+        ret[i] = str2[j];
+    ret[i] = '\0';
+    return ret;
 }
