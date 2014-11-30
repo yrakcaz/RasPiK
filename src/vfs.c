@@ -89,7 +89,7 @@ static void print_vfsdir(s_vfsdir *dir, const char *path)
             write_console((dir->list)[i]->name, strlen((dir->list)[i]->name), BLUE);
             write_console(" ", 1, BLUE);
         }
-        else 
+        else
             print_vfsinode((dir->list)[i], name);
     }
     write_console("\n\n", 2, WHITE);

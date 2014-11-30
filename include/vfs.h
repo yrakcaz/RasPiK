@@ -84,6 +84,7 @@ int add_vfsentry(const char *path, int type, s_vfsinode *inode);
 int add_execentry(const char *path, int (*addr)(int, char **));
 int add_deventry(s_vfsdev *dev);
 int remove_vfsentry(const char *path);
+void print_vfs(void);                                         //DONE
 
 /* Syscalls */
 s_dir *opendir(const char *name);
@@ -94,14 +95,13 @@ void chdir(const char *path);                                 //DONE
 const char *get_pwd(void);                                    //DONE
 
 int open(const char *name, int mode);
-int write(int fd, const char *buff, uint32_t size);
-int read(int fd, const char *buff, uint32_t size);
 int seek(int fd, uint32_t offset, int whence);
-int ioctl(int fd, int op, void *args);
 int close(int fd);
 
-//Stat/getsize??
+int write(int fd, const char *buff, uint32_t size);
+int read(int fd, const char *buff, uint32_t size);
+int ioctl(int fd, int op, void *args);
 
-void print_vfs(void);                                         //DONE
+uint32_t stat(int fd); //Get file size?
 
 #endif /* !VFS_H */
