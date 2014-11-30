@@ -18,6 +18,8 @@ FOR REAL DEVICE :
 -> Interrupts                               DONE (With only timer irq handled)
 
 -> Virtual File system
+    |
+    ---> Deevices/Drivers -> modularity!
 
 -> Syscalls - Kernel                        DONE
 
