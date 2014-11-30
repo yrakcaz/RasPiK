@@ -4,6 +4,7 @@
 # include "mem.h"
 # include "console.h"
 # include "utils.h"
+# include "driver.h"
 
 /*
 ** We don't need more that this virtual file system for this bare-metal OS
@@ -18,6 +19,7 @@
 # define DIR       0
 # define FILE      1
 # define EXEC      2
+# define DEV       3
 
 # define EOF       -1
 
@@ -38,6 +40,13 @@ typedef struct vfsfile
     char *data;
 } s_vfsfile;
 
+typedef struct vfsdev
+{
+    const char *name;
+    void *addr;
+    s_driver *drv;
+} s_vfsdev;
+
 typedef struct vfsdir
 {
     const char *name;
@@ -48,7 +57,7 @@ typedef struct vfsdir
 typedef struct vfsexec
 {
     const char *name;
-    void (*addr)(void);
+    int (*addr)(int, char **);
 } s_vfsexec;
 
 /* File descriptor structure. */
@@ -71,7 +80,9 @@ typedef struct dir
 
 /* External functions */
 int init_vfs(void);                                           //DONE
-int add_vfsentry(const char *path, int type, void *addr);
+int add_vfsentry(const char *path, int type, s_vfsinode *inode);
+int add_execentry(const char *path, int (*addr)(int, char **));
+int add_deventry(s_vfsdev *dev);
 int remove_vfsentry(const char *path);
 
 /* Syscalls */
@@ -86,6 +97,7 @@ int open(const char *name, int mode);
 int write(int fd, const char *buff, uint32_t size);
 int read(int fd, const char *buff, uint32_t size);
 int seek(int fd, uint32_t offset, int whence);
+int ioctl(int fd, int op, void *args);
 int close(int fd);
 
 //Stat/getsize??
