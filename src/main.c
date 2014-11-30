@@ -20,8 +20,7 @@ static void print_init(const char *module, int success)
     write_console("Module ", 7, WHITE);
     write_console(module, strlen(module), WHITE);
     write_console(" initialization.\n", 17, WHITE);
-    //FIX IT!
-    //wait(HUMAN_TIME);
+    wait(HUMAN_TIME);
 }
 
 static void draw_star(void)

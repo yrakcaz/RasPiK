@@ -67,13 +67,14 @@ char *itoa(int val, int base)
     return str;
 }
 
-extern uint64_t st_read(void);
-extern void st_delay(uint64_t offset, uint64_t musec);
+//extern uint64_t st_read(void);
+//extern void st_delay(uint64_t offset, uint64_t musec);
 
 //FIX IT!!
 void wait(uint64_t musec)
 {
-    st_delay(st_read(), musec);
+    //st_delay(st_read(), musec);
+    DO_NOTHING_WITH(musec);
 }
 
 char *strcat(const char *str1, const char *str2)
