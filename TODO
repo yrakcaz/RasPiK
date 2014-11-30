@@ -19,7 +19,9 @@ FOR REAL DEVICE :
 
 -> Virtual File system
     |
-    ---> Deevices/Drivers -> modularity!
+    ---> Devices/Drivers -> modularity!
+    |
+    ---> Split VFS / stdio?
 
 -> Syscalls - Kernel                        DONE
 
