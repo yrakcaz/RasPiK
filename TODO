@@ -22,6 +22,10 @@ EVERYWHERE :
     ---> Devices/Drivers -> modularity!             DONE
     |
     ---> Split VFS / stdio?                         DONE
+    |
+    ---> File locking
+    |
+    ---> Finish mkdir and debug
 
 -> Syscalls - Kernel                                DONE (Check with argument and return values...)
 

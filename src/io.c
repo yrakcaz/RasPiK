@@ -98,11 +98,36 @@ int mkdir(const char *name)
 
     dir->name = inode->name;
 
-    //ADD . et .. !!!
-    dir->nbinodes = 0;
-    dir->list = NULL;
+    dir->nbinodes = 2;
+    dir->list = kmalloc(dir->nbinodes * sizeof (s_vfsinode *));
+
+    s_vfsinode *dot = kmalloc(sizeof (s_vfsinode));
+    if (!dot)
+    {
+        free_vfsinode(inode);
+        return 0;
+    }
+    s_vfsinode *doubledot = kmalloc(sizeof (s_vfsinode));
+    if (!doubledot)
+    {
+        kfree(dot);
+        free_vfsinode(inode);
+        return 0;
+    }
+
+    dot->inumber = inumber++;
+    doubledot->inumber = inumber++;
+    dot->type = DIR;
+    doubledot->type = DIR;
+    dot->name = ".";
+    doubledot->name = "..";
+    dot->node = (void *)dir;
+    doubledot->node = (void *)dir; //should be the parent dir
+
+    dir->list[0] = dot;
+    dir->list[1] = doubledot;
+
     inode->node = (void *)dir;
-    ///////////////////////////////////
 
     return add_vfsentry(path, inode);
 }
@@ -115,7 +140,5 @@ int init_io(void)
         dir_table[i] = NULL;
     if (!mkdir("/dev"))
         return 0;
-    //mkdir("/home");
-    //mkdir("/home/test");
     return 1;
 }

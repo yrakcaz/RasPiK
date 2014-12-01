@@ -256,7 +256,7 @@ static void print_vfsdir(s_vfsdir *dir, const char *path)
     }
     write_console("\n\n", 2, WHITE);
     for (int i = 2; i < dir->nbinodes; i++)
-        if ((dir->list)[i] == DIR)
+        if ((dir->list)[i]->type == DIR)
             print_vfsinode((dir->list)[i], name);
 }
 
