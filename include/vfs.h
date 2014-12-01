@@ -79,20 +79,20 @@ typedef struct dir
 } s_dir;
 
 /* External functions */
-int init_vfs(void);                                           //DONE
-int add_vfsentry(const char *path, int type, s_vfsinode *inode);
-int add_execentry(const char *path, int (*addr)(int, char **));
-int add_deventry(s_vfsdev *dev);
+int init_vfs(void);                                             //DONE
+int add_vfsentry(const char *path, s_vfsinode *inode);          //DONE (but need getdir);
+int add_execentry(const char *path, int (*addr)(int, char **)); //DONE
+int add_deventry(s_vfsdev *dev);                                //DONE
 int remove_vfsentry(const char *path);
-void print_vfs(void);                                         //DONE
+void print_vfs(void);                                           //DONE
 
 /* Syscalls */
 s_dir *opendir(const char *name);
 int createdir(const char *name);
 int closedir(s_dir directory);
 
-void chdir(const char *path);                                 //DONE
-const char *get_pwd(void);                                    //DONE
+void chdir(const char *path);                                   //DONE
+const char *get_pwd(void);                                      //DONE
 
 int open(const char *name, int mode);
 int seek(int fd, uint32_t offset, int whence);

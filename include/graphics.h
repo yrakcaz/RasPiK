@@ -28,12 +28,13 @@
 # define CHAR_SIZE       8
 
 /* Colors */
-# define BLACK 0x000000
-# define WHITE 0xFFFFFF
-# define RED   0xFF0000
-# define GREEN 0x00FF00
-# define BLUE  0x0000FF
-# define BCKG  BLACK
+# define BLACK  0x000000
+# define WHITE  0xFFFFFF
+# define RED    0xFF0000
+# define GREEN  0x00FF00
+# define BLUE   0x0000FF
+# define YELLOW 0xFFFF00
+# define BCKG   BLACK
 
 /* RGB structure */
 typedef struct color

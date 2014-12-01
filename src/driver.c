@@ -13,7 +13,10 @@ int add_driver(const char *name, void *addr, s_driver *drv)
     dev->drv = drv;
     ret = add_deventry(dev);
     if (!ret)
+    {
+        kfree(dev);
         return ret;
+    }
 
     drv->init(dev);
     return ret;

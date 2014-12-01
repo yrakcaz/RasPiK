@@ -20,5 +20,6 @@ uint32_t strlen(const char *str);
 char *itoa(int val, int base);
 void wait(uint64_t musec);
 char *strcat(const char *str1, const char *str2);
+int strcmp(const char *str1, const char *str2);
 
 #endif /* !UTILS_H */
