@@ -1,15 +1,9 @@
 #include "vfs.h"
 
-static int inumber = 0;
-static s_vfsinode vfsroot;
-
-//static s_fd fd_table[NBMAX_FD];
-//static s_dir dir_table[NBMAX_DIR];
-
-static const char *pwd = "/";
-
 int init_vfs(void)
 {
+    inumber = 0;
+
     vfsroot.inumber = inumber++;
     vfsroot.type = DIR;
     vfsroot.name = "/";
@@ -60,10 +54,41 @@ int init_vfs(void)
     return 1;
 }
 
+static s_vfsdir *getdir_rec(char *path, s_vfsdir *dir)
+{
+    char *name = kmalloc(strlen(path));
+    int i;
+    for (i = 0; path[i] != '/' && path[i] != '\0'; i++)
+        name[i] = path[i];
+    name[i] = '\0';
+    for (int j = 0; j < dir->nbinodes; j++)
+    {
+        if (strcmp(dir->list[j]->name, name))
+        {
+            kfree(name);
+            switch (path[i])
+            {
+                case '\0':
+                    return ((s_vfsdir *)dir->list[j]->node);
+                case '/':
+                    return getdir_rec(path + i + 1, (s_vfsdir *)dir->list[j]->node);
+                default:
+                    return NULL;
+            }
+        }
+    }
+    kfree(name);
+    return NULL;
+}
+
 static s_vfsdir *getdir(char *path)
 {
+    if (path[0] != '/')
+        return NULL;
+    s_vfsdir *rootdir = (s_vfsdir *)vfsroot.node;
+    s_vfsdir *ret = getdir_rec(path + 1, rootdir);
     kfree(path);
-    return NULL;
+    return ret;
 }
 
 static void free_vfsinode(s_vfsinode *inode)
@@ -120,6 +145,31 @@ int add_vfsentry(const char *path, s_vfsinode *inode)
     return 1;
 }
 
+int remove_vfsentry(const char *path)
+{
+    char *dirpath = kmalloc(strlen(path));
+    int i, k;
+    for (i = strlen(path - 1); path[i] != '/'; i--) {}
+    for (k = 0; k < i; k++)
+        dirpath[k] = path[k];
+    dirpath[k] = '\0';
+    s_vfsdir *dir = getdir(dirpath);
+    if (!dir)
+        return 0;
+    for (k = 0; k < dir->nbinodes; k++)
+    {
+        if (strcmp(path + i + 1, dir->list[i]->name))
+        {
+            free_vfsinode(dir->list[i]);
+            for (int j = i; j < dir->nbinodes - 1; j++)
+                dir->list[j] = dir->list[j + 1];
+            dir->nbinodes--;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int add_execentry(const char *path, int (*addr)(int, char **))
 {
     if (!addr)
@@ -158,16 +208,6 @@ int add_deventry(s_vfsdev *dev)
     inode->name = dev->name;
     inode->node = (void *)dev;
     return add_vfsentry(strcat("/dev/", dev->name), inode);
-}
-
-void chdir(const char *path)
-{
-    pwd = path;
-}
-
-const char *get_pwd(void)
-{
-    return pwd;
 }
 
 static void print_vfsfile(s_vfsfile *file)

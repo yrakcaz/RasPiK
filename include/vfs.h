@@ -60,48 +60,16 @@ typedef struct vfsexec
     int (*addr)(int, char **);
 } s_vfsexec;
 
-/* File descriptor structure. */
-typedef struct file_descriptor
-{
-    s_vfsinode *inode;
-    uint32_t offset;
-} s_fd;
-
-/* Directory user shared structure. */
-typedef struct dir
-{
-    int idx;
-    const char *name;
-    const char **files;
-    int nbfiles;
-    const char **dirs;
-    int nbdirs;
-} s_dir;
+/* Global variables */
+int inumber;
+s_vfsinode vfsroot;
 
 /* External functions */
 int init_vfs(void);                                             //DONE
-int add_vfsentry(const char *path, s_vfsinode *inode);          //DONE (but need getdir);
+int add_vfsentry(const char *path, s_vfsinode *inode);          //DONE (but need getdir)
 int add_execentry(const char *path, int (*addr)(int, char **)); //DONE
 int add_deventry(s_vfsdev *dev);                                //DONE
-int remove_vfsentry(const char *path);
+int remove_vfsentry(const char *path);                          //DONE (but need getdir)
 void print_vfs(void);                                           //DONE
-
-/* Syscalls */
-s_dir *opendir(const char *name);
-int createdir(const char *name);
-int closedir(s_dir directory);
-
-void chdir(const char *path);                                   //DONE
-const char *get_pwd(void);                                      //DONE
-
-int open(const char *name, int mode);
-int seek(int fd, uint32_t offset, int whence);
-int close(int fd);
-
-int write(int fd, const char *buff, uint32_t size);
-int read(int fd, const char *buff, uint32_t size);
-int ioctl(int fd, int op, void *args);
-
-uint32_t stat(int fd); //Get file size?
 
 #endif /* !VFS_H */
