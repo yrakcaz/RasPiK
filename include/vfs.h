@@ -65,11 +65,11 @@ int inumber;
 s_vfsinode vfsroot;
 
 /* External functions */
-int init_vfs(void);                                             //DONE
-int add_vfsentry(const char *path, s_vfsinode *inode);          //DONE (but need getdir)
-int add_execentry(const char *path, int (*addr)(int, char **)); //DONE
-int add_deventry(s_vfsdev *dev);                                //DONE
-int remove_vfsentry(const char *path);                          //DONE (but need getdir)
-void print_vfs(void);                                           //DONE
+int init_vfs(void);
+int add_vfsentry(const char *path, s_vfsinode *inode);
+int add_execentry(const char *path, int (*addr)(int, char **));
+int add_deventry(s_vfsdev *dev);
+int remove_vfsentry(const char *path);
+void print_vfs(void); //Just for debugging!
 
 #endif /* !VFS_H */

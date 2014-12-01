@@ -109,7 +109,7 @@ void *kcalloc(uint32_t num, uint32_t len)
 
 void *krealloc(void *ptr, uint32_t size)
 {
-    u_header *blk = (u_header *)ptr - 1;
+    u_header *blk = (u_header *)ptr - sizeof (u_header);
     uint32_t old_sz = blk->metadata.len;
     void *ret = kmalloc(size);
     for (uint32_t i = 0; i < old_sz && i < size; i++)

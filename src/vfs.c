@@ -83,9 +83,11 @@ static s_vfsdir *getdir_rec(char *path, s_vfsdir *dir)
 
 static s_vfsdir *getdir(char *path)
 {
-    if (path[0] != '/')
+    if (path[0] != '/' && strlen(path) > 0)
         return NULL;
     s_vfsdir *rootdir = (s_vfsdir *)vfsroot.node;
+    if (strlen(path) == 0)
+        return rootdir;
     s_vfsdir *ret = getdir_rec(path + 1, rootdir);
     kfree(path);
     return ret;
@@ -133,7 +135,7 @@ int add_vfsentry(const char *path, s_vfsinode *inode)
     }
     for (i = 0; i < dir->nbinodes; i++)
     {
-        if (strcmp(dir->list[i]->name, inode->name)) //File already exists;
+        if (!strcmp(dir->list[i]->name, inode->name)) //File already exists;
         {
             kfree(inode);
             return 0;
@@ -158,7 +160,7 @@ int remove_vfsentry(const char *path)
         return 0;
     for (k = 0; k < dir->nbinodes; k++)
     {
-        if (strcmp(path + i + 1, dir->list[i]->name))
+        if (!strcmp(path + i + 1, dir->list[i]->name))
         {
             free_vfsinode(dir->list[i]);
             for (int j = i; j < dir->nbinodes - 1; j++)
