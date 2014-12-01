@@ -3,6 +3,12 @@
 
 # include "vfs.h"
 
+/* Usefull defines. */
+
+# define NBMAX_FD  4096
+# define NBMAX_DIR 4096
+# define EOF       -1
+
 /* File descriptor structure. */
 typedef struct file_descriptor
 {
@@ -11,22 +17,26 @@ typedef struct file_descriptor
 } s_fd;
 
 /* Directory user shared structure. */
+typedef struct direntry
+{
+    int type;
+    const char *name;
+} s_direntry;
+
 typedef struct dir
 {
     int idx;
     const char *name;
-    const char **files;
-    int nbfiles;
-    const char **dirs;
-    int nbdirs;
+    int nbentries;
+    s_direntry **entries;
 } s_dir;
 
-s_dir *opendir(const char *name);
-int createdir(const char *name);
-int closedir(s_dir directory);
+void chdir(const char *path);
+const char *get_pwd(void);
 
-void chdir(const char *path);                                   //DONE
-const char *get_pwd(void);                                      //DONE
+s_dir *opendir(const char *name);
+int mkdir(const char *name);
+int closedir(s_dir *directory);
 
 int open(const char *name, int mode);
 int seek(int fd, uint32_t offset, int whence);

@@ -13,15 +13,10 @@
 
 /* Usefull defines. */
 
-# define NBMAX_FD  4096
-# define NBMAX_DIR 4096
-
 # define DIR       0
 # define FILE      1
 # define EXEC      2
 # define DEV       3
-
-# define EOF       -1
 
 /* Virtual file system structures */
 
@@ -70,6 +65,8 @@ int add_vfsentry(const char *path, s_vfsinode *inode);
 int add_execentry(const char *path, int (*addr)(int, char **));
 int add_deventry(s_vfsdev *dev);
 int remove_vfsentry(const char *path);
+void free_vfsinode(s_vfsinode *inode);
+s_vfsdir *getdir(char *path);
 void print_vfs(void); //Just for debugging!
 
 #endif /* !VFS_H */

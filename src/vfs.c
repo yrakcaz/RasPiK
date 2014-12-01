@@ -81,7 +81,7 @@ static s_vfsdir *getdir_rec(char *path, s_vfsdir *dir)
     return NULL;
 }
 
-static s_vfsdir *getdir(char *path)
+s_vfsdir *getdir(char *path)
 {
     if (path[0] != '/' && strlen(path) > 0)
         return NULL;
@@ -93,7 +93,7 @@ static s_vfsdir *getdir(char *path)
     return ret;
 }
 
-static void free_vfsinode(s_vfsinode *inode)
+void free_vfsinode(s_vfsinode *inode)
 {
     if (!inode)
         return;
@@ -123,7 +123,7 @@ int add_vfsentry(const char *path, s_vfsinode *inode)
 {
     char *dirpath = kmalloc(strlen(path));
     int i, k;
-    for (i = strlen(path - 1); path[i] != '/'; i--) {}
+    for (i = strlen(path) - 1; path[i] != '/'; i--) {}
     for (k = 0; k < i; k++)
         dirpath[k] = path[k];
     dirpath[k] = '\0';
@@ -151,7 +151,7 @@ int remove_vfsentry(const char *path)
 {
     char *dirpath = kmalloc(strlen(path));
     int i, k;
-    for (i = strlen(path - 1); path[i] != '/'; i--) {}
+    for (i = strlen(path) - 1; path[i] != '/'; i--) {}
     for (k = 0; k < i; k++)
         dirpath[k] = path[k];
     dirpath[k] = '\0';
@@ -182,7 +182,7 @@ int add_execentry(const char *path, int (*addr)(int, char **))
     inode->inumber = inumber++;
     inode->type = EXEC;
     int i;
-    for (i = strlen(path - 1); path[i] != '/'; i--) {}
+    for (i = strlen(path) - 1; path[i] != '/'; i--) {}
     inode->name = path + i + 1;
 
     s_vfsexec *exec = kmalloc(sizeof (s_vfsexec));

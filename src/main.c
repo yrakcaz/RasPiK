@@ -5,6 +5,7 @@
 #include "atags.h"
 #include "syscall.h"
 #include "vfs.h"
+#include "io.h"
 
 //Time delay which a human can feel...
 # define HUMAN_TIME 1000000
@@ -38,7 +39,7 @@ static void draw_star(void)
             write_console("|", 1, BLUE);
             break;
         case 3:
-            write_console("/", 1, WHITE);
+            write_console("/", 1, YELLOW);
             i = -1;
             break;
         default:
@@ -76,6 +77,9 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_init("syscalls", 1);
 
     print_init("vfs", init_vfs());
+    print_init("io", init_io());
+
+    write_console("\n\nFile System:\n", 15, YELLOW);
     print_vfs();
 
     write_console("\n\n", 2, WHITE);

@@ -6,28 +6,30 @@ FOR REAL DEVICE :
 /!\ FIX Interrupts!! (reset?)
 /!\ OPTI SCROLLING!!
 
-
+EVERYWHERE :
 /!\ FIX WAIT...
 
--> Graphics                                 DONE (Add eventually other drawing funcs, more comments..)
+-> Graphics                                         DONE (Add eventually other drawing funcs, more comments..)
 
--> Console                                  DONE (More comments?)
+-> Console                                          DONE (More comments?)
 
--> Memory management                        DONE
+-> Memory management                                DONE
 
--> Interrupts                               DONE (With only timer irq handled)
+-> Interrupts                                       DONE (With only timer irq handled)
 
 -> Virtual File system
     |
-    ---> Devices/Drivers -> modularity!
+    ---> Devices/Drivers -> modularity!             DONE
     |
-    ---> Split VFS / stdio?
+    ---> Split VFS / stdio?                         DONE
 
--> Syscalls - Kernel                        DONE
+-> Syscalls - Kernel                                DONE (Check with argument and return values...)
 
 -> Syscalls - User
 
 -> Drivers (GPIO, SD, USB, Ethernet, leds...)
+    |
+    ---> Make UART and Console module drivers...
 
 -> Execution / Processes
 
