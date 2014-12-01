@@ -21,3 +21,8 @@ int add_driver(const char *name, void *addr, s_driver *drv)
     drv->init(dev);
     return ret;
 }
+
+int remove_driver(const char *name)
+{
+    return remove_vfsentry(name);
+}

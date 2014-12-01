@@ -13,5 +13,6 @@ typedef struct driver
 } s_driver;
 
 int add_driver(const char *name, void *addr, s_driver *drv);
+int remove_driver(const char *name);
 
 #endif /* !DRIVER_H */
