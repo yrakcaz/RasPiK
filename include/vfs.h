@@ -33,7 +33,6 @@ typedef struct vfsfile
     const char *name;
     uint32_t size;
     char *data;
-    int lock;
 } s_vfsfile;
 
 typedef struct vfsdev
@@ -41,7 +40,6 @@ typedef struct vfsdev
     const char *name;
     void *addr;
     s_driver *drv;
-    int lock;
 } s_vfsdev;
 
 typedef struct vfsdir

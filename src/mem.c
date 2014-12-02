@@ -107,13 +107,34 @@ void *kcalloc(uint32_t num, uint32_t len)
     return ptr;
 }
 
+static void *kmemcpy(void *dst, void *src, uint32_t len)
+{
+    char *d = dst;
+    char *s = src;
+    for (int i = 0; i < len; i++)
+        d[i] = s[i];
+    return dst;
+}
+
 void *krealloc(void *ptr, uint32_t size)
 {
-    u_header *blk = (u_header *)ptr - sizeof (u_header);
-    uint32_t old_sz = blk->metadata.len;
-    void *ret = kmalloc(size);
-    for (uint32_t i = 0; i < old_sz && i < size; i++)
-        ((char *)ret)[i] = ((char *)ptr)[i];
+    if (!ptr)
+        return kmalloc(size);
+    if (size <= 0)
+    {
+        kfree(ptr);
+        return NULL;
+    }
+    u_header *bp = (u_header *)ptr - 1;
+    uint32_t nbytes = sizeof (u_header) * (bp->metadata.len - 1);
+    if (size == nbytes)
+        return ptr;
+    u_header *p = kmalloc(size);
+    if (!p)
+        return NULL;
+    if (size < nbytes)
+        nbytes = size;
+    kmemcpy(p, ptr, nbytes);
     kfree(ptr);
-    return ret;
+    return p;
 }

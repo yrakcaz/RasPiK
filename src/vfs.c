@@ -235,7 +235,9 @@ static void print_vfsinode(s_vfsinode *inode, const char *path);
 static void print_vfsdir(s_vfsdir *dir, const char *path)
 {
     char *name;
-    if (dir->name[0] == '/')
+    if (!strcmp(dir->name, "/"))
+        name = (char *)dir->name;
+    else if (path[strlen(path) - 1] == '/')
         name = strcat(path, dir->name);
     else
     {

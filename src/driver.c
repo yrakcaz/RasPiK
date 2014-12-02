@@ -11,7 +11,6 @@ int add_driver(const char *name, void *addr, s_driver *drv)
     dev->name = name;
     dev->addr = addr;
     dev->drv = drv;
-    dev->lock = 0;
     ret = add_deventry(dev);
     if (!ret)
     {

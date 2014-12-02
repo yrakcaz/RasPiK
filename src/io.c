@@ -140,5 +140,9 @@ int init_io(void)
         dir_table[i] = NULL;
     if (!mkdir("/dev"))
         return 0;
+    if(!mkdir("/home"))
+        return 0;
+    if (!mkdir("/etc"))
+        return 0;
     return 1;
 }
