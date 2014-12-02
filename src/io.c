@@ -122,7 +122,11 @@ int mkdir(const char *name)
     dot->name = ".";
     doubledot->name = "..";
     dot->node = (void *)dir;
-    doubledot->node = (void *)dir; //should be the parent dir
+
+    char *parent = kmalloc(strlen(path));
+    for (int k = 0; k < i; k++)
+        parent[k] = path[k];
+    doubledot->node = getdir(parent);
 
     dir->list[0] = dot;
     dir->list[1] = doubledot;

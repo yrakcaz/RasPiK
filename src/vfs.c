@@ -251,6 +251,12 @@ static void print_vfsdir(s_vfsdir *dir, const char *path)
         if ((dir->list)[i]->type == DIR)
         {
             write_console((dir->list)[i]->name, strlen((dir->list)[i]->name), BLUE);
+            if (!strcmp((dir->list)[i]->name, ".."))
+            {
+                write_console("(", 1, BLUE);
+                write_console(((s_vfsdir *)dir->list[i]->node)->name, strlen(((s_vfsdir *)dir->list[i]->node)->name), BLUE);
+                write_console(")", 1, BLUE);
+            }
             write_console(" ", 1, BLUE);
         }
         else
