@@ -23,6 +23,7 @@
 typedef struct vfsinode
 {
     int inumber;
+    int lock;
     int type;
     const char *name;
     void *node;
@@ -66,6 +67,7 @@ int add_execentry(const char *path, int (*addr)(int, char **));
 int add_deventry(s_vfsdev *dev);
 int remove_vfsentry(const char *path);
 void free_vfsinode(s_vfsinode *inode);
+s_vfsinode *get_vfsinode(const char *path);
 s_vfsdir *getdir(char *path);
 void print_vfs(void); //Just for debugging!
 

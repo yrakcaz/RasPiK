@@ -1,36 +1,38 @@
 #include "console.h"
 
+static s_console csl;
+
 static void clear_console(void)
 {
     for (int i = 0; i < SCREEN_WIDTH; i++)
         for (int j = 0; j < SCREEN_HEIGHT; j++)
             putpixel(i, j, BLACK);
-    console->x = 0;
-    console->y = 0;
+    csl.x = 0;
+    csl.y = 0;
 }
 
 void init_console(void)
 {
-    console->x = 0;
-    console->y = 0;
-    console->margin = MARGIN;
+    csl.x = 0;
+    csl.y = 0;
+    csl.margin = MARGIN;
     clear_console();
 }
 
 static void scroll(void)
 {
     for (int i = 0; i < NBCOL; i++)
-        deletechar(console->x * CHAR_SIZE + console->margin, console->margin);
+        deletechar(csl.x * CHAR_SIZE + csl.margin, csl.margin);
     for (int i = 0; i < NBCOL; i++)
     {
         for (int j = 1; j < NBLIN; j++)
         {
-            replychar(i * CHAR_SIZE + console->margin,
-                      j * FONT_SIZE + console->margin,
-                      i * CHAR_SIZE + console->margin,
-                      (j - 1) * FONT_SIZE + console->margin);
-            deletechar(i * CHAR_SIZE + console->margin,
-                       j * FONT_SIZE + console->margin);
+            replychar(i * CHAR_SIZE + csl.margin,
+                      j * FONT_SIZE + csl.margin,
+                      i * CHAR_SIZE + csl.margin,
+                      (j - 1) * FONT_SIZE + csl.margin);
+            deletechar(i * CHAR_SIZE + csl.margin,
+                       j * FONT_SIZE + csl.margin);
         }
     }
 }
@@ -40,39 +42,39 @@ int write_console(const char *str, uint32_t size, uint32_t color)
     int i;
     for (i = 0; i < size && str[i]; i++)
     {
-        if (console->x >= NBCOL)
+        if (csl.x >= NBCOL)
         {
-            console->x = 0;
-            if (console->y == NBLIN - 1)
+            csl.x = 0;
+            if (csl.y == NBLIN - 1)
                 scroll();
             else
-                console->y++;
+                csl.y++;
         }
 
         switch (str[i])
         {
             case '\n':
-                console->x = 0;
-                if (console->y == NBLIN - 1)
+                csl.x = 0;
+                if (csl.y == NBLIN - 1)
                     scroll();
                 else
-                    console->y++;
+                    csl.y++;
                 break;
             case '\t':
-                if (console->x + 4 < NBCOL)
-                    console->x += 4;
+                if (csl.x + 4 < NBCOL)
+                    csl.x += 4;
                 break;
             case '\b':
-                if (console->x > 0)
+                if (csl.x > 0)
                 {
-                    console->x--;
-                    deletechar(console->x * CHAR_SIZE + console->margin, 
-                               console->y * FONT_SIZE + console->margin);
+                    csl.x--;
+                    deletechar(csl.x * CHAR_SIZE + csl.margin,
+                               csl.y * FONT_SIZE + csl.margin);
                 }
                 break;
             default:
-                drawchar(console->x++ * CHAR_SIZE + console-> margin, 
-                         console->y * FONT_SIZE + console->margin,
+                drawchar(csl.x++ * CHAR_SIZE + csl. margin,
+                         csl.y * FONT_SIZE + csl.margin,
                          str[i], color);
                 break;
         }

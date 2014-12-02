@@ -38,7 +38,7 @@ s_dir *opendir(const char *name)
         return NULL;
 
     int i;
-    for (i = 0; dir_table[i]; i++) {}
+    for (i = 0; dir_table[i] && i < NBMAX_DIR; i++) {}
     if (i >= NBMAX_DIR)
     {
         kfree(dir);
@@ -46,8 +46,7 @@ s_dir *opendir(const char *name)
     }
 
     dir->idx = i;
-    for (i = strlen(name) - 1; i >= 0 && name[i] != '/'; i--) {}
-    dir->name = i == 0 ? name : name + i + 1;
+    dir->name = path;
     dir->nbentries = vfsdir->nbinodes;
     dir->entries = kmalloc(dir->nbentries * sizeof (s_direntry *));
     if (!dir->entries)
@@ -85,6 +84,7 @@ int mkdir(const char *name)
 
     int i;
     inode->inumber = inumber++;
+    inode->lock = 0;
     inode->type = DIR;
     for (i = strlen(path) - 1; path[i] != '/'; i--) {}
     inode->name = path + i + 1;
@@ -117,6 +117,8 @@ int mkdir(const char *name)
 
     dot->inumber = inumber++;
     doubledot->inumber = inumber++;
+    dot->lock = 0;
+    doubledot->lock = 0;
     dot->type = DIR;
     doubledot->type = DIR;
     dot->name = ".";
@@ -162,17 +164,113 @@ void print_dir(const char *path)
     closedir(dir);
 }
 
+static s_vfsinode *create_file(const char *path)
+{
+    s_vfsinode *inode = kmalloc(sizeof (s_vfsinode));
+    if (!inode)
+        return NULL;
+    inode->inumber = inumber++;
+    inode->lock = 0;
+    inode->type = FILE;
+    int i;
+    for (i = strlen(path) - 1; path[i] != '/'; i--) {}
+    inode->name = path + i + 1;
+
+    s_vfsfile *file = kmalloc(sizeof (s_vfsfile));
+    if (!file)
+    {
+        kfree(inode);
+        return NULL;
+    }
+    file->name = inode->name;
+    file->size = 0;
+    file->data = kmalloc(sizeof (char));
+    if (!file->data)
+    {
+        kfree(inode);
+        kfree(file);
+        return NULL;
+    }
+    file->data[0] = EOF;
+
+    inode->node = (void *)file;
+    int result = add_vfsentry(path, inode);
+    if (!result)
+    {
+        free_vfsinode(inode);
+        return NULL;
+    }
+    return inode;
+}
+
+int open(const char *name, int mode)
+{
+    char *path = name[0] == '/' ? (char *)name : strcat(pwd, name);
+    s_fd *fd = kmalloc (sizeof (s_fd));
+    if (!fd)
+        return -1;
+    fd->inode = get_vfsinode(path);
+    if (!fd->inode)
+    {
+        if ((mode & O_CREAT) == O_CREAT)
+            fd->inode = create_file(path);
+        if (!fd->inode)
+        {
+            kfree(fd);
+            return -1;
+        }
+    }
+    if ((fd->inode->type != FILE) && (fd->inode->type != DEV))
+    {
+        kfree(fd);
+        return -1;
+    }
+    fd->offset = 0;
+    if (((mode & O_APPEND) == O_APPEND) && fd->inode->type == FILE)
+        fd->offset = ((s_vfsfile *)fd->inode->node)->size;
+    fd->flags = mode;
+    if ((mode & O_RDWR) == O_RDWR)
+    {
+        if (fd->inode->lock == 0)
+            fd->inode->lock = 1;
+        else
+        {
+            if ((mode & O_CREAT) == O_CREAT)
+                free_vfsinode(fd->inode);
+            kfree(fd);
+            return -1;
+        }
+    }
+    int i;
+    for (i = 0; fd_table[i] && i < NBMAX_FD; i++) {}
+    if (i >= NBMAX_FD)
+    {
+        kfree(fd);
+        return -1;
+    }
+    fd_table[i] = fd;
+    return i;
+}
+
 int init_io(void)
 {
     for (int i = 0; i < NBMAX_FD; i++)
         fd_table[i] = NULL;
     for (int i = 0; i < NBMAX_DIR; i++)
         dir_table[i] = NULL;
+
+    //TESTS:
     if (!mkdir("/dev") || !mkdir("/home") || !mkdir("/etc"))
         return 0;
     if (!mkdir("/home/pi") || !mkdir("/home/root"))
         return 0;
     if (!mkdir("/home/pi/bla"))
         return 0;
+    if (open("/home/pi/test", O_CREAT) == -1)
+        return 0;
+    if (open("/home/pi/bla/test2", O_CREAT | O_RDWR) == -1)
+        return 0;
+    //////////////////////////////////////////////////////////
+
     return 1;
 }

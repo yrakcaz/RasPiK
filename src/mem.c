@@ -49,7 +49,6 @@ void kfree(void *ptr)
     }
     else
         it->metadata.next = blk;
-    h_first = it;
 }
 
 void *kmalloc(uint32_t size)
@@ -84,7 +83,7 @@ void *kmalloc(uint32_t size)
         {
             if (real_sz < NBALLOC)
                 real_sz = NBALLOC;
-            char *page = sbrk((intptr_t)(real_sz * sizeof(u_header)));
+            char *page = sbrk((uint32_t)(real_sz * sizeof(u_header)));
             if (page == (char*)-1)
                 return NULL;
             u_header *blk = (u_header *)page;

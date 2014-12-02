@@ -9,11 +9,17 @@
 # define NBMAX_DIR 4096
 # define EOF       -1
 
+# define O_RDONLY  0x0000
+# define O_RDWR    0x000F
+# define O_APPEND  0x00F0
+# define O_CREAT   0x0F00
+
 /* File descriptor structure. */
 typedef struct file_descriptor
 {
     s_vfsinode *inode;
     uint32_t offset;
+    int flags;
 } s_fd;
 
 /* Directory user shared structure. */

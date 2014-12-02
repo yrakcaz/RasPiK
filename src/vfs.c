@@ -7,6 +7,7 @@ int init_vfs(void)
     vfsroot.inumber = inumber++;
     vfsroot.type = DIR;
     vfsroot.name = "/";
+    vfsroot.lock = 0;
 
     s_vfsdir *rootdir = kmalloc(sizeof (s_vfsdir));
     if (!rootdir)
@@ -41,6 +42,8 @@ int init_vfs(void)
 
     dot->inumber = inumber++;
     doubledot->inumber = inumber++;
+    dot->lock = 0;
+    doubledot->lock = 0;
     dot->type = DIR;
     doubledot->type = DIR;
     dot->name = ".";
@@ -56,7 +59,9 @@ int init_vfs(void)
 
 static s_vfsdir *getdir_rec(char *path, s_vfsdir *dir)
 {
-    char *name = kmalloc(strlen(path));
+    char *name = kmalloc(strlen(path) + 1);
+    if (!name)
+        return NULL;
     int i;
     for (i = 0; path[i] != '/' && path[i] != '\0'; i++)
         name[i] = path[i];
@@ -66,6 +71,8 @@ static s_vfsdir *getdir_rec(char *path, s_vfsdir *dir)
         if (!strcmp(dir->list[j]->name, name))
         {
             kfree(name);
+            if (dir->list[j]->type != DIR)
+                return NULL;
             switch (path[i])
             {
                 case '\0':
@@ -119,9 +126,28 @@ void free_vfsinode(s_vfsinode *inode)
     kfree(inode);
 }
 
-int add_vfsentry(const char *path, s_vfsinode *inode)
+s_vfsinode *get_vfsinode(const char *path)
 {
     char *dirpath = kmalloc(strlen(path));
+    if (!dirpath)
+        return NULL;
+    int i;
+    for (i = strlen(path) - 1; path[i] != '/'; i--) {}
+    for (int k = 0; k < i; k++)
+        dirpath[k] = path[k];
+    s_vfsdir *dir = getdir(dirpath);
+    kfree(dirpath);
+    for (int k = 0; k < dir->nbinodes; k++)
+        if (!strcmp(dir->list[k]->name, path + i + 1))
+            return dir->list[k];
+    return NULL;
+}
+
+int add_vfsentry(const char *path, s_vfsinode *inode)
+{
+    char *dirpath = kmalloc(strlen(path) + 1);
+    if (!dirpath)
+        return NULL;
     int i, k;
     for (i = strlen(path) - 1; path[i] != '/'; i--) {}
     for (k = 0; k < i; k++)
@@ -149,7 +175,9 @@ int add_vfsentry(const char *path, s_vfsinode *inode)
 
 int remove_vfsentry(const char *path)
 {
-    char *dirpath = kmalloc(strlen(path));
+    char *dirpath = kmalloc(strlen(path) + 1);
+    if (!dirpath)
+        return 0;
     int i, k;
     for (i = strlen(path) - 1; path[i] != '/'; i--) {}
     for (k = 0; k < i; k++)
@@ -180,6 +208,7 @@ int add_execentry(const char *path, int (*addr)(int, char **))
     if (!inode)
         return 0;
     inode->inumber = inumber++;
+    inode->lock = 0;
     inode->type = EXEC;
     int i;
     for (i = strlen(path) - 1; path[i] != '/'; i--) {}
@@ -206,6 +235,7 @@ int add_deventry(s_vfsdev *dev)
     if (!inode)
         return 0;
     inode->inumber = inumber++;
+    inode->lock = 0;
     inode->type = DEV;
     inode->name = dev->name;
     inode->node = (void *)dev;
