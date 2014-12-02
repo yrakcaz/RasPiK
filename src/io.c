@@ -150,23 +150,6 @@ int closedir(s_dir *directory)
     return 1;
 }
 
-void print_dir(const char *path)
-{
-    s_dir *dir = opendir(path);
-    write_console(dir->name, strlen(dir->name), WHITE);
-    write_console(":\n\t", 3, WHITE);
-    for (int i = 0; i < dir->nbentries; i++)
-    {
-        if (dir->entries[i]->type == DIR)
-            write_console(dir->entries[i]->name, strlen(dir->entries[i]->name), BLUE);
-        else
-            write_console(dir->entries[i]->name, strlen(dir->entries[i]->name), WHITE);
-        write_console(" ", 1, WHITE);
-    }
-    write_console("\n\n", 2, WHITE);
-    closedir(dir);
-}
-
 static s_vfsinode *create_file(const char *path)
 {
     s_vfsinode *inode = kmalloc(sizeof (s_vfsinode));
@@ -255,6 +238,27 @@ int open(const char *name, int mode)
     return i;
 }
 
+int seek(int fd, uint32_t offset, int whence)
+{
+    if (fd >= NBMAX_FD || !fd_table[fd])
+        return -1;
+    switch (whence)
+    {
+        case SEEK_SET:
+            fd_table[fd]->offset = offset;
+            break;
+        case SEEK_CUR:
+            fd_table[fd]->offset += offset;
+            break;
+        case SEEK_END:
+            fd_table[fd]->offset = ((s_vfsfile *)fd_table[fd]->inode->node)->size + offset;
+            break;
+        default:
+            return -1;
+    }
+    return fd_table[fd]->offset;
+}
+
 int close(int fd)
 {
     if (fd >= NBMAX_FD || fd_table[fd] == NULL)
@@ -264,6 +268,82 @@ int close(int fd)
     kfree(fd_table[fd]);
     fd_table[fd] = NULL;
     return 1;
+}
+
+int write(int fd, const void *buff, uint32_t size)
+{
+    if (fd >= NBMAX_FD || !fd_table[fd])
+        return -1;
+    if ((fd_table[fd]->flags & O_RDWR) != O_RDWR)
+        return -1;
+    if (fd_table[fd]->inode->type == FILE)
+    {
+        s_vfsfile *file = (s_vfsfile *)fd_table[fd]->inode->node;
+        file->data = krealloc(file->data, file->size + size + 1);
+        int i;
+        for (i = 0; i < size; i++)
+            file->data[fd_table[fd]->offset++] = ((char *)buff)[i];
+        file->data[fd_table[fd]->offset] = EOF;
+        file->size += i;
+        return i;
+    }
+    else if (fd_table[fd]->inode->type == DEV)
+    {
+        s_vfsdev *dev = ((s_vfsdev *)fd_table[fd]->inode->node);
+        return dev->drv->write(dev, buff, size);
+    }
+    else
+        return -1;
+}
+
+int read(int fd, void *buff, uint32_t size)
+{
+    if (fd >= NBMAX_FD || !fd_table[fd])
+        return -1;
+    if (fd_table[fd]->inode->type == FILE)
+    {
+        s_vfsfile *file = (s_vfsfile *)fd_table[fd]->inode->node;
+        int i;
+        for (i = 0; i < size ; i++)
+        {
+            ((char *)buff)[i] = file->data[fd_table[fd]->offset++];
+            if (((char *)buff)[i] == EOF)
+                return i;
+        }
+        return i;
+    }
+    else if (fd_table[fd]->inode->type == DEV)
+    {
+        s_vfsdev *dev = ((s_vfsdev *)fd_table[fd]->inode->node);
+        return dev->drv->read(dev, buff, size);
+    }
+    else
+        return -1;
+
+}
+
+int ioctl(int fd, int op, void *args)
+{
+    if (fd >= NBMAX_FD || !fd_table[fd])
+        return -1;
+    if (fd_table[fd]->inode->type != DEV)
+        return -1;
+    if ((fd_table[fd]->flags & O_RDWR) != O_RDWR) //VERIFY IT
+        return -1;
+    s_vfsdev *dev = ((s_vfsdev *)fd_table[fd]->inode->node);
+    return dev->drv->ioctl(dev, op, args);
+}
+
+int remove(const char *path)
+{
+    return remove_vfsentry(path);
+}
+
+uint32_t get_filesize(int fd)
+{
+    if (fd >= NBMAX_FD || !fd_table[fd])
+        return -1;
+    return ((s_vfsfile *)fd_table[fd]->inode->node)->size;
 }
 
 int init_io(void)

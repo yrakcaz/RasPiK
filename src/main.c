@@ -77,13 +77,12 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_init("syscalls", 1);
 
     print_init("vfs", init_vfs());
-    print_init("io", init_io());
+    print_init("IO", init_io());
 
     write_console("\n\nFile System:\n", 15, YELLOW);
     print_vfs();
 
     write_console("\n\n", 2, WHITE);
-    print_dir("/home/pi");
 
 #ifdef QEMU
     DO_NOTHING_WITH(atags);

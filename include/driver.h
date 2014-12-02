@@ -7,8 +7,8 @@ typedef struct driver
 {
     const char *name;
     void (*init) (struct vfsdev *);
-    int (*read) (struct vfsdev *, char *, uint32_t);
-    int (*write) (struct vfsdev *, const char *, uint32_t);
+    int (*read) (struct vfsdev *, void *, uint32_t);
+    int (*write) (struct vfsdev *, const void *, uint32_t);
     int (*ioctl) (struct vfsdev *, int, void *);
 } s_driver;
 
