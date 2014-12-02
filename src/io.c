@@ -138,13 +138,16 @@ int mkdir(const char *name)
     return add_vfsentry(path, inode);
 }
 
-void closedir(s_dir *directory)
+int closedir(s_dir *directory)
 {
+    if (!directory || directory->idx >= NBMAX_DIR || !dir_table[directory->idx])
+        return 0;
     dir_table[directory->idx] = NULL;
     for (int i = 0; i < directory->nbentries; i++)
         kfree(directory->entries[i]);
     kfree(directory->entries);
     kfree(directory);
+    return 1;
 }
 
 void print_dir(const char *path)
@@ -250,6 +253,17 @@ int open(const char *name, int mode)
     }
     fd_table[i] = fd;
     return i;
+}
+
+int close(int fd)
+{
+    if (fd >= NBMAX_FD || fd_table[fd] == NULL)
+        return 0;
+    if ((fd_table[fd]->flags & O_RDWR) == O_RDWR)
+        fd_table[fd]->inode->lock = 0;
+    kfree(fd_table[fd]);
+    fd_table[fd] = NULL;
+    return 1;
 }
 
 int init_io(void)

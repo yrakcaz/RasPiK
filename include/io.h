@@ -42,7 +42,7 @@ const char *get_pwd(void);
 
 s_dir *opendir(const char *name);
 int mkdir(const char *name);
-void closedir(s_dir *directory);
+int closedir(s_dir *directory);
 void print_dir(const char *path); //Just for debugging
 
 int open(const char *name, int mode);
