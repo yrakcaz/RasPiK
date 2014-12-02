@@ -9,9 +9,9 @@ FOR REAL DEVICE :
 EVERYWHERE :
 /!\ FIX WAIT...
 
--> Graphics                                         DONE (Add eventually other drawing funcs, more comments..)
+-> Graphics                                         DONE (Add eventually other drawing funcs)
 
--> Console                                          DONE (More comments?)
+-> Console                                          DONE
 
 -> Memory management                                DONE
 
@@ -43,4 +43,4 @@ EVERYWHERE :
 
 -> Errno?
 
--> Clear!
+-> Clear, Comments!
