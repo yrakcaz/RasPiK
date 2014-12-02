@@ -138,11 +138,9 @@ int init_io(void)
         fd_table[i] = NULL;
     for (int i = 0; i < NBMAX_DIR; i++)
         dir_table[i] = NULL;
-    if (!mkdir("/dev"))
+    if (!mkdir("/dev") || !mkdir("/home") || !mkdir("/etc"))
         return 0;
-    if(!mkdir("/home"))
-        return 0;
-    if (!mkdir("/etc"))
+    if (!mkdir("/home/pi") || !mkdir("/home/root"))
         return 0;
     return 1;
 }

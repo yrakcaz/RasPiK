@@ -63,7 +63,7 @@ static s_vfsdir *getdir_rec(char *path, s_vfsdir *dir)
     name[i] = '\0';
     for (int j = 0; j < dir->nbinodes; j++)
     {
-        if (strcmp(dir->list[j]->name, name))
+        if (!strcmp(dir->list[j]->name, name))
         {
             kfree(name);
             switch (path[i])
