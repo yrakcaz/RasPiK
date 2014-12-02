@@ -17,17 +17,19 @@ EVERYWHERE :
 
 -> Interrupts                                       DONE (With only timer irq handled)
 
--> Virtual File system
+-> Virtual File system                              DONE
     |
     ---> Devices/Drivers -> modularity!             DONE
     |
     ---> Split VFS / stdio?                         DONE
     |
-    ---> File locking
+    ---> File locking                               DONE
     |
     ---> Finish mkdir and debug                     DONE
     |
-    ---> Re-think about directory management...
+    ---> Re-think about directory management...     DONE
+    |
+    ---> TEST IT!!
 
 -> Syscalls - Kernel                                DONE (Check with argument and return values...)
 
@@ -35,7 +37,7 @@ EVERYWHERE :
 
 -> Drivers (GPIO, SD, USB, Ethernet, leds...)
     |
-    ---> Make UART and Console module drivers...
+    ---> Think about Console as a tty driver...
 
 -> Execution / Processes
 
