@@ -1,5 +1,6 @@
 #include "driver.h"
 #include "vfs.h"
+#include "drivers/uart.h"
 
 int add_driver(const char *name, void *addr, s_driver *drv)
 {
@@ -25,4 +26,11 @@ int add_driver(const char *name, void *addr, s_driver *drv)
 int remove_driver(const char *name)
 {
     return remove_vfsentry(name);
+}
+
+int init_drivers(void)
+{
+    if (!init_uart_driver())
+        return 0;
+    return 1;
 }

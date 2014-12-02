@@ -1,7 +1,6 @@
 #ifndef CONSOLE_H
 # define CONSOLE_H
 
-# include "uart.h"
 # include "graphics.h"
 
 /* Usefull defines */

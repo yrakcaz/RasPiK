@@ -3,6 +3,8 @@
 
 # include "mmio.h"
 # include "utils.h"
+# include "vfs.h"
+# include "driver.h"
 
 /* Define GPIO addresses. */
 # define BASE_GPIO   0x20200000
@@ -44,15 +46,6 @@
 # define DELAY               150
 
 /* UART initialization function. */
-void init_uart(void);
-
-/* Puts a char to the UART. */
-void putchar_uart(uint8_t byte);
-
-/* Gets a char from the UART. */
-uint8_t getchar_uart(void);
-
-/* Writes a string to the UART. */
-void write_uart(char *str, uint32_t size);
+int init_uart_driver(void);
 
 #endif /* !UART_H */

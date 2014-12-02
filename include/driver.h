@@ -1,6 +1,8 @@
 #ifndef DRIVER_H
 # define DRIVER_H
 
+# include <stdint.h>
+
 struct vfsdev;
 
 typedef struct driver
@@ -14,5 +16,6 @@ typedef struct driver
 
 int add_driver(const char *name, void *addr, s_driver *drv);
 int remove_driver(const char *name);
+int init_drivers(void);
 
 #endif /* !DRIVER_H */

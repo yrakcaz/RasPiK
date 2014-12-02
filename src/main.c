@@ -1,4 +1,3 @@
-#include "uart.h"
 #include "console.h"
 #include "mem.h"
 #include "interrupts.h"
@@ -6,6 +5,7 @@
 #include "syscall.h"
 #include "vfs.h"
 #include "io.h"
+#include "driver.h"
 
 //Time delay which a human can feel...
 # define HUMAN_TIME 1000000
@@ -65,8 +65,6 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     write_console((char *)"Kernel Booting ...\n\n", 22, RED);
     print_init("graphics", 1);
     print_init("console", 1);
-    init_uart();
-    print_init("UART", 1);
 #ifdef QEMU //Debug it before use it on real device.
     init_interrupts();
     print_init("interrupts", 1);
@@ -78,6 +76,7 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 
     print_init("vfs", init_vfs());
     print_init("IO", init_io());
+    print_init("drivers", init_drivers());
 
     write_console("\n\nFile System:\n", 15, YELLOW);
     print_vfs();

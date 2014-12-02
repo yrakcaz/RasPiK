@@ -79,6 +79,5 @@ int write_console(const char *str, uint32_t size, uint32_t color)
                 break;
         }
     }
-    write_uart((char *)str, size);
     return i;
 }

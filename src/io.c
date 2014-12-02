@@ -352,19 +352,8 @@ int init_io(void)
         fd_table[i] = NULL;
     for (int i = 0; i < NBMAX_DIR; i++)
         dir_table[i] = NULL;
-
-    //TESTS:
-    if (!mkdir("/dev") || !mkdir("/home") || !mkdir("/etc"))
+    if (!mkdir("/dev") || !mkdir("/home"))
         return 0;
-    if (!mkdir("/home/pi") || !mkdir("/home/root"))
-        return 0;
-    if (!mkdir("/home/pi/bla"))
-        return 0;
-    if (open("/home/pi/test", O_CREAT) == -1)
-        return 0;
-    if (open("/home/pi/bla/test2", O_CREAT | O_RDWR) == -1)
-        return 0;
-    //////////////////////////////////////////////////////////
 
     return 1;
 }

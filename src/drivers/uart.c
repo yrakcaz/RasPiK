@@ -1,7 +1,9 @@
-#include "uart.h"
+#include "drivers/uart.h"
 
-void init_uart(void)
+void init_uart(s_vfsdev *dev)
 {
+    DO_NOTHING_WITH(dev);
+
     // Disabling UART
     write_mmio(CR_UART, MASK32);
 
@@ -33,7 +35,7 @@ void init_uart(void)
     write_mmio(CR_UART, ENABLE_TRANSFERT);
 }
 
-void putchar_uart(uint8_t byte)
+static void putchar_uart(uint8_t byte)
 {
     // Waiting for the device...
     while (1)
@@ -43,7 +45,7 @@ void putchar_uart(uint8_t byte)
     write_mmio(DR_UART, byte);
 }
 
-uint8_t getchar_uart(void)
+static uint8_t getchar_uart(void)
 {
     // Waiting for the device...
     while (1)
@@ -53,8 +55,41 @@ uint8_t getchar_uart(void)
     return read_mmio(DR_UART);
 }
 
-void write_uart(char *str, uint32_t size)
+int write_uart(s_vfsdev *dev, const void *str, uint32_t size)
 {
-    for (uint32_t i = 0; i < size; i++)
-        putchar_uart(str[i]);
+    DO_NOTHING_WITH(dev);
+    uint32_t i;
+    for (i = 0; i < size; i++)
+        putchar_uart(((uint8_t *)str)[i]);
+    return i;
+}
+
+int read_uart(s_vfsdev *dev, void *str, uint32_t size)
+{
+    DO_NOTHING_WITH(dev);
+    uint32_t i;
+    for (i = 0; i < size; i++)
+        ((uint8_t *)str)[i] = getchar_uart();
+    return i;
+}
+
+int ioctl_uart(s_vfsdev *dev, int op, void *args)
+{
+    DO_NOTHING_WITH(dev);
+    DO_NOTHING_WITH(op);
+    DO_NOTHING_WITH(args);
+    return 0;
+}
+
+int init_uart_driver(void)
+{
+    s_driver *driver = kmalloc(sizeof (s_driver));
+    if (!driver)
+        return 0;
+    driver->name = "uart";
+    driver->init = init_uart;
+    driver->write = write_uart;
+    driver->read = read_uart;
+    driver->ioctl = ioctl_uart;
+    return add_driver("uart", (void *)BASE_UART, driver);
 }
