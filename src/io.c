@@ -136,6 +136,32 @@ int mkdir(const char *name)
     return add_vfsentry(path, inode);
 }
 
+void closedir(s_dir *directory)
+{
+    dir_table[directory->idx] = NULL;
+    for (int i = 0; i < directory->nbentries; i++)
+        kfree(directory->entries[i]);
+    kfree(directory->entries);
+    kfree(directory);
+}
+
+void print_dir(const char *path)
+{
+    s_dir *dir = opendir(path);
+    write_console(dir->name, strlen(dir->name), WHITE);
+    write_console(":\n\t", 3, WHITE);
+    for (int i = 0; i < dir->nbentries; i++)
+    {
+        if (dir->entries[i]->type == DIR)
+            write_console(dir->entries[i]->name, strlen(dir->entries[i]->name), BLUE);
+        else
+            write_console(dir->entries[i]->name, strlen(dir->entries[i]->name), WHITE);
+        write_console(" ", 1, WHITE);
+    }
+    write_console("\n\n", 2, WHITE);
+    closedir(dir);
+}
+
 int init_io(void)
 {
     for (int i = 0; i < NBMAX_FD; i++)
@@ -145,6 +171,8 @@ int init_io(void)
     if (!mkdir("/dev") || !mkdir("/home") || !mkdir("/etc"))
         return 0;
     if (!mkdir("/home/pi") || !mkdir("/home/root"))
+        return 0;
+    if (!mkdir("/home/pi/bla"))
         return 0;
     return 1;
 }

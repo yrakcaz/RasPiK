@@ -25,7 +25,9 @@ EVERYWHERE :
     |
     ---> File locking
     |
-    ---> Finish mkdir and debug
+    ---> Finish mkdir and debug                     DONE
+    |
+    ---> Re-think about directory management...
 
 -> Syscalls - Kernel                                DONE (Check with argument and return values...)
 

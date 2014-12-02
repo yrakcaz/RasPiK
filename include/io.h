@@ -36,7 +36,8 @@ const char *get_pwd(void);
 
 s_dir *opendir(const char *name);
 int mkdir(const char *name);
-int closedir(s_dir *directory);
+void closedir(s_dir *directory);
+void print_dir(const char *path); //Just for debugging
 
 int open(const char *name, int mode);
 int seek(int fd, uint32_t offset, int whence);
@@ -46,7 +47,9 @@ int write(int fd, const char *buff, uint32_t size);
 int read(int fd, const char *buff, uint32_t size);
 int ioctl(int fd, int op, void *args);
 
-uint32_t stat(int fd); //Get file size?
+int remove(const char *path);
+
+uint32_t get_filesize(int fd); //Get file size?
 
 int init_io(void); //fill initial vfs?
 

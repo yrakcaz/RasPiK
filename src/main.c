@@ -83,6 +83,7 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_vfs();
 
     write_console("\n\n", 2, WHITE);
+    print_dir("/home/pi");
 
 #ifdef QEMU
     DO_NOTHING_WITH(atags);
