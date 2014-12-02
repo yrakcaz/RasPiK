@@ -29,7 +29,7 @@ EVERYWHERE :
     |
     ---> Re-think about directory management...     DONE
     |
-    ---> TEST IT!!
+    ---> TEST IT!! (kfree in close to be debugged!)
 
 -> Syscalls - Kernel                                DONE (Check with argument and return values...)
 

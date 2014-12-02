@@ -8,6 +8,8 @@ static const char *pwd = "/";
 void chdir(const char *path)
 {
     pwd = path;
+    if (path[strlen(path) - 1] != '/')
+        pwd = strcat(pwd, "/");
 }
 
 const char *get_pwd(void)
