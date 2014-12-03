@@ -27,10 +27,10 @@ typedef struct proc
     struct proc *prev;
 } s_proc;
 
-extern s_proc *current_process;
+s_proc *current_process = NULL;
 
-s_proc *create_process(const char *name, s_context context /* stdio later... */);
-int remove_process(s_proc *proc);
-int run_process(s_proc *proc);
+int add_process(const char *name, s_context context /* stdio later... */);
+int remove_process(int pid);
+int run_process(int pid);
 
 #endif /* !PROCESS_H */

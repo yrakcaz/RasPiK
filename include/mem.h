@@ -6,8 +6,8 @@
 
 /*
 ** For the moment, I don't find out how to write a real memory management on rpi's architecture,
-** so I'll just try to do it, as a ppage allocator, and I'll improve it later...
-**
+** so I'll just try to do it with a simple sbrk before to add a real segmentation, paging or
+** whatever...
 */
 
 # define NULL    0x00000000

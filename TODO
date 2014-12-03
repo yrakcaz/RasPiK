@@ -44,7 +44,7 @@ EVERYWHERE :
 
 -> Execution / Processes
     |
-    ---> Re-think about io and file management..
+    ---> Re-think about io and file management (fd table)
 
 -> User mode - context switching?
 
