@@ -38,7 +38,7 @@ EVERYWHERE :
 
 -> Drivers (GPIO, SD, USB, Ethernet, leds...)
     |
-    ---> Think about Console as a tty driver...
+    ---> Graphics and TTY drivers needed, with buffer swapping
 
 -> Execution / Processes
 
