@@ -14,7 +14,7 @@ EVERYWHERE :
 
 -> Console                                          DONE
 
--> Memory management                                DONE
+-> Memory management                                DONE (Improve it : segmentation, paging...)
 
 -> Interrupts                                       DONE (With only timer irq handled)
 

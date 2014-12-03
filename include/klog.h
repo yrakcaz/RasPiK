@@ -1,5 +1,5 @@
-#ifndef CONSOLE_H
-# define CONSOLE_H
+#ifndef KLOG_H
+# define KLOG_H
 
 # include "graphics.h"
 
@@ -17,7 +17,7 @@ typedef struct console
 } s_console;
 
 /* External functions... */
-void init_console(void);
-int write_console(const char *str, uint32_t size, uint32_t color);
+void init_klog(void);
+int klog(const char *str, uint32_t size, uint32_t color);
 
-#endif /* !CONSOLE_H */
+#endif /* !KLOG_H */

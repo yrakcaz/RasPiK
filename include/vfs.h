@@ -2,7 +2,7 @@
 # define VFS_H
 
 # include "mem.h"
-# include "console.h"
+# include "klog.h"
 # include "utils.h"
 # include "driver.h"
 

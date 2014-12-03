@@ -2,7 +2,7 @@
 # define MEM_H
 
 # include <stdint.h>
-# include "console.h"
+# include "klog.h"
 
 /*
 ** For the moment, I don't find out how to write a real memory management on rpi's architecture,

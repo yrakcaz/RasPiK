@@ -9,19 +9,19 @@ static uint32_t tick = 0; //Represents approximatively the number of seconds sin
 
 void treat_undef(void)
 {
-    write_console("Bad Exception handled: UNDEF!\n", 30, RED);
+    klog("Bad Exception handled: UNDEF!\n", 30, RED);
     while (1) {}
 }
 
 void treat_unused(void)
 {
-    write_console("Bad Exception handled: UNUSED!\n", 31, RED);
+    klog("Bad Exception handled: UNUSED!\n", 31, RED);
     while (1) {}
 }
 
 void treat_fiq(void)
 {
-    write_console("Bad Exception handled: FIQ!\n", 28, RED);
+    klog("Bad Exception handled: FIQ!\n", 28, RED);
     while (1) {}
 }
 
@@ -40,7 +40,7 @@ void treat_pref_abort(void)
     asm volatile ("mov %[addr], lr"
                  : [addr]"=r"(addr));
 
-    write_console("PREFETCH ABORT!\n", 16, BLUE);
+    klog("PREFETCH ABORT!\n", 16, BLUE);
 
     while (1) {};
 }
@@ -54,7 +54,7 @@ void treat_data_abort(void)
     asm volatile("mrc p15, 0, %[addr], c6, c0, 0"
                  : [addr]"=r"(fault_addr));
 
-    write_console("DATA ABORT!\n", 12, BLUE);
+    klog("DATA ABORT!\n", 12, BLUE);
     while (1) {}
 }
 

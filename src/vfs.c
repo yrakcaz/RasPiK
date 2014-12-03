@@ -244,20 +244,20 @@ int add_deventry(s_vfsdev *dev)
 
 static void print_vfsfile(s_vfsfile *file)
 {
-    write_console(file->name, strlen(file->name), WHITE);
-    write_console(" ", 1, WHITE);
+    klog(file->name, strlen(file->name), WHITE);
+    klog(" ", 1, WHITE);
 }
 
 static void print_vfsexec(s_vfsexec *exec)
 {
-    write_console(exec->name, strlen(exec->name), GREEN);
-    write_console(" ", 1, GREEN);
+    klog(exec->name, strlen(exec->name), GREEN);
+    klog(" ", 1, GREEN);
 }
 
 static void print_vfsdev(s_vfsdev *dev)
 {
-    write_console(dev->name, strlen(dev->name), YELLOW);
-    write_console(" ", 1, YELLOW);
+    klog(dev->name, strlen(dev->name), YELLOW);
+    klog(" ", 1, YELLOW);
 }
 
 static void print_vfsinode(s_vfsinode *inode, const char *path);
@@ -274,19 +274,19 @@ static void print_vfsdir(s_vfsdir *dir, const char *path)
         name = strcat(path, "/");
         name = strcat(name, dir->name);
     }
-    write_console(name, strlen(name), WHITE);
-    write_console(":\n\t", 3, WHITE);
+    klog(name, strlen(name), WHITE);
+    klog(":\n\t", 3, WHITE);
     for (int i = 0; i < dir->nbinodes; i++)
     {
         if ((dir->list)[i]->type == DIR)
         {
-            write_console((dir->list)[i]->name, strlen((dir->list)[i]->name), BLUE);
-            write_console(" ", 1, BLUE);
+            klog((dir->list)[i]->name, strlen((dir->list)[i]->name), BLUE);
+            klog(" ", 1, BLUE);
         }
         else
             print_vfsinode((dir->list)[i], name);
     }
-    write_console("\n\n", 2, WHITE);
+    klog("\n\n", 2, WHITE);
     for (int i = 2; i < dir->nbinodes; i++)
         if ((dir->list)[i]->type == DIR)
             print_vfsinode((dir->list)[i], name);

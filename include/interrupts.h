@@ -1,7 +1,7 @@
 #ifndef INTERRUPTS_H
 # define INTERRUPTS_H
 
-# include "console.h"
+# include "klog.h"
 # include "mem.h"
 # include "syscall.h"
 

@@ -2,7 +2,7 @@
 # define SYSCALL_H
 
 # include <stdint.h>
-# include "console.h"
+# include "klog.h"
 
 # define NB_SYS 1
 

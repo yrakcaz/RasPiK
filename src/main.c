@@ -1,4 +1,4 @@
-#include "console.h"
+#include "klog.h"
 #include "mem.h"
 #include "interrupts.h"
 #include "atags.h"
@@ -12,15 +12,15 @@
 
 static void print_init(const char *module, int success)
 {
-    write_console("[", 1, WHITE);
+    klog("[", 1, WHITE);
     if (success)
-        write_console("OK", 2, GREEN);
+        klog("OK", 2, GREEN);
     else
-        write_console("KO", 2, RED);
-    write_console("]\t\t", 3, WHITE);
-    write_console("Module ", 7, WHITE);
-    write_console(module, strlen(module), WHITE);
-    write_console(" initialization.\n", 17, WHITE);
+        klog("KO", 2, RED);
+    klog("]\t\t", 3, WHITE);
+    klog("Module ", 7, WHITE);
+    klog(module, strlen(module), WHITE);
+    klog(" initialization.\n", 17, WHITE);
     wait(HUMAN_TIME);
 }
 
@@ -30,23 +30,23 @@ static void draw_star(void)
     switch (i)
     {
         case 0:
-            write_console("-", 1, RED);
+            klog("-", 1, RED);
             break;
         case 1:
-            write_console("\\", 1, GREEN);
+            klog("\\", 1, GREEN);
             break;
         case 2:
-            write_console("|", 1, BLUE);
+            klog("|", 1, BLUE);
             break;
         case 3:
-            write_console("/", 1, YELLOW);
+            klog("/", 1, YELLOW);
             i = -1;
             break;
         default:
             break;
     }
     wait(HUMAN_TIME / 3);
-    write_console("\b", 1, WHITE);
+    klog("\b", 1, WHITE);
     i++;
 }
 
@@ -61,10 +61,10 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     //Initializations
     if (!init_graphics())
         return;
-    init_console();
-    write_console((char *)"Kernel Booting ...\n\n", 22, RED);
+    init_klog();
+    klog((char *)"Kernel Booting ...\n\n", 22, RED);
     print_init("graphics", 1);
-    print_init("console", 1);
+    print_init("klog", 1);
 #ifdef QEMU //Debug it before use it on real device.
     init_interrupts();
     print_init("interrupts", 1);
@@ -79,9 +79,9 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_init("drivers", init_drivers());
 
     //TESTS////////////////////////////////////////////////////////////
-    write_console("\n\nFile System:\n", 15, YELLOW);
+    klog("\n\nFile System:\n", 15, YELLOW);
     print_vfs();
-    write_console("\n\n", 2, WHITE);
+    klog("\n\n", 2, WHITE);
     //////////////////////////////////////////////////////////////////
 
 #ifdef QEMU

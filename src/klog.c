@@ -1,4 +1,4 @@
-#include "console.h"
+#include "klog.h"
 
 static s_console csl;
 
@@ -11,7 +11,7 @@ static void clear_console(void)
     csl.y = 0;
 }
 
-void init_console(void)
+void init_klog(void)
 {
     csl.x = 0;
     csl.y = 0;
@@ -37,7 +37,7 @@ static void scroll(void)
     }
 }
 
-int write_console(const char *str, uint32_t size, uint32_t color)
+int klog(const char *str, uint32_t size, uint32_t color)
 {
     int i;
     for (i = 0; i < size && str[i]; i++)

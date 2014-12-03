@@ -2,7 +2,7 @@
 # define UTILS_H
 
 # include <stdint.h>
-# include "console.h"
+# include "klog.h"
 # include "mem.h"
 
 /* Shut up compiler! */
