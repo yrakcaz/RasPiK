@@ -86,7 +86,6 @@ int mkdir(const char *name)
 
     int i;
     inode->inumber = inumber++;
-    inode->lock = 0;
     inode->type = DIR;
     for (i = strlen(path) - 1; path[i] != '/'; i--) {}
     inode->name = path + i + 1;
@@ -119,8 +118,6 @@ int mkdir(const char *name)
 
     dot->inumber = inumber++;
     doubledot->inumber = inumber++;
-    dot->lock = 0;
-    doubledot->lock = 0;
     dot->type = DIR;
     doubledot->type = DIR;
     dot->name = ".";
@@ -158,7 +155,6 @@ static s_vfsinode *create_file(const char *path)
     if (!inode)
         return NULL;
     inode->inumber = inumber++;
-    inode->lock = 0;
     inode->type = FILE;
     int i;
     for (i = strlen(path) - 1; path[i] != '/'; i--) {}
@@ -212,18 +208,6 @@ int open(const char *name, int mode)
     if (((mode & O_APPEND) == O_APPEND) && fd.inode->type == FILE)
         fd.offset = ((s_vfsfile *)fd.inode->node)->size;
     fd.flags = mode;
-    if ((mode & O_RDWR) == O_RDWR)
-    {
-        if (fd.inode->lock == 0)
-            fd.inode->lock = 1;
-        else
-        {
-            if ((mode & O_CREAT) == O_CREAT)
-                free_vfsinode(fd.inode);
-            fd.inode = NULL;
-            return -1;
-        }
-    }
     int i;
     for (i = 0; fd_table[i].inode && i < NBMAX_FD; i++) {}
     if (i >= NBMAX_FD)
@@ -260,8 +244,6 @@ int close(int fd)
 {
     if (fd >= NBMAX_FD || fd_table[fd].inode == NULL)
         return 0;
-    if ((fd_table[fd].flags & O_RDWR) == O_RDWR)
-        fd_table[fd].inode->lock = 0;
     fd_table[fd].inode = NULL;
     return 1;
 }

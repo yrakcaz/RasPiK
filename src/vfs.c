@@ -7,7 +7,6 @@ int init_vfs(void)
     vfsroot.inumber = inumber++;
     vfsroot.type = DIR;
     vfsroot.name = "/";
-    vfsroot.lock = 0;
 
     s_vfsdir *rootdir = kmalloc(sizeof (s_vfsdir));
     if (!rootdir)
@@ -42,8 +41,6 @@ int init_vfs(void)
 
     dot->inumber = inumber++;
     doubledot->inumber = inumber++;
-    dot->lock = 0;
-    doubledot->lock = 0;
     dot->type = DIR;
     doubledot->type = DIR;
     dot->name = ".";
@@ -208,7 +205,6 @@ int add_execentry(const char *path, int (*addr)(int, char **))
     if (!inode)
         return 0;
     inode->inumber = inumber++;
-    inode->lock = 0;
     inode->type = EXEC;
     int i;
     for (i = strlen(path) - 1; path[i] != '/'; i--) {}
@@ -235,7 +231,6 @@ int add_deventry(s_vfsdev *dev)
     if (!inode)
         return 0;
     inode->inumber = inumber++;
-    inode->lock = 0;
     inode->type = DEV;
     inode->name = dev->name;
     inode->node = (void *)dev;

@@ -23,7 +23,6 @@
 typedef struct vfsinode
 {
     int inumber;
-    int lock;
     int type;
     const char *name;
     void *node;

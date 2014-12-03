@@ -10,7 +10,7 @@ EVERYWHERE :
 /!\ FIX WAIT...
 /!\ FIX kfree!!
 
--> Graphics                                         DONE (Add eventually other drawing funcs)
+-> Graphics                                         DONE
 
 -> Console                                          DONE
 
@@ -24,8 +24,6 @@ EVERYWHERE :
     |
     ---> Split VFS / stdio?                         DONE
     |
-    ---> File locking                               DONE
-    |
     ---> Finish mkdir and debug                     DONE
     |
     ---> Re-think about directory management...     DONE
@@ -38,12 +36,20 @@ EVERYWHERE :
 
 -> Drivers (GPIO, SD, USB, Ethernet, leds...)
     |
-    ---> Graphics and TTY drivers needed, with buffer swapping
+    ---> TTY driver
+    |
+    ---> Graphics, with buffer swapping
+    |
+    ---> Do it properly using vfsdev struct...
 
 -> Execution / Processes
+    |
+    ---> Re-think about io and file management..
+
+-> User mode - context switching?
 
 -> Multitasking (Scheduler)
 
 -> Errno?
 
--> Clear, Comments!
+-> Clear, Reorganize boot and klogs, Comments!
