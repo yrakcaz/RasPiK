@@ -79,30 +79,6 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_init("drivers", init_drivers());
 
     //TESTS////////////////////////////////////////////////////////////
-    write_console("\n\n", 2, WHITE);
-    chdir("/home");
-    int fd = open("test", O_CREAT | O_RDWR);
-    if (fd == -1)
-        write_console("Error!\n", 7, WHITE);
-    else
-        if (write(fd, "azertyuiopqsdfghjklmwxcvbn", 26) < 26)
-            write_console("Error!\n", 7, WHITE);
-    close(fd);
-
-    fd = open("/home/test", O_RDONLY);
-    char *buf = kcalloc(27, sizeof (char));
-    if (fd == -1)
-        write_console("Error!\n", 7, WHITE);
-    else
-        if (read(fd, buf, 26) < 26)
-            write_console("Error!\n", 7, WHITE);
-    close(fd); // <-------- THE BUG IS HERE!!
-    write_console(buf, 26, WHITE);
-    int uart = open("/dev/uart", O_RDWR);
-    write(uart, buf, 26);
-    close(uart);
-    kfree(buf);
-
     write_console("\n\nFile System:\n", 15, YELLOW);
     print_vfs();
     write_console("\n\n", 2, WHITE);

@@ -8,12 +8,13 @@ FOR REAL DEVICE :
 
 EVERYWHERE :
 /!\ FIX WAIT...
+/!\ FIX kfree!!
 
 -> Graphics                                         DONE (Add eventually other drawing funcs)
 
 -> Console                                          DONE
 
--> Memory management                                DONE (FIX kmalloc lib!!)
+-> Memory management                                DONE
 
 -> Interrupts                                       DONE (With only timer irq handled)
 
@@ -29,7 +30,7 @@ EVERYWHERE :
     |
     ---> Re-think about directory management...     DONE
     |
-    ---> TEST IT!! (kfree in close to be debugged!)
+    ---> TEST IT MORE!!
 
 -> Syscalls - Kernel                                DONE (Check with argument and return values...)
 
