@@ -65,5 +65,6 @@ int remove_process(int pid)
 
 int run_process(int pid)
 {
+    DO_NOTHING_WITH(pid);
     return -1;
 }
