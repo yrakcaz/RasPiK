@@ -13,7 +13,7 @@ EVERYWHERE :
 
 -> Console                                          DONE
 
--> Memory management                                DONE
+-> Memory management                                DONE (FIX kmalloc lib!!)
 
 -> Interrupts                                       DONE (With only timer irq handled)
 
