@@ -1,7 +1,5 @@
 #include "process.h"
 
-static int nbproc = 0;
-
 int add_process(const char *name, s_context context /* stdio later...*/)
 {
     s_proc *process = kmalloc(sizeof (s_proc));
@@ -12,6 +10,7 @@ int add_process(const char *name, s_context context /* stdio later...*/)
     process->pid = nbproc;
     process->ppid = !current_process ? -1 : current_process->pid;
     process->status = WAIT;
+    process->nbrun = 0;
     process->context = context;
 
     for (int i = 0; i < NBMAX_FD; i++)
@@ -46,6 +45,9 @@ int add_process(const char *name, s_context context /* stdio later...*/)
 int remove_process(int pid)
 {
     s_proc *process = current_process;
+    if (!process)
+        return -1;
+
     int base = process->pid;
 
     do
@@ -55,7 +57,30 @@ int remove_process(int pid)
             process->prev->next = process->next;
             process->next->prev = process->prev;
             kfree(process);
-            return pid;
+            return process->pid;
+        }
+        process = process->next;
+    } while (process->pid != base);
+
+    //Kill children processes?
+
+    return -1;
+}
+
+int kill(int pid, int status)
+{
+    s_proc *process = current_process;
+    if (!process)
+        return -1;
+
+    int base = process->pid;
+
+    do
+    {
+        if (process->pid == pid)
+        {
+            process->status = status;
+            return process->status;
         }
         process = process->next;
     } while (process->pid != base);
@@ -63,8 +88,8 @@ int remove_process(int pid)
     return -1;
 }
 
-int run_process(int pid)
+void init_process(void)
 {
-    DO_NOTHING_WITH(pid);
-    return -1;
+    current_process = NULL;
+    nbproc = 0;
 }

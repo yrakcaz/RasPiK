@@ -21,16 +21,19 @@ typedef struct proc
     int pid;
     int ppid;
     int status;
+    int nbrun;
     s_context context;
     s_fd fd_table[NBMAX_FD];
     struct proc *next;
     struct proc *prev;
 } s_proc;
 
-s_proc *current_process = NULL;
+s_proc *current_process;
+int nbproc;
 
 int add_process(const char *name, s_context context /* stdio later... */);
 int remove_process(int pid);
-int run_process(int pid);
+int kill(int pid, int status);
+void init_process(void);
 
 #endif /* !PROCESS_H */

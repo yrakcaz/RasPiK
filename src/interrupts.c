@@ -55,7 +55,9 @@ void treat_data_abort(void)
                  : [addr]"=r"(fault_addr));
 
     klog("DATA ABORT!\n", 12, BLUE);
-    while (1) {}
+
+    asm volatile ("cps #0x1F");
+    asm volatile ("cpsid aif");
 }
 
 void treat_irq(void)
@@ -67,7 +69,18 @@ void treat_irq(void)
         i = 0;
         tick++;
     }
-    *timerclear = 1; //Will be modified if another IRQ needed.
+
+    // LED blinking here...
+
+    uint64_t pc;
+    uint64_t sp;
+
+    asm volatile ("mov %0, r0\n\t"
+                  : "=r"(pc));
+    asm volatile ("mov %0, sp\n\t"
+                  : "=r"(sp));
+
+    schedule(pc, sp);
 }
 
 uint32_t gettick(void)
@@ -86,4 +99,9 @@ void init_interrupts(void)
     *irqbase = BASEVAL;
     *timerload = LOADVAL;
     *timerctrl = CTRLVAL;
+}
+
+void clear_timer(void)
+{
+    *timerclear = 0;
 }

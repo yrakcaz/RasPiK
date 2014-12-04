@@ -4,6 +4,7 @@
 # include "klog.h"
 # include "mem.h"
 # include "syscall.h"
+# include "scheduler.h"
 
 /* Usefull defines for interrupts.. */
 # define IRQ_BASE 0x2000B000
@@ -41,5 +42,7 @@ void treat_data_abort(void);
 void treat_irq(void);
 
 uint32_t gettick(void); // Returns number of seconds since interrupts init...
+
+void clear_timer(void);
 
 #endif /* !INTERRUPTS_H */

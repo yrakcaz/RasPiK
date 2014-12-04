@@ -1,5 +1,6 @@
 .global vector
 .global raise
+.global end_irq
 
 .extern start
 .extern treat_reset
@@ -30,12 +31,30 @@ swi_handler:
     bx lr
 
 irq_handler:
-    // Save and restore context before and after irq handling
-    sub r14, r14, #4
-    stmfd sp!, {r0,r1,r2,r3,r4,r14}
+    // Save context before irq handling
+    push {r0-r12}
+    mov r0, lr
+    cps #0x1F
+    push {r0}
+    cps #0x12
+    pop {r0-r12}
+    cps #0x1F
+    push {r0-r12}
+    push {lr}
+    mrs r0, SPSR
+    push {r0}
+    cps #0x12
+    mov r0, lr
+    cps #0x1F
     bl treat_irq
-    ldmfd sp!, {r0,r1,r2,r3,r4,pc}^
-    bx lr
+
+end_irq:
+    pop {r0}
+    msr SPSR_cxsf, r0
+    pop {lr}
+    pop {r0-r12}
+    cpsie i
+    pop {pc}
 
 treat_reset:
     mov r0, #0x8000
