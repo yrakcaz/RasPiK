@@ -62,6 +62,21 @@ void treat_data_abort(void)
 
 void treat_irq(void)
 {
+    asm volatile("push {r0-r12}");
+    asm volatile("mov r0, lr");
+    asm volatile("cps #0x1F");
+    asm volatile("push {r0}");
+    asm volatile("cps #0x12");
+    asm volatile("pop {r0-r12}");
+    asm volatile("cps #0x1F");
+    asm volatile("push {r0-r12}");
+    asm volatile("push {lr}");
+    asm volatile("mrs r0, SPSR");
+    asm volatile("push {r0}");
+    asm volatile("cps #0x12");
+    asm volatile("mov r0, lr");
+    asm volatile("cps #0x1F");
+
     static int i = 0;
     i++;
     if (i == 4)
@@ -72,8 +87,8 @@ void treat_irq(void)
 
     // LED blinking here...
 
-    uint64_t pc;
-    uint64_t sp;
+    uint32_t pc;
+    uint32_t sp;
 
     asm volatile ("mov %0, r0\n\t"
                   : "=r"(pc));

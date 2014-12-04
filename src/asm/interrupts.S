@@ -20,7 +20,7 @@ vector:
     b treat_pref_abort
     b treat_data_abort
     b treat_unused
-    b irq_handler
+    b treat_irq
     b treat_fiq
 
 swi_handler:

@@ -11,8 +11,8 @@
 
 typedef struct context
 {
-    uint64_t sp;
-    uint64_t pc;
+    uint32_t sp;
+    uint32_t pc;
 } s_context;
 
 typedef struct proc
