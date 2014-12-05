@@ -4,25 +4,34 @@
 # include "klog.h"
 # include "mem.h"
 # include "syscall.h"
+# include "timers.h"
 
-/* Usefull defines for interrupts.. */
-# define IRQ_BASE 0x2000B000
+# define BASE_INTERRUPTS 0x2000B200
 
-# define BASE     0x218
+# define IRQ_TIMERARM    (1 << 0)
+# define IRQ_MAILBOX     (1 << 1)
+# define IRQ_BELL0       (1 << 2)
+# define IRQ_BELL1       (1 << 3)
+# define IRQ_GPU0        (1 << 4)
+# define IRQ_GPU1        (1 << 5)
+# define IRQ_ERROR1      (1 << 6)
+# define IRQ_ERROR0      (1 << 7)
 
-# define TMLOAD   0x400
-# define TMCTRL   0x408
-# define TMCLR    0x40C
+typedef struct interrupts
+{
+    volatile uint32_t irq_pend0;
+    volatile uint32_t irq_pend1;
+    volatile uint32_t irq_pend2;
+    volatile uint32_t fiq_ctrl;
+    volatile uint32_t irq_en1;
+    volatile uint32_t irq_en2;
+    volatile uint32_t irq_en0;
+    volatile uint32_t irq_dis1;
+    volatile uint32_t irq_dis2;
+    volatile uint32_t irq_dis0;
+} s_interrupts;
 
-# define BASEVAL  0x00000001
-# define LOADVAL  0x00000400
-
-# define BITS23   (1 << 1)
-# define PRE256   (2 << 2)
-# define INTEN    (1 << 5)
-# define ENABLE   (1 << 7)
-
-# define CTRLVAL  (BITS23 | PRE256 | INTEN | ENABLE)
+s_interrupts *interrupts;
 
 typedef void (*funcptr)(int, int, int, int);
 

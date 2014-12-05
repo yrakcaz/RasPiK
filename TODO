@@ -34,9 +34,9 @@ TODO:
 
 -> Interrupts
     |
-    ---> Re-write everything to have a real interrupt management
+    ---> IRQ / Timer!                                                      DONE
     |
-    ---> IRQ / Timer!
+    ---> Handle every interrupts!
 
 -> Syscalls
     |
@@ -92,6 +92,8 @@ TODO:
     --> libs
 
 -> End
+    |
+    ---> Make it works on real device!
     |
     ---> Reorganize boot and klog
     |

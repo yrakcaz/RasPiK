@@ -1,11 +1,5 @@
 #include "interrupts.h"
 
-static volatile uint32_t *irqbase = (uint32_t *)(IRQ_BASE + BASE);
-
-static volatile uint32_t *timerload = (uint32_t *)(IRQ_BASE + TMLOAD);
-static volatile uint32_t *timerctrl = (uint32_t *)(IRQ_BASE + TMCTRL);
-static volatile uint32_t *timerclear = (uint32_t *)(IRQ_BASE + TMCLR);
-
 void treat_undef(void)
 {
     klog("Bad Exception handled: UNDEF!\n", 30, RED);
@@ -59,18 +53,18 @@ void treat_data_abort(void)
 
 void treat_irq(void)
 {
-    *timerclear = 1; //Will be modified if another IRQ needed.
+    timerarm->clr_irq = IRQ_TIMERARM;
 }
 
 extern void vector();
 
 void init_interrupts(void)
 {
+    interrupts = (s_interrupts *)BASE_INTERRUPTS;
+
     asm volatile ("mcr p15, 0, %[addr], c12, c0, 00"
                   :: [addr]"r"(&vector));
     asm volatile ("cpsie i");
 
-    *irqbase = BASEVAL;
-    *timerload = LOADVAL;
-    *timerctrl = CTRLVAL;
+    interrupts->irq_en0 = IRQ_TIMERARM;
 }
