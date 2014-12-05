@@ -73,7 +73,7 @@ TODO:
 
 -> Processes, execution, scheduling
     |
-    ---> Process structure (with fd table and context)
+    ---> Process structure (with fd table and context)                     DONE
     |
     ---> Scheduler
     |
