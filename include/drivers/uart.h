@@ -5,6 +5,7 @@
 # include "utils.h"
 # include "vfs.h"
 # include "driver.h"
+# include "timers.h"
 
 /* Define GPIO addresses. */
 # define BASE_GPIO   0x20200000

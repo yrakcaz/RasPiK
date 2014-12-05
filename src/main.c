@@ -1,5 +1,6 @@
 #include "klog.h"
 #include "mem.h"
+#include "timers.h"
 #include "interrupts.h"
 #include "atags.h"
 #include "syscall.h"
@@ -62,7 +63,9 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     if (!init_graphics())
         return;
     init_klog();
+    init_timers();
     klog((char *)"Kernel Booting ...\n\n", 22, RED);
+    print_init("timers", 1);
     print_init("graphics", 1);
     print_init("klog", 1);
 #ifdef QEMU //Debug it before use it on real device.
@@ -87,6 +90,18 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 #endif
 
     //Stay alive...
+    uint64_t t = get_time();
+    int i = 0;
     while (state)
-        draw_star();
+    {
+        uint64_t u = get_time();
+        if (u >= t + HUMAN_TIME)
+        {
+            t = u;
+            klog(itoa(i, 10), strlen(itoa(i, 10)), RED);
+            klog("\n", 1, RED);
+            i++;
+        }
+    }
+    draw_star();
 }
