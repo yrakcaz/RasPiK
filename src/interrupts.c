@@ -5,7 +5,6 @@ static volatile uint32_t *irqbase = (uint32_t *)(IRQ_BASE + BASE);
 static volatile uint32_t *timerload = (uint32_t *)(IRQ_BASE + TMLOAD);
 static volatile uint32_t *timerctrl = (uint32_t *)(IRQ_BASE + TMCTRL);
 static volatile uint32_t *timerclear = (uint32_t *)(IRQ_BASE + TMCLR);
-static uint32_t tick = 0; //Represents approximatively the number of seconds since the interrupts init.
 
 void treat_undef(void)
 {
@@ -60,19 +59,7 @@ void treat_data_abort(void)
 
 void treat_irq(void)
 {
-    static int i = 0;
-    i++;
-    if (i == 4)
-    {
-        i = 0;
-        tick++;
-    }
     *timerclear = 1; //Will be modified if another IRQ needed.
-}
-
-uint32_t gettick(void)
-{
-    return tick;
 }
 
 extern void vector();

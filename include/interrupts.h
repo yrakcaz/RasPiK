@@ -40,6 +40,4 @@ void treat_pref_abort(void);
 void treat_data_abort(void);
 void treat_irq(void);
 
-uint32_t gettick(void); // Returns number of seconds since interrupts init...
-
 #endif /* !INTERRUPTS_H */

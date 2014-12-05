@@ -89,19 +89,6 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_atags(atags);
 #endif
 
-    //Stay alive...
-    uint64_t t = get_time();
-    int i = 0;
     while (state)
-    {
-        uint64_t u = get_time();
-        if (u >= t + HUMAN_TIME)
-        {
-            t = u;
-            klog(itoa(i, 10), strlen(itoa(i, 10)), RED);
-            klog("\n", 1, RED);
-            i++;
-        }
-    }
-    draw_star();
+        draw_star();
 }
