@@ -55,28 +55,11 @@ void treat_data_abort(void)
                  : [addr]"=r"(fault_addr));
 
     klog("DATA ABORT!\n", 12, BLUE);
-
-    asm volatile ("cps #0x1F");
-    asm volatile ("cpsid aif");
+    while (1) {}
 }
 
 void treat_irq(void)
 {
-    asm volatile("push {r0-r12}");
-    asm volatile("mov r0, lr");
-    asm volatile("cps #0x1F");
-    asm volatile("push {r0}");
-    asm volatile("cps #0x12");
-    asm volatile("pop {r0-r12}");
-    asm volatile("cps #0x1F");
-    asm volatile("push {r0-r12}");
-    asm volatile("push {lr}");
-    asm volatile("mrs r0, SPSR");
-    asm volatile("push {r0}");
-    asm volatile("cps #0x12");
-    asm volatile("mov r0, lr");
-    asm volatile("cps #0x1F");
-
     static int i = 0;
     i++;
     if (i == 4)
@@ -84,18 +67,7 @@ void treat_irq(void)
         i = 0;
         tick++;
     }
-
-    // LED blinking here...
-
-    uint32_t pc;
-    uint32_t sp;
-
-    asm volatile ("mov %0, r0\n\t"
-                  : "=r"(pc));
-    asm volatile ("mov %0, sp\n\t"
-                  : "=r"(sp));
-
-    schedule(pc, sp);
+    *timerclear = 1; //Will be modified if another IRQ needed.
 }
 
 uint32_t gettick(void)
@@ -114,9 +86,4 @@ void init_interrupts(void)
     *irqbase = BASEVAL;
     *timerload = LOADVAL;
     *timerctrl = CTRLVAL;
-}
-
-void clear_timer(void)
-{
-    *timerclear = 0;
 }

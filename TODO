@@ -1,55 +1,100 @@
 TODO:
 =====
 
-FOR REAL DEVICE :
-/!\ FIX HALT!!
-/!\ FIX Interrupts!! (reset?)
-/!\ OPTI SCROLLING!!
-
-EVERYWHERE :
-/!\ FIX WAIT...
-/!\ FIX kfree!!
-
--> Graphics                                         DONE
-
--> Console                                          DONE
-
--> Memory management                                DONE (Improve it : segmentation, paging...)
-
--> Interrupts                                       DONE (With only timer irq handled)
-
--> Virtual File system                              DONE
+-> Bootloader
     |
-    ---> Devices/Drivers -> modularity!             DONE
+    ---> Initialisation                                                    DONE
     |
-    ---> Split VFS / stdio?                         DONE
+    ---> Halt / Reboot
     |
-    ---> Finish mkdir and debug                     DONE
+    ---> Fix wait
+
+-> Graphics / Console
     |
-    ---> Re-think about directory management...     DONE
+    ---> HDMI driver                                                       DONE
     |
-    ---> TEST IT MORE!!
-
--> Syscalls - Kernel                                DONE (Check with argument and return values...)
-
--> Syscalls - User
-
--> Drivers (GPIO, SD, USB, Ethernet, leds...)
+    ---> Terminal driver                                                   DONE
     |
-    ---> TTY driver
+    ---> Optimize scrolling
     |
-    ---> Graphics, with buffer swapping
+    ---> Buffer swapping
     |
-    ---> Do it properly using vfsdev struct...
+    ---> Find out a way to have it at kernel init and put it 
+         into the vfs at its init, as a device, then redirect klogs...
 
--> Execution / Processes
+-> Memory Management
     |
-    ---> Re-think about io and file management (fd table)
+    ---> Dummy sbrk                                                        DONE
+    |
+    ---> Real memory management (segmentation, paging...)
+    |
+    ---> kmalloc, kfree, kcalloc, krealloc                                 DONE
+            |
+            ---> Fix kfree!!
 
--> User mode - context switching?
+-> Interrupts
+    |
+    ---> Re-write everything to have a real interrupt management
+    |
+    ---> IRQ / Timer!
 
--> Multitasking (Scheduler)
+-> Syscalls
+    |
+    ---> Kernel land
+    |       |
+    |       ---> Adapt to new interrupt handling
+    |
+    ---> User land
 
--> Errno?
+-> File Systems
+    |
+    ---> Dummy virtual file system                                         DONE
+    |
+    ---> Real Virtual File System including FAT or Ext2
+         for devices mounting...
 
--> Clear, Reorganize boot and klogs, Comments!
+-> Drivers
+    |
+    ---> UART                                                              DONE
+    |
+    ---> Graphics, tty
+    |
+    ---> Leds
+    |
+    ---> GPIO
+    |
+    ---> SD
+    |
+    ---> USB
+    |
+    ---> Ethernet
+    |
+    ---> [...] (Do it properly using dev struct and addr params)
+
+-> Processes, execution, scheduling
+    |
+    ---> Process structure (with fd table and context)
+    |
+    ---> Scheduler
+    |
+    ---> Thread / fork
+    |
+    ---> Elf and apps exec
+    |
+    ---> Context switching?
+
+-> Error management
+    |
+    ---> errno
+
+-> Userland
+    |
+    --> libs
+
+-> End
+    |
+    ---> Reorganize boot and klog
+    |
+    ---> Clear the code
+    |
+    ---> Comments / Doxygen!!

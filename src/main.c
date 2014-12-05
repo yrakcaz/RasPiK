@@ -6,7 +6,6 @@
 #include "vfs.h"
 #include "io.h"
 #include "driver.h"
-#include "process.h"
 
 //Time delay which a human can feel...
 # define HUMAN_TIME 1000000
@@ -79,14 +78,7 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_init("IO", init_io());
     print_init("drivers", init_drivers());
 
-    init_process();
-    print_init("process", 1);
-
-    //TESTS////////////////////////////////////////////////////////////
-    /*klog("\n\nFile System:\n", 15, YELLOW);
-    print_vfs();
-    klog("\n\n", 2, WHITE);*/
-    //////////////////////////////////////////////////////////////////
+    klog("\n\n", 2, WHITE);
 
 #ifdef QEMU
     DO_NOTHING_WITH(atags);
@@ -94,9 +86,7 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_atags(atags);
 #endif
 
-    print_init("scheduler", init_scheduler());
-
     //Stay alive...
-    while (state);
-    draw_star();
+    while (state)
+        draw_star();
 }
