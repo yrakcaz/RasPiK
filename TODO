@@ -19,7 +19,7 @@ TODO:
     |
     ---> Buffer swapping
     |
-    ---> Find out a way to have it at kernel init and put it 
+    ---> Find out a way to have it at kernel init and put it
          into the vfs at its init, as a device, then redirect klogs...
 
 -> Memory Management
@@ -96,5 +96,7 @@ TODO:
     ---> Reorganize boot and klog
     |
     ---> Clear the code
+    |
+    ---> README, Makefile, configure, scripts etc.
     |
     ---> Comments / Doxygen!!
