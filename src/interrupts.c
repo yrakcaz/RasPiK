@@ -54,6 +54,13 @@ void treat_data_abort(void)
 void treat_irq(void)
 {
     timerarm->clr_irq = IRQ_TIMERARM;
+
+    uint32_t pc;
+    uint32_t sp;
+    asm volatile ("mov %0, r0\n\t" : "=r"(pc));
+    asm volatile ("mov %0, sp\n\t" : "=r"(sp));
+
+    schedule(pc, sp);
 }
 
 extern void vector();

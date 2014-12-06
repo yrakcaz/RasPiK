@@ -5,6 +5,7 @@
 # include "mem.h"
 # include "syscall.h"
 # include "timers.h"
+# include "scheduler.h"
 
 # define BASE_INTERRUPTS 0x2000B200
 
