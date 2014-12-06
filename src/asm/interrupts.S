@@ -11,7 +11,6 @@
 .extern treat_irq
 .extern treat_fiq
 
-.extern switch_context
 .extern context_exit
 
 vector:
@@ -41,9 +40,7 @@ irq_handler:
     sub sp, sp, r0
     push {r0, lr}
     bl treat_irq
-    cmp r0, #0
-    ble context_exit
-    b switch_context
+    b context_exit
 
 treat_reset:
     mov r0, #0x8000

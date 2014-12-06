@@ -1,8 +1,4 @@
-.global switch_context
 .global context_exit
-
-switch_context:
-    b switch_context
 
 context_exit:
     pop {r0, lr}
