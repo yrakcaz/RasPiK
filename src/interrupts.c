@@ -51,9 +51,10 @@ void treat_data_abort(void)
     while (1) {}
 }
 
-void treat_irq(void)
+int treat_irq(void)
 {
     timerarm->clr_irq = IRQ_TIMERARM;
+    return 0;
 }
 
 extern void vector();

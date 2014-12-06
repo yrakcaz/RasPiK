@@ -47,6 +47,6 @@ void treat_fiq(void);
 void treat_swi(int r0, int r1, int r2, int r3);
 void treat_pref_abort(void);
 void treat_data_abort(void);
-void treat_irq(void);
+int treat_irq(void);
 
 #endif /* !INTERRUPTS_H */

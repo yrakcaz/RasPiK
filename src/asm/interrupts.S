@@ -11,6 +11,9 @@
 .extern treat_irq
 .extern treat_fiq
 
+.extern switch_context
+.extern context_exit
+
 vector:
     // Interrupts vector
     b treat_reset
@@ -30,12 +33,17 @@ swi_handler:
     bx lr
 
 irq_handler:
-    // Save and restore context before and after irq handling
-    sub r14, r14, #4
-    stmfd sp!, {r0,r1,r2,r3,r4,r14}
+    sub lr, lr, #4
+    srsdb sp!, #0x1F
+    cpsid i, #0x1F
+    push {r0-r12}
+    and r0, sp, #4
+    sub sp, sp, r0
+    push {r0, lr}
     bl treat_irq
-    ldmfd sp!, {r0,r1,r2,r3,r4,pc}^
-    bx lr
+    cmp r0, #0
+    ble context_exit
+    b switch_context
 
 treat_reset:
     mov r0, #0x8000

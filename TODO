@@ -36,7 +36,7 @@ TODO:
     |
     ---> IRQ / Timer!                                                      DONE
     |
-    ---> Handle every interrupts!
+    ---> Handle every interrupts and IRQs!
 
 -> Syscalls
     |
