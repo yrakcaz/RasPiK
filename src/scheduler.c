@@ -4,7 +4,7 @@ static void switch_context(void)
 {
     asm volatile("mov sp, %[addr]"
                  :: [addr]"r"((uint32_t)(current_process->sp)));
-    if (current_process->nbrun <= 1)
+    if (current_process->nbrun > 1)
     {
         asm volatile("pop {r0, lr}");
         asm volatile("add sp, sp, r0");

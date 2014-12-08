@@ -51,7 +51,9 @@ TODO:
     ---> Dummy virtual file system                                         DONE
     |
     ---> Real Virtual File System including FAT or Ext2
-         for devices mounting...
+    |    for devices mounting...
+    |
+    ---> Locking!
 
 -> Drivers
     |
@@ -77,7 +79,7 @@ TODO:
     |
     ---> Scheduler                                                         DONE
     |       |
-    |       ---> Improve it, fix scrolling...
+    |       ---> Improve it!!
     |
     ---> Thread / fork
     |
