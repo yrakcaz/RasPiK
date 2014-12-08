@@ -1,5 +1,25 @@
 #include "scheduler.h"
 
+static void switch_context(void)
+{
+    asm volatile("mov sp, %[addr]"
+                 :: [addr]"r"((uint32_t)(current_process->sp)));
+    if (current_process->nbrun <= 1)
+    {
+        asm volatile("pop {r0, lr}");
+        asm volatile("add sp, sp, r0");
+        asm volatile("pop {r0-r12}");
+        asm volatile("rfeia sp!");
+    }
+    else
+    {
+        asm volatile("mov r0, %0" :: "r"(current_process->pc));
+        asm volatile("push {r0}");
+        asm volatile("cpsie i");
+        asm volatile("pop {pc}");
+    }
+}
+
 void schedule(void)
 {
     if (!current_process || (nbproc < 2))
@@ -19,22 +39,7 @@ void schedule(void)
     current_process->nbrun++;
 
     /* Then switch context */
-    asm volatile("mov sp, %[addr]" 
-                 :: [addr]"r"((uint32_t)(current_process->sp)));
-    if (current_process->nbrun <= 1)
-    {
-        asm volatile("pop {r0, lr}");
-        asm volatile("add sp, sp, r0");
-        asm volatile("pop {r0-r12}");
-        asm volatile("rfeia sp!");
-    }
-    else
-    {
-        asm volatile("mov r0, %0" :: "r"(current_process->pc));
-        asm volatile("push {r0}");
-        asm volatile("cpsie i");
-        asm volatile("pop {pc}");
-    }
+    switch_context();
 }
 
 void process1(void)
