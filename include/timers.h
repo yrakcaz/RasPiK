@@ -13,7 +13,7 @@
 # define EN_TIMERARM     (1 << 7)
 # define DIS_TIMERARM    (0 << 7)
 
-# define RATE_TIMERARM   0x1
+# define RATE_TIMERARM   0x5
 
 typedef struct timerarm
 {

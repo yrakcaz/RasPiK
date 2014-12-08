@@ -11,8 +11,6 @@
 .extern treat_irq
 .extern treat_fiq
 
-.extern context_exit
-
 vector:
     // Interrupts vector
     b treat_reset
@@ -31,6 +29,12 @@ swi_handler:
     ldmfd sp!, {r0,r1,r2,r3,r4,pc}^
     bx lr
 
+context_exit:
+    pop {r0, lr}
+    add sp, sp, r0
+    pop {r0-r12}
+    rfeia sp!
+
 irq_handler:
     sub lr, lr, #4
     srsdb sp!, #0x1F
@@ -39,6 +43,7 @@ irq_handler:
     and r0, sp, #4
     sub sp, sp, r0
     push {r0, lr}
+    mov r0, sp
     bl treat_irq
     b context_exit
 

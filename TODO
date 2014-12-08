@@ -75,13 +75,15 @@ TODO:
     |
     ---> Process structure (with fd table and context)                     DONE
     |
-    ---> Scheduler
+    ---> Scheduler                                                         DONE
+    |       |
+    |       ---> Improve it, fix scrolling...
     |
     ---> Thread / fork
     |
     ---> Elf and apps exec
     |
-    ---> Context switching?
+    ---> Task context switching                                            DONE
 
 -> Error management
     |
@@ -89,7 +91,9 @@ TODO:
 
 -> Userland
     |
-    --> libs
+    ---> Switch to user mode
+    |
+    ---> libs
 
 -> End
     |
