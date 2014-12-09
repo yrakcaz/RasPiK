@@ -47,7 +47,7 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
         process->fd_table[i].inode = NULL;
     //STDIOS here!
 
-    switch (nbproc)
+    switch (real_nbproc)
     {
         case 0:
             current_process = process;
@@ -66,6 +66,7 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
             break;
     }
     nbproc++;
+    real_nbproc++;
 
     //Create corresponding file?
 
@@ -78,6 +79,13 @@ int remove_process(int pid)
     if (!process)
         return -1;
 
+    if (pid == 1)
+    {
+        klog("\n\n*** SYSTEM HALTING ***\n", 25, RED);
+        while (1)
+            asm volatile("wfe");
+    }
+
     int base = process->pid;
 
     do
@@ -88,6 +96,9 @@ int remove_process(int pid)
             process->prev->next = process->next;
             process->next->prev = process->prev;
             kfree(process);
+            real_nbproc--;
+            if (real_nbproc == 1)
+                current_process->status = WAIT;
             return process->pid;
         }
         process = process->next;
@@ -119,10 +130,17 @@ int kill(int pid, int status)
     return -1;
 }
 
+void exit(int status)
+{
+    DO_NOTHING_WITH(status); // <-- Do something with it..
+    kill(current_process->pid, TERM);
+}
+
 void init_process(void)
 {
     for (int i = 0; i < NBMAX_PROC; i++)
         stacks[i] = 0;
     current_process = NULL;
-    nbproc = 0;
+    nbproc = 1;
+    real_nbproc = 0;
 }

@@ -7,7 +7,6 @@
 # define WAIT   1
 # define ZOMBIE 2
 # define TERM   3
-# define ABORT  4
 
 # define NBMAX_PROC 4096
 # define STACK_SIZE 2048
@@ -29,10 +28,12 @@ typedef struct proc
 
 s_proc *current_process;
 int nbproc;
+int real_nbproc;
 
 int add_process(const char *name, uint32_t pc/* stdio later... */);
 int remove_process(int pid);
 int kill(int pid, int status);
+void exit(int status);
 void init_process(void);
 
 #endif /* !PROCESS_H */

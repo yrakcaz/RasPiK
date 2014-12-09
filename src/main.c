@@ -96,6 +96,16 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_atags(atags);
 #endif
 
-    while (state)
+    while (state++)
+    {
+        if (state == 10)
+        {
+            DISABLE_INTERRUPTS(); // Future userland add and remove processes syscall will need this.
+            add_process("process1", (uint32_t)&process1);
+            ENABLE_INTERRUPTS();
+        }
+        if (state == 20)
+            exit(0);
         draw_star();
+    }
 }

@@ -33,6 +33,8 @@ void schedule(void)
     /* Choose next process */
     do
     {
+        if (current_process->next->status == TERM)
+            remove_process(current_process->next->pid);
         current_process = current_process->next;
     } while (current_process->status != WAIT);
     current_process->status = RUN;
@@ -44,14 +46,25 @@ void schedule(void)
 
 void process1(void)
 {
+    int i = 0;
     while (1)
+    {
+        if (i == 10)
+            exit(0);
+        i++;
         klog("Bonjour\n", 8, GREEN);
+    }
 }
 
 void process2(void)
 {
+    int i = 0;
     while (1)
+    {
+        if (i++ >= 20)
+            exit(0);
         klog("Aurevoir\n", 9, YELLOW);
+    }
 }
 
 void endloop(void)
@@ -61,6 +74,8 @@ void endloop(void)
 
 int init_scheduler(void)
 {
+    DISABLE_INTERRUPTS();
+
     if (add_process("init", (uint32_t)&endloop) < 0)
         return 0;
     if (add_process("process1", (uint32_t)&process1) < 0)
@@ -68,7 +83,8 @@ int init_scheduler(void)
     if (add_process("process2", (uint32_t)&process2) < 0)
         return 0;
     current_process->nbrun++;
-    current_process->status = ZOMBIE;
+
+    ENABLE_INTERRUPTS();
 
     return 1;
 }
