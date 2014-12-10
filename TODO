@@ -54,6 +54,8 @@ TODO:
     |
     ---> UART                                                              DONE
     |
+    ---> Separate mailbox!!
+    |
     ---> HDMI, tty + buffer swapping
     |
     ---> Leds
