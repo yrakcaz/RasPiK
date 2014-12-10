@@ -43,6 +43,9 @@ TODO:
 -> File Systems
     |
     ---> Dummy virtual file system                                         DONE
+    |       |
+    |       ---> Do something really easier with
+    |             just devices and mounting points!
     |
     ---> Handle FAT32
     |
