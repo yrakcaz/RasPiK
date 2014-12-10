@@ -84,15 +84,11 @@ TODO:
     |
     ---> Task context switching                                            DONE
 
--> Error management
-    |
-    ---> errno
-
 -> Userland
     |
     ---> Switch to user mode
     |
-    ---> libs
+    ---> libs (Errno!)
 
 -> End
     |
