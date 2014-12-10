@@ -10,9 +10,6 @@
 #include "process.h"
 #include "scheduler.h"
 
-//Time delay which a human can feel...
-# define HUMAN_TIME 1000000
-
 static void print_init(const char *module, int success)
 {
     klog("[", 1, WHITE);
@@ -27,7 +24,7 @@ static void print_init(const char *module, int success)
     wait(HUMAN_TIME);
 }
 
-static void draw_star(void)
+void draw_star(void)
 {
     static int i = 0;
     switch (i)
@@ -56,8 +53,6 @@ static void draw_star(void)
 //Kernel entry_point...
 void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 {
-    uint32_t state = 1;
-
     DO_NOTHING_WITH(r0);
     DO_NOTHING_WITH(r1);
 
@@ -96,16 +91,12 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_atags(atags);
 #endif
 
-    while (state++)
-    {
-        if (state == 10)
-        {
-            DISABLE_INTERRUPTS(); // Future userland add and remove processes syscall will need this.
-            add_process("process1", (uint32_t)&process1);
-            ENABLE_INTERRUPTS();
-        }
-        if (state == 20)
-            exit(0);
+    for (int i = 0; i < 10; i++)
         draw_star();
-    }
+    clear_klogs();
+
+    add_process("process1", (uint32_t)&process1);
+    add_process("process2", (uint32_t)&process2);
+
+    for (;;);
 }

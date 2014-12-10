@@ -10,6 +10,8 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
     if (!process)
         return -1;
 
+    DISABLE_INTERRUPTS();
+
     process->name = name;
     process->pid = nbproc;
     process->ppid = !current_process ? -1 : current_process->pid;
@@ -38,6 +40,7 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
         }
         if (i >= NBMAX_PROC)
         {
+            ENABLE_INTERRUPTS();
             kfree(process);
             return -1;
         }
@@ -51,6 +54,8 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
     {
         case 0:
             current_process = process;
+            current_process->next = process;
+            current_process->prev = process;
             break;
         case 1:
             current_process->next = process;
@@ -70,6 +75,11 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
 
     //Create corresponding file?
 
+    if (real_nbproc == 1)
+        current_process->nbrun++;
+
+    ENABLE_INTERRUPTS();
+
     return process->pid;
 }
 
@@ -78,6 +88,8 @@ int remove_process(int pid)
     s_proc *process = current_process;
     if (!process)
         return -1;
+
+    DISABLE_INTERRUPTS();
 
     if (pid == 1)
     {
@@ -99,6 +111,7 @@ int remove_process(int pid)
             real_nbproc--;
             if (real_nbproc == 1)
                 current_process->status = WAIT;
+            ENABLE_INTERRUPTS();
             return process->pid;
         }
         process = process->next;
@@ -106,6 +119,7 @@ int remove_process(int pid)
 
     //Kill children processes?
 
+    ENABLE_INTERRUPTS();
     return -1;
 }
 

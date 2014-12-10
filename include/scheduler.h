@@ -4,16 +4,11 @@
 # include "process.h"
 # include "interrupts.h"
 
-# define ENABLE_INTERRUPTS() \
-    asm volatile("cpsie i");
-
-# define DISABLE_INTERRUPTS() \
-    asm volatile("cpsid i");
-
 void schedule(void);
 int init_scheduler(void);
 
 //DEBUG:
 void process1(void);
+void process2(void);
 
 #endif /* !SCHEDULER_H */

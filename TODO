@@ -9,18 +9,12 @@ TODO:
     |
     ---> Fix wait                                                          DONE
 
--> Graphics / Console
-    |
-    ---> HDMI driver                                                       DONE
-    |
-    ---> Terminal driver                                                   DONE
+-> Klogs                                                                   DONE
     |
     ---> Optimize scrolling
     |
-    ---> Buffer swapping
-    |
-    ---> Find out a way to have it at kernel init and put it
-         into the vfs at its init, as a device, then redirect klogs...
+    ---> At sched init, clear screen and redirect klogs
+         (without scroll) into a file.
 
 -> Memory Management
     |
@@ -59,7 +53,7 @@ TODO:
     |
     ---> UART                                                              DONE
     |
-    ---> Graphics, tty
+    ---> HDMI, tty + buffer swapping
     |
     ---> Leds
     |
@@ -80,6 +74,8 @@ TODO:
     ---> Scheduler                                                         DONE
     |       |
     |       ---> Improve it!!
+    |
+    ---> One fd table per process (add STDIOs)  -> file locking!
     |
     ---> Thread / fork
     |

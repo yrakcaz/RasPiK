@@ -2,7 +2,7 @@
 
 static s_console csl;
 
-static void clear_console(void)
+void clear_klogs(void)
 {
     for (int i = 0; i < SCREEN_WIDTH; i++)
         for (int j = 0; j < SCREEN_HEIGHT; j++)
@@ -16,7 +16,7 @@ void init_klog(void)
     csl.x = 0;
     csl.y = 0;
     csl.margin = MARGIN;
-    clear_console();
+    clear_klogs();
 }
 
 static void scroll(void)

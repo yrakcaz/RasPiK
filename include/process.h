@@ -3,6 +3,12 @@
 
 # include "io.h"
 
+# define ENABLE_INTERRUPTS() \
+    asm volatile("cpsie i");
+
+# define DISABLE_INTERRUPTS() \
+    asm volatile("cpsid i");
+
 # define RUN    0
 # define WAIT   1
 # define ZOMBIE 2

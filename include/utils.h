@@ -5,6 +5,9 @@
 # include "klog.h"
 # include "mem.h"
 
+/* Time delay which a human can feel... */
+# define HUMAN_TIME 1000000
+
 /* Shut up compiler! */
 # define DO_NOTHING_WITH(X) (void)(X)
 
