@@ -44,10 +44,11 @@ TODO:
     |
     ---> Dummy virtual file system                                         DONE
     |
-    ---> Real Virtual File System including FAT or Ext2
-    |    for devices mounting...
+    ---> Handle FAT32
     |
-    ---> Locking!
+    ---> Handle Ext2
+    |
+    ---> Adapt dummy vfs to FAT32 and Ext2 mounted devices
 
 -> Drivers
     |
