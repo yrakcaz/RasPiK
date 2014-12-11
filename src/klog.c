@@ -20,13 +20,13 @@ static void kikoo_thing(void)
             klog("\b\b\b", 3, RED);
         else
             klog(".", 1, RED);
-        for (int j = HUMAN_TIME * 50; j; j--);
+        for (int j = HUMAN_TIME * KIKOO_RATE; j; j--);
     }
     klog("\n\n\n", 3, RED);
     klog("[", 1, WHITE);
     klog("...", 3, RED);
     klog("]", 1, WHITE);
-    for (int j = HUMAN_TIME * 50; j; j--);
+    for (int j = HUMAN_TIME * KIKOO_RATE; j; j--);
     klog("\b\b\b\bOK", 6, GREEN);
     klog("]\tKlogs initialized!\n", 21, WHITE);
 }

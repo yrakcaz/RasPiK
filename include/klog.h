@@ -8,6 +8,12 @@
 # define NBLIN  36
 # define MARGIN 10
 
+# ifdef QEMU
+#  define KIKOO_RATE 50
+# else
+#  define KIKOO_RATE 1
+#endif
+
 /* Structure which describes the console */
 typedef struct console
 {

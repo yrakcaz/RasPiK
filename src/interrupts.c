@@ -65,6 +65,7 @@ void init_interrupts(void)
     klog("...", 3, RED);
     klog("]", 1, WHITE);
 
+#ifdef QEMU
     interrupts = (s_interrupts *)BASE_INTERRUPTS;
 
     asm volatile ("mcr p15, 0, %[addr], c12, c0, 00"
@@ -76,4 +77,9 @@ void init_interrupts(void)
     wait(HUMAN_TIME / 2);
     klog("\b\b\b\bOK", 6, GREEN);
     klog("]\tInterrupt vector initialized!\n", 32, WHITE);
+#else
+    wait(HUMAN_TIME / 2);
+    klog("\b\b\b\bKO", 6, RED);
+    klog("]\tInterrupt vector initialization failed.\n", 42, WHITE);
+#endif
 }
