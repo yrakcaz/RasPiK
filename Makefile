@@ -1,9 +1,8 @@
 CROSS_PREFIX ?= /usr/local/cross/bin/arm-linux-
 ASM_SRC := src/asm/boot.S src/asm/interrupts.S src/asm/utils.S
-C_SRC := src/utils.c src/graphics.c src/klog.c src/mem.c src/driver.c      \
-		 src/syscall.c src/timers.c src/interrupts.c src/atags.c src/vfs.c \
-		 src/io.c src/process.c src/scheduler.c src/main.c
-C_SRC += src/drivers/uart.c
+C_SRC := src/utils.c src/graphics.c src/klog.c src/atags.c src/mem.c         \
+		 src/syscall.c src/timers.c src/interrupts.c src/process.c           \
+		 src/scheduler.c src/main.c
 OBJ := $(ASM_SRC:.S=.o)
 OBJ += $(C_SRC:.c=.o)
 LINK := src/rpi-link.ld
@@ -13,7 +12,7 @@ QEMU := 1
 
 DEPENDFLAGS := -MD -MP
 INCLUDES    := -I include
-BASEFLAGS   := -fpic -pedantic -pedantic-errors -nostdlib
+BASEFLAGS   := -fpic -nostdlib
 BASEFLAGS   += -ffreestanding -fomit-frame-pointer -mcpu=arm1176jzf-s
 WARNFLAGS   := -Wall -Wextra -Wshadow
 WARNFLAGS   += -Wredundant-decls -Winline

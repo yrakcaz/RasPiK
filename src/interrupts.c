@@ -61,6 +61,10 @@ extern void vector();
 
 void init_interrupts(void)
 {
+    klog("[", 1, WHITE);
+    klog("...", 3, RED);
+    klog("]", 1, WHITE);
+
     interrupts = (s_interrupts *)BASE_INTERRUPTS;
 
     asm volatile ("mcr p15, 0, %[addr], c12, c0, 00"
@@ -68,4 +72,8 @@ void init_interrupts(void)
     asm volatile ("cpsie i");
 
     interrupts->irq_en0 = IRQ_TIMERARM;
+
+    wait(HUMAN_TIME / 2);
+    klog("\b\b\b\bOK", 6, GREEN);
+    klog("]\tInterrupt vector initialized!\n", 32, WHITE);
 }

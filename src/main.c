@@ -4,25 +4,8 @@
 #include "interrupts.h"
 #include "atags.h"
 #include "syscall.h"
-#include "vfs.h"
-#include "io.h"
-#include "driver.h"
 #include "process.h"
 #include "scheduler.h"
-
-static void print_init(const char *module, int success)
-{
-    klog("[", 1, WHITE);
-    if (success)
-        klog("OK", 2, GREEN);
-    else
-        klog("KO", 2, RED);
-    klog("]\t\t", 3, WHITE);
-    klog("Module ", 7, WHITE);
-    klog(module, strlen(module), WHITE);
-    klog(" initialization.\n", 17, WHITE);
-    wait(HUMAN_TIME);
-}
 
 void draw_star(void)
 {
@@ -53,50 +36,23 @@ void draw_star(void)
 //Kernel entry_point...
 void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 {
+    //We'll treat these after if needed...
     DO_NOTHING_WITH(r0);
     DO_NOTHING_WITH(r1);
+    DO_NOTHING_WITH(atags); // Use print_atags to display it...
 
     //Initializations
-    if (!init_graphics())
-        return;
+    init_graphics();
     init_klog();
     init_timers();
-    klog((char *)"Kernel Booting ...\n\n", 22, RED);
-    print_init("timers", 1);
-    print_init("graphics", 1);
-    print_init("klog", 1);
-#ifdef QEMU //Debug it before use it on real device.
     init_interrupts();
-    print_init("interrupts", 1);
-#else
-    print_init("interrupts", 0);
-#endif
     init_syscalls();
-    print_init("syscalls", 1);
-
-    print_init("vfs", init_vfs());
-    print_init("IO", init_io());
-    print_init("drivers", init_drivers());
-
     init_process();
-    print_init("process", 1);
-
-    print_init("scheduler", init_scheduler());
+    init_scheduler();
 
     klog("\n\n", 2, WHITE);
 
-#ifdef QEMU
-    DO_NOTHING_WITH(atags);
-#else
-    print_atags(atags);
-#endif
-
-    for (int i = 0; i < 10; i++)
+    //Continue...
+    for (;;)
         draw_star();
-    clear_klogs();
-
-    add_process("process1", (uint32_t)&process1);
-    add_process("process2", (uint32_t)&process2);
-
-    for (;;);
 }

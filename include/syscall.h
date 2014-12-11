@@ -2,6 +2,7 @@
 # define SYSCALL_H
 
 # include <stdint.h>
+# include "timers.h"
 # include "klog.h"
 
 # define NB_SYS 1

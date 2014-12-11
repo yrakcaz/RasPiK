@@ -2,6 +2,7 @@
 # define TIMERS_H
 
 # include <stdint.h>
+# include "klog.h"
 
 # define BASE_TIMERARM   0x2000B400
 # define BIT23_TIMERARM  (1 << 1)

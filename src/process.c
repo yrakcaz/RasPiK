@@ -46,8 +46,6 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
         }
     }
 
-    for (int i = 0; i < NBMAX_FD; i++)
-        process->fd_table[i].inode = NULL;
     //STDIOS here!
 
     switch (real_nbproc)
@@ -152,9 +150,17 @@ void exit(int status)
 
 void init_process(void)
 {
+    klog("[", 1, WHITE);
+    klog("...", 3, RED);
+    klog("]", 1, WHITE);
+
     for (int i = 0; i < NBMAX_PROC; i++)
         stacks[i] = 0;
     current_process = NULL;
     nbproc = 1;
     real_nbproc = 0;
+
+    wait(HUMAN_TIME / 2);
+    klog("\b\b\b\bOK", 6, GREEN);
+    klog("]\tProcesses initialized!\n", 25, WHITE);
 }

@@ -1,8 +1,6 @@
 #ifndef PROCESS_H
 # define PROCESS_H
 
-# include "io.h"
-
 # define ENABLE_INTERRUPTS() \
     asm volatile("cpsie i");
 
@@ -13,6 +11,10 @@
 # define WAIT   1
 # define ZOMBIE 2
 # define TERM   3
+
+# include <stdint.h>
+# include "mem.h"
+# include "timers.h"
 
 # define NBMAX_PROC 4096
 # define STACK_SIZE 2048
@@ -27,7 +29,6 @@ typedef struct proc
     int stack_idx;
     uint32_t pc;
     uint32_t sp;
-    s_fd fd_table[NBMAX_FD];
     struct proc *next;
     struct proc *prev;
 } s_proc;

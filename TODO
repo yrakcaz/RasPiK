@@ -35,29 +35,22 @@ TODO:
 -> Syscalls
     |
     ---> Kernel land
-    |       |
-    |       ---> Adapt to new interrupt handling
     |
     ---> User land
 
 -> File Systems
     |
-    ---> Dummy virtual file system                                         DONE
-    |       |
-    |       ---> Do something really easier with
-    |             just devices and mounting points!
+    ---> Virtual file system with devices and mounting points
     |
     ---> Handle FAT32
     |
     ---> Handle Ext2
     |
-    ---> Adapt dummy vfs to FAT32 and Ext2 mounted devices
+    ---> IO! (file management, devices...)
 
 -> Drivers
     |
-    ---> UART                                                              DONE
-    |
-    ---> Separate mailbox!!
+    ---> UART
     |
     ---> HDMI, tty + buffer swapping
     |
@@ -70,8 +63,6 @@ TODO:
     ---> USB
     |
     ---> Ethernet
-    |
-    ---> [...] (Do it properly using dev struct and addr params)
 
 -> Processes, execution, scheduling
     |
@@ -81,7 +72,7 @@ TODO:
     |       |
     |       ---> Improve it!!
     |
-    ---> One fd table per process (add STDIOs)  -> file locking!
+    ---> One fd table per process (add STDIOs) -> file locking!
     |
     ---> Thread / fork
     |

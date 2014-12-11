@@ -44,20 +44,6 @@ void schedule(void)
     switch_context();
 }
 
-void process1(void)
-{
-    int i = 0;
-    while (++i)
-        klog(itoa(i, 10), strlen(itoa(i, 10)), GREEN);
-}
-
-void process2(void)
-{
-    int i = 0;
-    while (++i)
-        klog(itoa(i, 10), strlen(itoa(i, 10)), RED);
-}
-
 void endloop(void)
 {
     while(1);
@@ -65,8 +51,21 @@ void endloop(void)
 
 int init_scheduler(void)
 {
+    klog("[", 1, WHITE);
+    klog("...", 3, RED);
+    klog("]", 1, WHITE);
+
+    wait(HUMAN_TIME / 2);
+
     if (add_process("init", (uint32_t)&endloop) < 0)
+    {
+        klog("\b\b\b\bKO", RED, 6);
+        klog("]\tScheduler initialization failed.\n", 35, WHITE);
         return 0;
+    }
+
+    klog("\b\b\b\bOK", 6, GREEN);
+    klog("]\tScheduler initialized!\n", 25, WHITE);
 
     return 1;
 }

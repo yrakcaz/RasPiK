@@ -7,8 +7,4 @@
 void schedule(void);
 int init_scheduler(void);
 
-//DEBUG:
-void process1(void);
-void process2(void);
-
 #endif /* !SCHEDULER_H */

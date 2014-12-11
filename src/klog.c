@@ -11,12 +11,33 @@ void clear_klogs(void)
     csl.y = 0;
 }
 
+static void kikoo_thing(void)
+{
+    klog("Kernel booting ", 15, RED);
+    for (int i = 1; i <= 11; i++)
+    {
+        if (i % 4 == 0)
+            klog("\b\b\b", 3, RED);
+        else
+            klog(".", 1, RED);
+        for (int j = HUMAN_TIME * 50; j; j--);
+    }
+    klog("\n\n\n", 3, RED);
+    klog("[", 1, WHITE);
+    klog("...", 3, RED);
+    klog("]", 1, WHITE);
+    for (int j = HUMAN_TIME * 50; j; j--);
+    klog("\b\b\b\bOK", 6, GREEN);
+    klog("]\tKlogs initialized!\n", 21, WHITE);
+}
+
 void init_klog(void)
 {
     csl.x = 0;
     csl.y = 0;
     csl.margin = MARGIN;
     clear_klogs();
+    kikoo_thing();
 }
 
 static void scroll(void)
