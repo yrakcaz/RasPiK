@@ -11,6 +11,7 @@
 # define WAIT   1
 # define ZOMBIE 2
 # define TERM   3
+# define SLEEP  4   // We'll be used later!
 
 # include <stdint.h>
 # include "mem.h"
