@@ -33,6 +33,6 @@ int write_vfile(s_vfile *file, uint32_t offset, const void *buf, uint32_t len);
 int chmod_vfile(s_vffs *vffs, const char *name, int perm);
 const char **readdir_vffs(s_vffs *vffs);
 s_vffs *create_vffs(void);
-int remove_vffs(s_vffs *vffs);
+void remove_vffs(s_vffs *vffs);
 
 #endif /* !VFFS_H */
