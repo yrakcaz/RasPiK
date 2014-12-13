@@ -131,7 +131,7 @@ s_vffs *create_vffs(void)
     return vffs;
 }
 
-int remove_vffs(s_vffs *vffs)
+void remove_vffs(s_vffs *vffs)
 {
     for (int i = 0; i < NBMAX_FILE; i++)
     {
