@@ -25,6 +25,10 @@
 # define O_RDWR              0x0F00
 # define O_RDONLY            0xF000
 
+# define SEEK_SET            0
+# define SEEK_CUR            1
+# define SEEK_END            2
+
 typedef struct mounting_point
 {
     const char *name;
@@ -59,10 +63,12 @@ const char **readdir(const char *path);
 int seek(int fd, uint32_t offset, int whence);
 int ioctl(int fd, int cmd, int flags);
 
-int mount(/* DEVICE */void *dev, int type);
-int unmount(/* DEVICE */void *dev, int type);
+int mount(const char *path, int type);
+int unmount(const char *path);
 
 int chmod(const char *path, int mode);
+
+void print_vfs(void);
 
 int init_vfs(void);
 

@@ -6,6 +6,7 @@
 #include "syscall.h"
 #include "process.h"
 #include "scheduler.h"
+#include "fs/vfs.h"
 
 void draw_star(void)
 {
@@ -49,8 +50,41 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     init_syscalls();
     init_process();
     init_scheduler();
+    init_vfs();
 
     klog("\n\n", 2, WHITE);
+
+    int fd = open("/test/lol", O_RDWR | O_CREAT);
+    int fd1 = open("/test/toto", O_RDONLY | O_CREAT);
+    int fd2 = open("/test/mdr", O_RDWR | O_CREAT);
+    int fd3 = open("/dev/null", O_RDONLY | O_CREAT);
+    int fd4 = open("/test/XD", O_APPEND);
+
+    DO_NOTHING_WITH(fd);
+    DO_NOTHING_WITH(fd1);
+    DO_NOTHING_WITH(fd2);
+    DO_NOTHING_WITH(fd3);
+    DO_NOTHING_WITH(fd4);
+
+    write(fd1, "testtest\n", 9);
+    char *buff = kmalloc(10);
+    seek(fd1, 0, SEEK_SET);
+    read(fd1, buff, 9);
+    klog(buff, strlen(buff), RED);
+    kfree(buff);
+    klog("\n\n", 2, WHITE);
+
+    print_vfs();
+
+    close(fd);
+    close(fd1);
+    close(fd2);
+    close(fd3);
+    close(fd4);
+
+    unmount("/test");
+
+    print_vfs();
 
     //Continue...
     for (;;)

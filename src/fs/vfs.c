@@ -60,7 +60,7 @@ static void *getnode(const char *path, int *type, int mode, int *offset)
                     {
                         if (create_vfile(vfsroot.list[i].fs, parsed[1]) < 0)
                             break;
-                        file = getnode_vffs(vfsroot.list[i].fs, parsed[i]);
+                        file = getnode_vffs(vfsroot.list[i].fs, parsed[1]);
                         if (!file)
                             break;
                     }
@@ -68,18 +68,16 @@ static void *getnode(const char *path, int *type, int mode, int *offset)
                         break;
                 }
                 if ((mode & O_RDWR) == O_RDWR)
-                {
                     if ((file->perm & PERM_WRITE) != PERM_WRITE)
                         break;
-                    if ((mode & O_APPEND) == O_APPEND)
+                if ((mode & O_APPEND) == O_APPEND)
                         *offset = file->size;
-                    else
-                    {
-                        *offset = 0;
-                        file->data = krealloc(file->data, sizeof (char));
-                        file->data[0] = EOF;
-                        file->size = 0;
-                    }
+                else
+                {
+                    *offset = 0;
+                    file->data = krealloc(file->data, sizeof (char));
+                    file->data[0] = EOF;
+                    file->size = 0;
                 }
                 return file;
             }
@@ -126,6 +124,33 @@ int close(int fd)
         return -1;
 }
 
+int read(int fd, void *buf, uint32_t len)
+{
+    if (fd > NBMAX_FD || current_process->fd_table[fd].addr == NULL)
+        return -1;
+
+    switch(current_process->fd_table[fd].type)
+    {
+        case VFILES:
+            return read_vfile(current_process->fd_table[fd].addr, &(current_process->fd_table[fd].offset), buf, len);
+        default:
+            return -1;
+    }
+}
+
+int write(int fd, const void *buf, uint32_t len)
+{
+    if (fd > NBMAX_FD || current_process->fd_table[fd].addr == NULL)
+        return -1;
+    switch(current_process->fd_table[fd].type)
+    {
+        case VFILES:
+            return write_vfile(current_process->fd_table[fd].addr, &(current_process->fd_table[fd].offset), buf, len);
+        default:
+            return -1;
+    }
+}
+
 const char **readdir(const char *path)
 {
     if (!strcmp(path, "") || !strcmp(path, "/"))
@@ -148,8 +173,125 @@ const char **readdir(const char *path)
     }
 }
 
+int seek(int fd, uint32_t offset, int whence)
+{
+    if (fd > NBMAX_FD || current_process->fd_table[fd].addr == NULL)
+        return -1;
+    uint32_t len;
+    switch (current_process->fd_table[fd].type)
+    {
+        case VFILES:
+            len = ((s_vfile *)current_process->fd_table[fd].addr)->size;
+            break;
+        default:
+            return -1;
+    }
+    switch (whence)
+    {
+        case SEEK_SET:
+            current_process->fd_table[fd].offset = offset;
+            break;
+        case SEEK_CUR:
+            current_process->fd_table[fd].offset += offset;
+            break;
+        case SEEK_END:
+            current_process->fd_table[fd].offset = (len - 1) + offset;
+            break;
+        default:
+            return -1;
+    }
+    return current_process->fd_table[fd].offset;
+}
+
+int mount(const char *path, int type)
+{
+    /* THIS IS A FAKE MOUNT TO TEST VFILEFS */
+
+    const char *name = path[0] == '/' ? path + 1 : path;
+    void *fs;
+    int i;
+    for (i = 0; i < NBMAX_MOUNTINGPOINT; i++)
+        if (vfsroot.list[i].fs == NULL)
+            break;
+    if (i >= NBMAX_MOUNTINGPOINT)
+        return -1;
+    switch (type)
+    {
+        case VFILES:
+            fs = create_vffs();
+            break;
+        default:
+            break;
+    }
+    if (!fs)
+        return -1;
+    vfsroot.list[i].name = name;
+    vfsroot.list[i].type = type;
+    vfsroot.list[i].fs = fs;
+    vfsroot.nbmpoints++;
+    return i;
+}
+
+int unmount(const char *path)
+{
+    /* FAKE UNMOUNT JUST TO DEBUG! */
+    if (path[0] == '/')
+        path++;
+    for (int i = 0; i < vfsroot.nbmpoints; i++)
+    {
+        if (!strcmp(path, vfsroot.list[i].name))
+        {
+            vfsroot.list[i].fs = NULL;
+            vfsroot.nbmpoints--;
+            for (int j = i; j < vfsroot.nbmpoints; j++)
+                vfsroot.list[j] = vfsroot.list[j + 1];
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+void print_vfs(void)
+{
+    for (int i = 0; i < vfsroot.nbmpoints; i++)
+    {
+        switch (vfsroot.list[i].type)
+        {
+            case VFILES:
+                klog("VFFS : ", 7, WHITE);
+                klog(vfsroot.list[i].name, strlen(vfsroot.list[i].name), WHITE);
+                klog("\n\t", 2, WHITE);
+                break;
+            default:
+                break;
+        }
+        const char **dir = readdir(vfsroot.list[i].name);
+        for (int j = 0; dir[j]; j++)
+        {
+            klog(dir[j], strlen(dir[j]), WHITE);
+            klog(" ", 1, WHITE);
+        }
+        klog("\n\n", 2, WHITE);
+    }
+}
+
 int init_vfs(void)
 {
+    klog("[", 1, WHITE);
+    klog("...", 3, RED);
+    klog("]", 1, WHITE);
+
     vfsroot.nbmpoints = 0;
+    if (mount("test", VFILES) < 0)
+    {
+        klog("\b\b\b\bKO", 6, RED);
+        klog("]\tVirtual File System initialization failed.\n", 45, WHITE);
+        return 0;
+    }
+
+    wait (HUMAN_TIME / 2);
+    klog("\b\b\b\bOK", 6, GREEN);
+    klog("]\tVirtual File System initialized!\n", 34, WHITE);
     return 1;
 }
