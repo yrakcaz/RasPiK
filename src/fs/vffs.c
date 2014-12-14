@@ -56,36 +56,41 @@ int remove_vfile(s_vffs *vffs, const char *name)
     return -1;
 }
 
-int read_vfile(s_vfile *file, uint32_t offset, void *buff, uint32_t len)
+int read_vfile(s_vfile *file, uint32_t *offset, void *buff, uint32_t len)
 {
     if ((file->perm & PERM_READ) != PERM_READ)
         return -1;
     int count = 0;
-    for (int i = offset; i < file->size && file->data[i] != EOF && count < len; i++)
+    for (int i = *offset; i < file->size && file->data[i] != EOF && count < len; i++)
     {
         ((char *)buff)[count] = file->data[i];
         count++;
     }
+    ((char *)buff)[count] = '\0';
+    *offset += count;
     return count;
 }
 
-int write_vfile(s_vfile *file, uint32_t offset, const void *buff, uint32_t len)
+int write_vfile(s_vfile *file, uint32_t *offset, const void *buff, uint32_t len)
 {
     if (((file->perm & PERM_WRITE) != PERM_WRITE) || file->lock == 1)
         return -1;
     int count = 0;
     file->lock = 1;
 
-    if (offset + len + 1 > file->size)
-        file->data = krealloc(file->data, offset + len + 1);
+    if (*offset + len + 1 > file->size)
+        file->data = krealloc(file->data, *offset + len + 1);
+    file->size = *offset + len;
 
     int i;
-    for (i = offset; i < len; i++)
+    for (i = *offset; i < len; i++)
     {
         file->data[i] = ((char *)buff)[count];
         count++;
     }
     file->data[i] = EOF;
+
+    *offset += count;
 
     file->lock = 0;
     return count;

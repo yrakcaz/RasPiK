@@ -28,8 +28,8 @@ typedef struct vfilefs
 int create_vfile(s_vffs *vffs, const char *name);
 s_vfile *getnode_vffs(s_vffs *vffs, const char *name);
 int remove_vfile(s_vffs *vffs, const char *name);
-int read_vfile(s_vfile *file, uint32_t offset, void *buf, uint32_t len);
-int write_vfile(s_vfile *file, uint32_t offset, const void *buf, uint32_t len);
+int read_vfile(s_vfile *file, uint32_t *offset, void *buf, uint32_t len);
+int write_vfile(s_vfile *file, uint32_t *offset, const void *buf, uint32_t len);
 int chmod_vfile(s_vffs *vffs, const char *name, int perm);
 const char **readdir_vffs(s_vffs *vffs);
 s_vffs *create_vffs(void);
