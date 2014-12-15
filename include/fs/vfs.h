@@ -61,9 +61,9 @@ int remove(const char *path);
 const char **readdir(const char *path);
 
 int seek(int fd, uint32_t offset, int whence);
-int ioctl(int fd, int cmd, int flags);
+int ioctl(int fd, int cmd, int flags); // Verify parameters...
 
-int mount(const char *path, int type);
+int mount(const char *devpath, const char *mountpath, int type);
 int unmount(const char *path);
 
 int chmod(const char *path, int mode);
