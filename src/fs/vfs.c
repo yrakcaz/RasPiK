@@ -80,6 +80,17 @@ static void *getnode(const char *path, int *type, int mode, int *offset)
                 }
                 return file;
             }
+            if (*type == DEVICES)
+            {
+                s_device *device = getnode_devfs(vfsroot.list[i].fs, parsed[1]);
+                if (!device)
+                    break;
+                if ((mode & O_RDWR) == O_RDWR)
+                    if ((device->perm & PERM_WRITE) != PERM_WRITE)
+                        break;
+                *offset = 0;
+                return device;
+            }
         }
     }
 
@@ -128,10 +139,13 @@ int read(int fd, void *buf, uint32_t len)
     if (fd > NBMAX_FD || current_process->fd_table[fd].addr == NULL)
         return -1;
 
+    void *addr = current_process->fd_table[fd].addr;
     switch(current_process->fd_table[fd].type)
     {
         case VFILES:
-            return read_vfile(current_process->fd_table[fd].addr, &(current_process->fd_table[fd].offset), buf, len);
+            return read_vfile(addr, &(current_process->fd_table[fd].offset), buf, len);
+        case DEVICES:
+            return ((s_device *)addr)->driver->read(addr, buf, len);
         default:
             return -1;
     }
@@ -141,10 +155,14 @@ int write(int fd, const void *buf, uint32_t len)
 {
     if (fd > NBMAX_FD || current_process->fd_table[fd].addr == NULL)
         return -1;
+
+    void *addr = current_process->fd_table[fd].addr;
     switch(current_process->fd_table[fd].type)
     {
         case VFILES:
-            return write_vfile(current_process->fd_table[fd].addr, &(current_process->fd_table[fd].offset), buf, len);
+            return write_vfile(addr, &(current_process->fd_table[fd].offset), buf, len);
+        case DEVICES:
+            return ((s_device *)addr)->driver->write(addr, buf, len);
         default:
             return -1;
     }
@@ -166,6 +184,9 @@ int remove(const char *path)
             {
                 case VFILES:
                     ret = remove_vfile(vfsroot.list[i].fs, parsed[1]);
+                    break;
+                case DEVICES:
+                    ret = remove_device(vfsroot.list[i].fs, parsed[1]);
                     break;
                 default:
                     break;
@@ -196,9 +217,15 @@ const char **readdir(const char *path)
     {
         int offset = path[0] == '/' ? 1 : 0;
         for (int i = 0; i < vfsroot.nbmpoints; i++)
+        {
             if (!strcmp(path + offset, vfsroot.list[i].name))
+            {
                 if (vfsroot.list[i].type == VFILES)
                     return readdir_vffs(vfsroot.list[i].fs);
+                if (vfsroot.list[i].type == DEVICES)
+                    return readdir_devfs(vfsroot.list[i].fs);
+            }
+        }
         return NULL;
     }
 }
@@ -213,6 +240,8 @@ int seek(int fd, uint32_t offset, int whence)
         case VFILES:
             len = ((s_vfile *)current_process->fd_table[fd].addr)->size;
             break;
+        case DEVICES:
+            return -1;
         default:
             return -1;
     }
@@ -235,12 +264,13 @@ int seek(int fd, uint32_t offset, int whence)
 
 int ioctl(int fd, int cmd, void *args)
 {
-    DO_NOTHING_WITH(cmd);
-    DO_NOTHING_WITH(args);
+    void *addr = current_process->fd_table[fd].addr;
     switch(current_process->fd_table[fd].type)
     {
         case VFILES:
             return -1;
+        case DEVICES:
+            return ((s_device *)addr)->driver->ioctl(addr, cmd, args);
         default:
             return -1;
     }
@@ -265,14 +295,34 @@ static int add_vffs(const char *path)
     return i;
 }
 
+static int add_devfs(const char *path)
+{
+    const char *name = path[0] == '/' ? path + 1 : path;
+    int i;
+    for (i = 0; i < NBMAX_MOUNTINGPOINT; i++)
+        if (vfsroot.list[i].fs == NULL)
+            break;
+    if (i >= NBMAX_MOUNTINGPOINT)
+        return -1;
+    void *fs = create_devfs();
+    if (!fs)
+        return -1;
+    vfsroot.list[i].name = name;
+    vfsroot.list[i].type = DEVICES;
+    vfsroot.list[i].fs = fs;
+    vfsroot.nbmpoints++;
+    return i;
+}
+
 int mount(const char *devpath, const char *mountpath, int type)
 {
     if (!devpath || !strcmp(devpath, ""))
     {
         if (type == VFILES)
             return add_vffs(mountpath);
-        else
-            return -1;
+        if (type == DEVICES)
+            return add_devfs(mountpath);
+        return -1;
     }
     else
         return -1;
@@ -288,6 +338,10 @@ int unmount(const char *path)
         {
             if (vfsroot.list[i].type == VFILES)
                 remove_vffs(vfsroot.list[i].fs);
+            else if (vfsroot.list[i].type == DEVICES)
+                remove_devfs(vfsroot.list[i].fs);
+            else
+                return -1;
             vfsroot.list[i].fs = NULL;
             vfsroot.nbmpoints--;
             for (int j = i; j < vfsroot.nbmpoints; j++)
@@ -314,6 +368,8 @@ int chmod(const char *path, int mode)
             {
                 case VFILES:
                     ret = chmod_vfile(vfsroot.list[i].fs, parsed[1], mode);
+                case DEVICES:
+                    ret = chmod_device(vfsroot.list[i].fs, parsed[1], mode);
                 default:
                     break;
             }
@@ -328,6 +384,25 @@ int chmod(const char *path, int mode)
     return ret;
 }
 
+int insmod(const char *path, void *addr, s_driver *driver)
+{
+    char **parsed = parse_path(path);
+    if (!path)
+        return -1;
+
+    for (int i = 0; i < vfsroot.nbmpoints; i++)
+    {
+        if (!strcmp(parsed[0], vfsroot.list[i].name))
+        {
+            if (vfsroot.list[i].type != DEVICES)
+                return -1;
+            return add_device(vfsroot.list[i].fs, parsed[1], addr, driver);
+        }
+    }
+
+    return -1;
+}
+
 void print_vfs(void)
 {
     for (int i = 0; i < vfsroot.nbmpoints; i++)
@@ -339,6 +414,10 @@ void print_vfs(void)
                 klog(vfsroot.list[i].name, strlen(vfsroot.list[i].name), WHITE);
                 klog("\n\t", 2, WHITE);
                 break;
+            case DEVICES:
+                klog("DEVFS : ", 8, YELLOW);
+                klog(vfsroot.list[i].name, strlen(vfsroot.list[i].name), YELLOW);
+                klog("\n\t", 2, YELLOW);
             default:
                 break;
         }
@@ -359,7 +438,7 @@ int init_vfs(void)
     klog("]", 1, WHITE);
 
     vfsroot.nbmpoints = 0;
-    if (mount("", "tmp", VFILES) < 0)
+    if (mount("", "tmp", VFILES) < 0 || mount("", "dev", DEVICES) < 0)
     {
         klog("\b\b\b\bKO", 6, RED);
         klog("]\tVirtual File System initialization failed.\n", 45, WHITE);
