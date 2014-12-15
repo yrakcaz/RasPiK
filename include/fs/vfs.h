@@ -3,6 +3,8 @@
 
 # include <stdint.h>
 # include "mem.h"
+# include "fs/vffs.h"
+//# include "fs/devfs.h"
 
 // The idea is to have the most simple vfs as possible,
 // which could handle different fs types, and read/write
@@ -61,12 +63,13 @@ int remove(const char *path);
 const char **readdir(const char *path);
 
 int seek(int fd, uint32_t offset, int whence);
-int ioctl(int fd, int cmd, int flags); // Verify parameters...
+int ioctl(int fd, int cmd, void *args);
 
 int mount(const char *devpath, const char *mountpath, int type);
 int unmount(const char *path);
 
 int chmod(const char *path, int mode);
+//int insmod(const char *name, void *addr, s_driver *driver);
 
 void print_vfs(void);
 
