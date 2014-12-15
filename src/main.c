@@ -7,6 +7,7 @@
 #include "process.h"
 #include "scheduler.h"
 #include "fs/vfs.h"
+#include "drivers/uart.h"
 
 void draw_star(void)
 {
@@ -49,8 +50,9 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     init_interrupts();
     init_syscalls();
     init_process();
-    init_scheduler();
     init_vfs();
+    init_uart_driver();
+    init_scheduler();
 
     klog("\n\n", 2, WHITE);
 
@@ -87,6 +89,11 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     print_vfs();
 
     //Continue...
+    fd = open("/dev/uart", O_RDWR);
     for (;;)
+    {
         draw_star();
+        write(fd, "blabla\n", 7);
+        close(fd);
+    }
 }

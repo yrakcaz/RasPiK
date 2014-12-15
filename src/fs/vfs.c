@@ -114,6 +114,7 @@ int open(const char *path, int mode)
             current_process->fd_table[i].type = type;
             current_process->fd_table[i].addr = node;
             current_process->fd_table[i].offset = offset;
+            current_process->fd_table[i].mode = mode;
             return i;
         }
     }
@@ -153,7 +154,8 @@ int read(int fd, void *buf, uint32_t len)
 
 int write(int fd, const void *buf, uint32_t len)
 {
-    if (fd > NBMAX_FD || current_process->fd_table[fd].addr == NULL)
+    if (fd > NBMAX_FD || current_process->fd_table[fd].addr == NULL ||
+        (current_process->fd_table[fd].mode & O_RDONLY) == O_RDONLY)
         return -1;
 
     void *addr = current_process->fd_table[fd].addr;
@@ -447,6 +449,6 @@ int init_vfs(void)
 
     wait (HUMAN_TIME / 2);
     klog("\b\b\b\bOK", 6, GREEN);
-    klog("]\tVirtual File System initialized!\n", 34, WHITE);
+    klog("]\tVirtual File System initialized!\n", 35, WHITE);
     return 1;
 }
