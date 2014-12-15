@@ -4,7 +4,7 @@
 # include <stdint.h>
 # include "mem.h"
 # include "fs/vffs.h"
-//# include "fs/devfs.h"
+# include "fs/devfs.h"
 
 // The idea is to have the most simple vfs as possible,
 // which could handle different fs types, and read/write
@@ -69,7 +69,7 @@ int mount(const char *devpath, const char *mountpath, int type);
 int unmount(const char *path);
 
 int chmod(const char *path, int mode);
-//int insmod(const char *name, void *addr, s_driver *driver);
+int insmod(const char *path, void *addr, s_driver *driver);
 
 void print_vfs(void);
 
