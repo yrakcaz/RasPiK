@@ -54,9 +54,9 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 
     klog("\n\n", 2, WHITE);
 
-    int fd = open("/test/lol", O_RDWR | O_CREAT);
-    int fd1 = open("/test/toto", O_RDONLY | O_CREAT);
-    int fd2 = open("/test/mdr", O_RDWR | O_CREAT);
+    int fd = open("/tmp/lol", O_RDWR | O_CREAT);
+    int fd1 = open("/tmp/toto", O_RDONLY | O_CREAT);
+    int fd2 = open("/tmp/mdr", O_RDWR | O_CREAT);
     int fd3 = open("/dev/null", O_RDONLY | O_CREAT);
     int fd4 = open("/test/XD", O_APPEND);
 
@@ -82,7 +82,7 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     close(fd3);
     close(fd4);
 
-    unmount("/test");
+    unmount("/tmp");
 
     print_vfs();
 
