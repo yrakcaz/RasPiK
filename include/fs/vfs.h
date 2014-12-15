@@ -49,6 +49,7 @@ s_vfs vfsroot;
 typedef struct fd
 {
     int type;
+    int mode;
     void *addr;
     uint32_t offset;
 } s_fd;
