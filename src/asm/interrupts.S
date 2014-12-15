@@ -1,5 +1,7 @@
-.global vector
 .global raise
+.global swi_handler
+.global irq_handler
+.global treat_reset
 
 .extern start
 .extern treat_reset
@@ -10,17 +12,6 @@
 .extern treat_unused
 .extern treat_irq
 .extern treat_fiq
-
-vector:
-    // Interrupts vector
-    b treat_reset
-    b treat_undef
-    b swi_handler
-    b treat_pref_abort
-    b treat_data_abort
-    b treat_unused
-    b irq_handler
-    b treat_fiq
 
 swi_handler:
     // Save and restore context before and after irq handling

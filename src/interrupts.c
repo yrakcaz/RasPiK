@@ -29,13 +29,7 @@ void treat_swi(int r0, int r1, int r2, int r3)
 
 void treat_pref_abort(void)
 {
-    uint32_t addr;
-    asm volatile ("mov %[addr], lr"
-                 : [addr]"=r"(addr));
-
-    klog("PREFETCH ABORT!\n", 16, BLUE);
-
-    while (1) {};
+    // DO STH HERE IF NECESSARY...
 }
 
 void treat_data_abort(void)
@@ -57,7 +51,19 @@ void treat_irq(void)
     schedule();
 }
 
-extern void vector();
+static void vector(void)
+{
+    asm volatile(
+                 "b treat_reset\n"
+                 "b treat_undef\n"
+                 "b swi_handler\n"
+                 "b treat_pref_abort\n"
+                 "b treat_data_abort\n"
+                 "b treat_unused\n"
+                 "b irq_handler\n"
+                 "b treat_fiq\n"
+                );
+}
 
 void init_interrupts(void)
 {
@@ -65,10 +71,9 @@ void init_interrupts(void)
     klog("...", 3, RED);
     klog("]", 1, WHITE);
 
-#ifdef QEMU
     interrupts = (s_interrupts *)BASE_INTERRUPTS;
 
-    asm volatile ("mcr p15, 0, %[addr], c12, c0, 00"
+    asm volatile ("mcr p15, 0, %[addr], c12, c0, 0"
                   :: [addr]"r"(&vector));
     asm volatile ("cpsie i");
 
@@ -77,9 +82,4 @@ void init_interrupts(void)
     wait(HUMAN_TIME / 2);
     klog("\b\b\b\bOK", 6, GREEN);
     klog("]\tInterrupt vector initialized!\n", 32, WHITE);
-#else
-    wait(HUMAN_TIME / 2);
-    klog("\b\b\b\bKO", 6, RED);
-    klog("]\tInterrupt vector initialization failed.\n", 42, WHITE);
-#endif
 }
