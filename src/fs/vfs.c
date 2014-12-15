@@ -1,5 +1,4 @@
 #include "process.h"
-#include "fs/vffs.h"
 #include "fs/vfs.h"
 
 static char **parse_path(const char *path)
@@ -234,10 +233,10 @@ int seek(int fd, uint32_t offset, int whence)
     return current_process->fd_table[fd].offset;
 }
 
-int ioctl(int fd, int cmd, int flags)
+int ioctl(int fd, int cmd, void *args)
 {
     DO_NOTHING_WITH(cmd);
-    DO_NOTHING_WITH(flags);
+    DO_NOTHING_WITH(args);
     switch(current_process->fd_table[fd].type)
     {
         case VFILES:
@@ -287,6 +286,8 @@ int unmount(const char *path)
     {
         if (!strcmp(path, vfsroot.list[i].name))
         {
+            if (vfsroot.list[i].type == VFILES)
+                remove_vffs(vfsroot.list[i].fs);
             vfsroot.list[i].fs = NULL;
             vfsroot.nbmpoints--;
             for (int j = i; j < vfsroot.nbmpoints; j++)
