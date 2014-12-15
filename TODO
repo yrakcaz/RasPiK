@@ -42,17 +42,21 @@ TODO:
 
 -> File Systems
     |
-    ---> Virtual file system with devices and mounting points
+    ---> Virtual file system with devices and mounting points              DONE
     |
     ---> Handle FAT32
     |
     ---> Handle Ext2
     |
-    ---> IO! (file management, devices...)
+    ---> IO! (file management, devices...)                                 DONE
+    |
+    ---> ProcFS for processes tracing
+    |
+    ---> Dup functions
 
 -> Drivers
     |
-    ---> UART
+    ---> UART                                                              DONE
     |
     ---> HDMI, tty + buffer swapping
     |
