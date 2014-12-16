@@ -8,7 +8,6 @@
 #include "scheduler.h"
 #include "fs/vfs.h"
 #include "drivers/uart.h"
-#include "sd.h"
 
 void draw_star(void)
 {
@@ -53,16 +52,6 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     init_process();
     init_vfs();
     init_uart_driver();
-
-    klog("\n\n", 2, WHITE);
-
-    if (!init_sd(0))
-        klog("SD initialized!\n", 16, GREEN);
-    else
-        klog("SD init failed!\n", 16, RED);
-
-    klog("\n\n", 2, WHITE);
-
     init_scheduler();
 
     klog("\n\n", 2, WHITE);
