@@ -142,7 +142,7 @@ static int init_framebuffer(void)
 
     do
     {
-        res = verify_mailbox(1);
+        res = read_mailbox(1);
     } while (res != 0);
 
     if (!fb->ptr || !fb->pitch)
