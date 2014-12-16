@@ -2,7 +2,7 @@ CROSS_PREFIX ?= /usr/local/cross/bin/arm-linux-
 ASM_SRC := src/asm/boot.S src/asm/interrupts.S src/asm/utils.S
 C_SRC := src/utils.c src/graphics.c src/klog.c src/atags.c src/mem.c         \
 		 src/syscall.c src/timers.c src/interrupts.c src/process.c           \
-		 src/scheduler.c src/main.c
+		 src/mailbox.c src/scheduler.c src/main.c
 C_SRC += src/fs/vffs.c src/fs/devfs.c src/fs/vfs.c
 C_SRC += src/drivers/uart.c
 OBJ := $(ASM_SRC:.S=.o)
