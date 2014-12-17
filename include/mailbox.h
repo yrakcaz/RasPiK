@@ -1,6 +1,7 @@
 #ifndef MAILBOX_H
 # define MAILBOX_H
 
+# include <stdint.h>
 # include "mmio.h"
 # include "utils.h"
 # include "timers.h"
@@ -14,10 +15,10 @@
 # define MAILBOX_FULL    0x80000000
 # define MAILBOX_EMPTY   0x40000000
 
+# define MAILBOX_TIMEOUT (1 << 20)
+
 # define REP_SUCCESS     0x80000000
 # define REP_FAILURE     0x80000001
-
-# define MAILBOX_TIMEOUT (1 << 20)
 
 # define KERNEL_START    0x80000000
 # define CLOCK_TAG       0x00030002
