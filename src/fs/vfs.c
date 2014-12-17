@@ -146,7 +146,7 @@ int read(int fd, void *buf, uint32_t len)
         case VFILES:
             return read_vfile(addr, &(current_process->fd_table[fd].offset), buf, len);
         case DEVICES:
-            return ((s_device *)addr)->driver->read(addr, buf, len);
+            return ((s_device *)addr)->driver->read(addr, &(current_process->fd_table[fd].offset), buf, len);
         default:
             return -1;
     }
@@ -164,7 +164,7 @@ int write(int fd, const void *buf, uint32_t len)
         case VFILES:
             return write_vfile(addr, &(current_process->fd_table[fd].offset), buf, len);
         case DEVICES:
-            return ((s_device *)addr)->driver->write(addr, buf, len);
+            return ((s_device *)addr)->driver->write(addr, &(current_process->fd_table[fd].offset), buf, len);
         default:
             return -1;
     }
@@ -243,7 +243,8 @@ int seek(int fd, uint32_t offset, int whence)
             len = ((s_vfile *)current_process->fd_table[fd].addr)->size;
             break;
         case DEVICES:
-            return -1;
+            len = 0;
+            break;
         default:
             return -1;
     }

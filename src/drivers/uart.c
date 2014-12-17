@@ -55,8 +55,9 @@ static uint8_t getchar_uart(void)
     return read_mmio(DR_UART);
 }
 
-int write_uart(s_device *dev, const void *str, uint32_t size)
+int write_uart(s_device *dev, uint32_t *offset, const void *str, uint32_t size)
 {
+    DO_NOTHING_WITH(offset);
     if (((dev->perm & PERM_WRITE) != PERM_WRITE) || dev->lock)
         return -1;
     dev->lock = 1;
@@ -67,9 +68,10 @@ int write_uart(s_device *dev, const void *str, uint32_t size)
     return i;
 }
 
-int read_uart(s_device *dev, void *str, uint32_t size)
+int read_uart(s_device *dev, uint32_t *offset, void *str, uint32_t size)
 {
     DO_NOTHING_WITH(dev);
+    DO_NOTHING_WITH(offset);
     uint32_t i;
     for (i = 0; i < size; i++)
         ((uint8_t *)str)[i] = getchar_uart();

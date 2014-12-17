@@ -41,3 +41,6 @@
         return -1;
     return 0;
 }
+
+int init_emmc(s_device *device);
+int read_emmc(s_device *device, uint32_t *blk_num, void *buff, uint32_t len);
