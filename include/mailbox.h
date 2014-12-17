@@ -27,8 +27,5 @@
 
 void write_mailbox(uint8_t chan, uint32_t data);
 uint32_t read_mailbox(uint8_t chan);
-uint32_t getpower_mailbox(uint32_t device);
-int setpower_mailbox(uint32_t device, uint32_t state);
-uint32_t getclock_mailbox(uint32_t clock);
 
 #endif /* !MAILBOX_H */
