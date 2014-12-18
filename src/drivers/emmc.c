@@ -493,7 +493,7 @@ static int vswitchfailed(s_device *dev)
 {
     device.failed = 1;
     power_emmc(OFF);
-    return init_emmc(dev);
+    return dev->driver->init(dev);
 }
 
 static void setversion_sd(void)
@@ -523,7 +523,7 @@ static void setversion_sd(void)
     }
 }
 
-int init_emmc(s_device *dev)
+static int init_emmc(s_device *dev)
 {
     emmc = (s_emmc *)(dev->addr);
     device.rca = 0;
@@ -707,7 +707,112 @@ int init_emmc(s_device *dev)
     return 0;
 }
 
-//int read_emmc(s_device *device, uint32_t *blk_num, void *buff, uint32_t len);
+static int ensuredatamode(s_device *dev)
+{
+    if (!device.rca)
+    {
+        int ret = dev->driver->init(dev);
+        if (ret)
+            return ret;
+    }
+    if (!issuecmd(EMMC_SENDSTAT, device.rca << 16))
+    {
+        device.rca = 0;
+        return -1;
+    }
+
+    uint32_t status = device.rep0;
+    uint32_t curst = (status >> 9) & 0xF;
+    if (curst == 3)
+    {
+        if (!issuecmd(EMMC_SELCARD, device.rca << 16))
+        {
+            device.rca = 0;
+            return -1;
+        }
+    }
+    else if (curst == 5)
+    {
+        if (!issuecmd(EMMC_STOPTR, 0))
+        {
+            device.rca = 0;
+            return -1;
+        }
+        emmc->ctrl1.raw |= (1 << 26);
+        while ((emmc->ctrl1.raw & (1 << 26)) == 1) {}
+    }
+    else if (curst != 4)
+    {
+        int ret = dev->driver->init(dev);
+        if (ret)
+            return ret;
+    }
+
+    if (curst != 4)
+    {
+        if (issuecmd(EMMC_SENDSTAT, device.rca << 16))
+        {
+            device.rca = 0;
+            return -1;
+        }
+        status = device.rep0;
+        curst = (status >> 9) & 0xF;
+        if (curst != 4)
+        {
+            device.rca = 0;
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+static uint32_t dodatacmd(char *buf, uint32_t iswrite, uint32_t len, uint32_t blknum)
+{
+    if (!device.sup_sdhc)
+        blknum *= 512;
+    if (len < device.blksz)
+        return -1;
+
+    device.blks_tr = len / device.blksz;
+    if (len % device.blksz)
+        return -1;
+
+    device.rcv_buf = (uint32_t *)buf;
+
+    int cmd;
+    if (iswrite)
+        cmd = device.blks_tr > 1 ? EMMC_WXBLK : EMMC_W1BLK;
+    else
+        cmd = device.blks_tr > 1 ? EMMC_RXBLK : EMMC_R1BLK;
+
+    int retrycnt = 0;
+    int maxretry = 3;
+    while (retrycnt < maxretry)
+    {
+        if (issuecmd(cmd, blknum))
+            break;
+        else
+            retrycnt++;
+    }
+
+    if (retrycnt == maxretry)
+    {
+        device.rca = 0;
+        return -1;
+    }
+
+    return 0;
+}
+
+static int read_emmc(s_device *dev, uint32_t *blknum, void *buff, uint32_t len)
+{
+    if (ensuredatamode(dev))
+        return -1;
+    if (dodatacmd(buff, 0, len, *blknum) == -1)
+        return -1;
+    return len;
+}
 
 int init_emmc_driver(void)
 {
@@ -721,7 +826,7 @@ int init_emmc_driver(void)
 
     driver->init = init_emmc;
     driver->write = NULL;
-    driver->read = NULL;
+    driver->read = read_emmc;
     driver->ioctl = NULL;
 
     int ret = insmod("/dev/sdcard", (void *)EMMC_BASE, driver);

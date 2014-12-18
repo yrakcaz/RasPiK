@@ -120,7 +120,7 @@
 # define EMMC_SPEEDCTRL 20
 # define EMMC_BLKCNT    23
 # define EMMC_W1BLK     24
-# define EMMC WXBLK     25
+# define EMMC_WXBLK     25
 # define EMMC_PROGCSD   27
 # define EMMC_SETWPROT  28
 # define EMMC_CLRWPROT  29
@@ -573,7 +573,6 @@ typedef struct sdrep7
     uint32_t end        : 1;
 } s_sdrep7;
 
-int init_emmc(s_device *dev);
 int init_emmc_driver(void);
 
 #endif /* !EMMC_H */
