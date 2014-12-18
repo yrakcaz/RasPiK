@@ -207,7 +207,7 @@ typedef volatile union cmdtmreg
         uint32_t isdata    : 1;
         uint32_t cmdty     : 2;
         uint32_t cmdidx    : 6;
-        uint32_t reserved3 : 3;
+        uint32_t reserved3 : 2;
     } bits;
 } u_cmdtmreg;
 
@@ -352,18 +352,14 @@ typedef volatile union fifoenreg
     struct
     {
         uint32_t enable   : 1;
-        uint32_t reserved : 32;
+        uint32_t reserved : 31;
     } bits;
 } u_fifoenreg;
 
 typedef volatile union tunestepreg
 {
-    uint32_t raw;
-    struct
-    {
-        uint32_t tune_step : 3;
-        uint32_t reserved  : 29;
-    } bits;
+    uint32_t tune_step : 3;
+    uint32_t reserved  : 29;
 } u_tunestepreg;
 
 typedef volatile union tunestepstdreg
