@@ -4,6 +4,12 @@
 # include "mailbox.h"
 # include "fs/vfs.h"
 
+/*
+** My RasPik project was made to be really simple, but an emmc driver could not be simple,
+** so I took one that I found on the internet, then I adapted it to understand it,
+** because I really needed one but I wouldn't spend too much time on it...
+*/
+
 # define EMMC_CHAN      0x00000000
 
 # define ON             1
@@ -21,15 +27,16 @@
 # define SD_REPR1B      (SDCMD_REP48B | SDCMD_CRCEN)
 # define SD_REPR2       (SDCMD_REP136 | SDCMD_CRCEN)
 # define SD_REPR3       SDCMD_REP48
-# define SD_REPR4       SDCMD_136
+# define SD_REPR4       SDCMD_REP136
 # define SD_REPR5       SD_REPR1
 # define SD_REPR5B      SD_REPR1B
 # define SD_REPR6       SD_REPR5
 # define SD_REPR7       SD_REPR6
 
-# define ACMD           0x80000000
+# define APP_CMD        0x80000000
 
 # define SDCMD_DDHC     0
+# define SDCMD_DMA      1
 # define SDCMD_BLKCNT   (1 << 1)
 # define SDCMD_DDCH     (1 << 4)
 # define SDCMD_MULBLK   (1 << 5)
@@ -37,7 +44,7 @@
 # define SDCMD_ABORT    (3 << 22)
 
 # define SDCMD_INDEX(X) (X << 24)
-# define SDCMD_RESERVED 0xFFFFFFFF
+# define SDCMD_RES(X)   0xFFFFFFFF
 # define SD_READ        (SDCMD_ISDATA | SDCMD_DDCH)
 # define SD_WRITE       (SDCMD_ISDATA | SDCMD_DDHC)
 
@@ -122,6 +129,9 @@
 # define EMMC_UNLOCK    42
 # define EMMC_ACMD      55
 # define EMMC_GENCMD    56
+
+# define SDMA_BUFF      0x6000
+# define SDMA_BUFFPA    (SDMA_BUFF + 0xC0000000)
 
 typedef struct sdscr
 {
