@@ -10,6 +10,8 @@
 ** because I really needed one but I wouldn't spend too much time on it...
 */
 
+# define EMMC_BASE      0xA0300000
+
 # define EMMC_CHAN      0x00000000
 
 # define ON             1

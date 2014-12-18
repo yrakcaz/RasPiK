@@ -126,6 +126,11 @@ static int CMD[] =
     SDCMD_INDEX(56) | SD_REPR1 | SDCMD_ISDATA
 };
 
+static void waitms(uint32_t ms)
+{
+    wait(ms * 1000);
+}
+
 static uint32_t byte_swap(unsigned int in)
 {
     uint32_t b0 = in & 0xFF;
@@ -188,7 +193,7 @@ static int power_emmc(uint32_t state)
     uint32_t addr = (uint32_t)&buff;
     addr -= KERNEL_START;
     write_mailbox(8, addr);
-    wait(200);
+    waitms(200);
     read_mailbox(8);
     if (buff[1] != REP_SUCCESS || buff[5] ||
             (buff[6] & 0x3) != state)
@@ -243,22 +248,22 @@ static uint32_t switchclkrate(uint32_t base, uint32_t rate)
     if (div == -1)
         return -1;
 
-    while (emmc->status.bits.cmd_inhibit == 1 || 
+    while (emmc->status.bits.cmd_inhibit == 1 ||
            emmc->status.bits.dat_inhibit == 1)
-        wait(10);
+        waitms(10);
 
     emmc->ctrl1.raw &= ~(1 << 2);
-    wait(20);
+    waitms(20);
 
     uint32_t ctrl1 = emmc->ctrl1.raw;
     ctrl1 &= ~0xFFE0;
     ctrl1 |= div;
     emmc->ctrl1.raw = ctrl1;
-    wait(20);
+    waitms(20);
 
     ctrl1 |= (1 << 2);
     emmc->ctrl1.raw = ctrl1;
-    wait(20);
+    waitms(20);
 
     return 1;
 }
@@ -266,12 +271,12 @@ static uint32_t switchclkrate(uint32_t base, uint32_t rate)
 static int issuecmdint(uint32_t cmd, uint32_t arg)
 {
     while (emmc->status.raw & 0x1)
-        wait(5);
+        waitms(5);
 
     if ((cmd & SDCMD_REPMSK) == SDCMD_REP48B)
         if ((cmd & SDCMD_REPMSK) != SDCMD_ABORT)
             while (emmc->status.raw & 0x2)
-                wait(10);
+                waitms(10);
 
     uint32_t sdma = 0;
     if ((cmd & SDCMD_ISDATA) && usedma)
@@ -291,7 +296,7 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
     if (sdma)
         cmd |= SDCMD_DMA;
     emmc->cmdtm.raw = cmd;
-    wait(5);
+    waitms(5);
 
     while (!(emmc->interrupt.bits.cmd_done) && !(emmc->interrupt.bits.error)) {}
 
@@ -302,7 +307,7 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
         lasterr = irpt & 0xFFFF0000;
         return -1;
     }
-    wait(5);
+    waitms(5);
 
     switch(cmd & SDCMD_REPMSK)
     {
@@ -410,7 +415,7 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
                 if (!irpt && ((emmc->status.raw & 0x3) == 0x2))
                 {
                     emmc->cmdtm.raw = CMD[EMMC_STOPTR];
-                    wait(200);
+                    waitms(200);
                 }
                 lasterr = irpt & 0xFFFF0000;
                 return -1;
@@ -561,16 +566,16 @@ int init_emmc(s_device *dev)
 
     while (emmc->ctrl1.raw & 0x2) {}
 
-    wait(10);
+    waitms(10);
     emmc->ctrl1.raw |= 4;
-    wait(10);
+    waitms(10);
 
     emmc->inten.raw = 0;
     emmc->interrupt.raw = 0xFFFFFFFF;
     uint32_t intmsk = 0xFFFFFFFF & (~SDC_INT);
     intmsk |= SDC_INT;
     emmc->intmsk.raw = intmsk;
-    wait(10);
+    waitms(10);
 
     if (!issuecmd(EMMC_IDLE, 0))
         return -1;
@@ -605,11 +610,11 @@ int init_emmc(s_device *dev)
             csupvswitch = (device.rep0 >> 24) & 0x1;
             break;
         }
-        wait(50);
+        waitms(50);
     }
 
     switchclkrate(baseclk, SDCLK_NORMAL);
-    wait(20);
+    waitms(20);
 
     if (csupvswitch)
     {
@@ -624,12 +629,12 @@ int init_emmc(s_device *dev)
             return vswitchfailed(dev);
 
         emmc->ctrl0.raw |= (1 << 8);
-        wait(20);
+        waitms(20);
         if (!((emmc->ctrl0.raw >> 8) & 0x1))
             return vswitchfailed(dev);
 
         emmc->ctrl1.raw |= (1 << 2);
-        wait(10);
+        waitms(10);
         streg = emmc->status.raw;
         dat30 = (streg >> 20) & 0xF;
         if (dat30 != 0xF)
@@ -702,4 +707,36 @@ int init_emmc(s_device *dev)
     return 0;
 }
 
-int read_emmc(s_device *device, uint32_t *blk_num, void *buff, uint32_t len);
+//int read_emmc(s_device *device, uint32_t *blk_num, void *buff, uint32_t len);
+
+int init_emmc_driver(void)
+{
+    s_driver *driver = kmalloc(sizeof (s_driver));
+    if (!driver)
+        return 0;
+
+    klog("[", 1, WHITE);
+    klog("...", 3, RED);
+    klog("]", 1, WHITE);
+
+    driver->init = init_emmc;
+    driver->write = NULL;
+    driver->read = NULL;
+    driver->ioctl = NULL;
+
+    int ret = insmod("/dev/sdcard", (void *)EMMC_BASE, driver);
+    wait(HUMAN_TIME / 2);
+
+    if (ret < 0)
+    {
+        klog("\b\b\b\bKO", 6, RED);
+        klog("]\tEMMC driver initialization failed.\n", 37, WHITE);
+    }
+    else
+    {
+        klog("\b\b\b\bOK", 6, GREEN);
+        klog("]\tEMMC driver initialized!\n", 27, WHITE);
+    }
+
+    return ret;
+}

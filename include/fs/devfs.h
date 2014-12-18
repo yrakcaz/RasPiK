@@ -12,7 +12,7 @@ struct device;
 
 typedef struct driver
 {
-    void (*init) (struct device *);
+    int (*init) (struct device *);
     int (*read) (struct device *, uint32_t *, void *, uint32_t);
     int (*write) (struct device *, uint32_t *, const void *, uint32_t);
     int (*ioctl) (struct device *, int, void *);

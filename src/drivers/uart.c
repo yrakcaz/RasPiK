@@ -1,6 +1,6 @@
 #include "drivers/uart.h"
 
-void init_uart(s_device *dev)
+int init_uart(s_device *dev)
 {
     DO_NOTHING_WITH(dev);
 
@@ -33,6 +33,8 @@ void init_uart(s_device *dev)
 
     // Enabling reading and writing
     write_mmio(CR_UART, ENABLE_TRANSFERT);
+
+    return 0;
 }
 
 static void putchar_uart(uint8_t byte)

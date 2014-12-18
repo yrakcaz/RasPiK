@@ -14,7 +14,7 @@
 # define ASERIAL 0x54410006
 # define AREV    0x54410007
 # define AFB     0x54410008
-# define ACMD    0x54410009
+# define ACMND   0x54410009
 
 /* Atags structures */
 typedef struct aheader
