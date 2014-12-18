@@ -1,6 +1,10 @@
 TODO:
 =====
 
+/!\ NOTES : /!\
+-> RE-CODE UART DRIVER PROPERLY!
+-> RE-CODE TOTALLY GRAPHICS AND KLOGS MANAGEMENT!
+
 -> Bootloader
     |
     ---> Initialisation                                                    DONE
