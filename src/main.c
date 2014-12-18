@@ -9,6 +9,7 @@
 #include "fs/vfs.h"
 #include "drivers/uart.h"
 #include "drivers/emmc.h"
+#include "fs/parts.h"
 
 void draw_star(void)
 {
@@ -58,44 +59,20 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 
     klog("\n\n", 2, WHITE);
 
-    int fd = open("/tmp/lol", O_RDWR | O_CREAT);
-    int fd1 = open("/tmp/toto", O_RDONLY | O_CREAT);
-    int fd2 = open("/tmp/mdr", O_RDWR | O_CREAT);
-    int fd3 = open("/dev/null", O_RDONLY | O_CREAT);
-    int fd4 = open("/test/XD", O_APPEND);
+    print_vfs();
 
-    DO_NOTHING_WITH(fd);
-    DO_NOTHING_WITH(fd1);
-    DO_NOTHING_WITH(fd2);
-    DO_NOTHING_WITH(fd3);
-    DO_NOTHING_WITH(fd4);
-
-    write(fd1, "testtest\n", 9);
-    char *buff = kmalloc(10);
-    seek(fd1, 0, SEEK_SET);
-    read(fd1, buff, 9);
-    klog(buff, strlen(buff), RED);
-    kfree(buff);
     klog("\n\n", 2, WHITE);
 
-    print_vfs();
+    int fd = open("/dev/sdcard", O_RDONLY);
+
+    s_mbr *mbr = kmalloc(sizeof (s_mbr));
+    if (read(fd, mbr, 1) < 0)
+        klog("READING FAILURE!\n", 17, RED);
+
+    print_parts(mbr);
 
     close(fd);
-    close(fd1);
-    close(fd2);
-    close(fd3);
-    close(fd4);
 
-    unmount("/tmp");
-
-    print_vfs();
-
-    //Continue...
-    fd = open("/dev/uart", O_RDWR);
     for (;;)
-    {
         draw_star();
-        write(fd, "blabla\n", 7);
-        close(fd);
-    }
 }
