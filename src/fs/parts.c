@@ -30,13 +30,13 @@ void print_parts(s_mbr *mbr)
         klog(itoa(i, 10), strlen(itoa(i, 10)), BLUE);
         klog("] :\n\t", 5, BLUE);
         klog("Start: ", 7, BLUE);
-        klog(itoa(parts[i].start, 16), strlen(itoa(parts[i].start, 16)), BLUE);
+        klog(itoa(parts[i].start, 10), strlen(itoa(parts[i].start, 10)), BLUE);
         klog("\n\t", 2, BLUE);
         klog("Size: ", 6, BLUE);
-        klog(itoa(parts[i].size, 16), strlen(itoa(parts[i].size, 16)), BLUE);
+        klog(itoa(parts[i].size, 10), strlen(itoa(parts[i].size, 10)), BLUE);
         klog("\n\t", 2, BLUE);
         klog("Type: ", 6, BLUE);
-        klog(itoa(parts[i].type, 16), strlen(itoa(parts[i].type, 16)), BLUE);
+        klog(itoa(parts[i].type, 10), strlen(itoa(parts[i].type, 10)), BLUE);
         klog("\n\n", 2, BLUE);
     }
     kfree(parts);

@@ -59,19 +59,12 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 
     klog("\n\n", 2, WHITE);
 
+    if (mount("/dev/sdcard", "/sdcard", FAT32) < 0)
+        klog("MOUNTING FAILED!\n\n", 18, RED);
+
     print_vfs();
 
     klog("\n\n", 2, WHITE);
-
-    int fd = open("/dev/sdcard", O_RDONLY);
-
-    s_mbr *mbr = kmalloc(sizeof (s_mbr));
-    if (read(fd, mbr, 1) < 0)
-        klog("READING FAILURE!\n", 17, RED);
-
-    print_parts(mbr);
-
-    close(fd);
 
     for (;;)
         draw_star();

@@ -5,6 +5,7 @@
 # include "mem.h"
 # include "fs/vffs.h"
 # include "fs/devfs.h"
+# include "fs/fat32.h"
 
 // The idea is to have the most simple vfs as possible,
 // which could handle different fs types, and read/write
@@ -19,7 +20,7 @@
 
 # define DEVICES             0
 # define VFILES              1
-# define EXT2                2
+# define FAT32               2
 // [...]
 
 # define O_CREAT             0x000F

@@ -1,19 +1,11 @@
-#ifndef FAT_H
-# define FAT_H
+#ifndef FAT32_H
+# define FAT32_H
 
-# include "fs/devfs.h"
+# include "fs/parts.h"
 
-typedef struct ebpb16
-{
-    uint8_t drvnum;
-    uint8_t flags;
-    uint8_t sig;
-    uint32_t serial;
-    uint8_t label[11];
-    uint8_t sysid[8];
-    uint8_t bootcode[448];
-    uint16_t partsig;
-}__attribute__((packed)) s_ebpb16;
+# define TYPEFAT32 0x0B
+
+# define BLK_SIZE  512
 
 typedef struct ebpb32
 {
@@ -34,12 +26,6 @@ typedef struct ebpb32
     uint16_t partsig;
 }__attribute__((packed)) s_ebpb32;
 
-typedef union ebpb
-{
-    s_ebpb32 ebpb32;
-    s_ebpb16 ebpb16;
-} u_ebpb;
-
 typedef struct bpb
 {
     uint8_t bootjp[3];
@@ -56,12 +42,11 @@ typedef struct bpb
     uint16_t noheads;
     uint32_t nohidd;
     uint32_t laamosec;
-    u_ebpb   ebpb;
+    s_ebpb32   ebpb;
 }__attribute__((packed)) s_bpb;
 
-typedef struct fat
+typedef struct fat32
 {
-    s_device *device;
     uint16_t seclen;
     uint8_t cluslen;
     uint8_t nbfats;
@@ -69,6 +54,10 @@ typedef struct fat
     uint32_t fatlen;
     uint32_t firstfat;
     uint32_t root;
-} s_fat;
+} s_fat32;
 
-#endif /* !FAT_H */
+s_fat32 *create_fat32(const char *devpath);
+void remove_fat32(s_fat32 *fat32);
+const char **readdir_fat32(s_fat32 *fat32);
+
+#endif /* !FAT32_H */

@@ -317,18 +317,34 @@ static int add_devfs(const char *path)
     return i;
 }
 
+static int add_fat32(const char *devpath, const char *mountpath)
+{
+    const char *name = mountpath[0] == '/' ? mountpath + 1 : mountpath;
+    int i;
+    for (i = 0; i < NBMAX_MOUNTINGPOINT; i++)
+        if (vfsroot.list[i].fs == NULL)
+            break;
+    if (i >= NBMAX_MOUNTINGPOINT)
+        return -1;
+    void *fs = create_fat32(devpath);
+    if (!fs)
+        return -1;
+    vfsroot.list[i].name = name;
+    vfsroot.list[i].type = FAT32;
+    vfsroot.list[i].fs = fs;
+    vfsroot.nbmpoints++;
+    return i;
+}
+
 int mount(const char *devpath, const char *mountpath, int type)
 {
-    if (!devpath || !strcmp(devpath, ""))
-    {
-        if (type == VFILES)
-            return add_vffs(mountpath);
-        if (type == DEVICES)
-            return add_devfs(mountpath);
-        return -1;
-    }
-    else
-        return -1;
+    if (type == VFILES)
+        return add_vffs(mountpath);
+    if (type == DEVICES)
+        return add_devfs(mountpath);
+    if (type == FAT32)
+        return add_fat32(devpath, mountpath);
+    return -1;
 }
 
 int unmount(const char *path)
@@ -343,6 +359,8 @@ int unmount(const char *path)
                 remove_vffs(vfsroot.list[i].fs);
             else if (vfsroot.list[i].type == DEVICES)
                 remove_devfs(vfsroot.list[i].fs);
+            else if (vfsroot.list[i].type == FAT32)
+                remove_fat32(vfsroot.list[i].fs);
             else
                 return -1;
             vfsroot.list[i].fs = NULL;
