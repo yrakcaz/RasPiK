@@ -7,7 +7,6 @@ static uint32_t hciversion;
 static uint32_t sdcap0;
 static uint32_t sdcap1;
 static int lastcmd = 0;
-/*static */int lastcmdsucc = 0;
 static int lasterr = 0;
 
 static int ACMD[] =
@@ -127,7 +126,7 @@ static int CMD[] =
     SDCMD_INDEX(56) | SD_REPR1 | SDCMD_ISDATA
 };
 
-/*static */uint32_t byte_swap(unsigned int in)
+static uint32_t byte_swap(unsigned int in)
 {
     uint32_t b0 = in & 0xFF;
     uint32_t b1 = (in >> 8) & 0xFF;
@@ -175,7 +174,7 @@ static uint32_t basefreq_sd(void)
     return buff[6];
 }
 
-/*static */int power_emmc(uint32_t state)
+static int power_emmc(uint32_t state)
 {
     volatile uint32_t buff[256] __attribute__((aligned(16)));
     buff[0] = 8 * sizeof (uint32_t);
@@ -192,7 +191,7 @@ static uint32_t basefreq_sd(void)
     wait(200);
     read_mailbox(8);
     if (buff[1] != REP_SUCCESS || buff[5] ||
-        (buff[6] & 0x3) != state)
+            (buff[6] & 0x3) != state)
         return -1;
     return 0;
 }
@@ -236,6 +235,32 @@ static uint32_t getclkdiv(uint32_t base, uint32_t rate)
     uint32_t frqsel = div & 0xFF;
     uint32_t upper = (div >> 8) & 0x3;
     return ((frqsel << 8) | (upper << 6) | (0 << 5));
+}
+
+static uint32_t switchclkrate(uint32_t base, uint32_t rate)
+{
+    uint32_t div = getclkdiv(base, rate);
+    if (div == -1)
+        return -1;
+
+    while (emmc->status.bits.cmd_inhibit == 1 || 
+           emmc->status.bits.dat_inhibit == 1)
+        wait(10);
+
+    emmc->ctrl1.raw &= ~(1 << 2);
+    wait(20);
+
+    uint32_t ctrl1 = emmc->ctrl1.raw;
+    ctrl1 &= ~0xFFE0;
+    ctrl1 |= div;
+    emmc->ctrl1.raw = ctrl1;
+    wait(20);
+
+    ctrl1 |= (1 << 2);
+    emmc->ctrl1.raw = ctrl1;
+    wait(20);
+
+    return 1;
 }
 
 static int issuecmdint(uint32_t cmd, uint32_t arg)
@@ -339,7 +364,7 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
     }
 
     if ((((cmd & SDCMD_REPMSK) == SDCMD_REP48B) ||
-         (cmd & SDCMD_ISDATA)) & (sdma))
+                (cmd & SDCMD_ISDATA)) & (sdma))
     {
         if (!(emmc->status.raw & 0x2))
             emmc->interrupt.raw = 0xFFFF0002;
@@ -459,6 +484,40 @@ void handleemmcint(void)
     emmc->interrupt.raw = rstmsk;
 }
 
+static int vswitchfailed(s_device *dev)
+{
+    device.failed = 1;
+    power_emmc(OFF);
+    return init_emmc(dev);
+}
+
+static void setversion_sd(void)
+{
+    uint32_t scr0 = byte_swap(device.scr.scr[0]);
+    uint32_t sdspec = (scr0 >> (56 - 32)) & 0xF;
+    uint32_t sdspec3 = (scr0 >> (47 - 32)) & 0x1;
+    uint32_t sdspec4 = (scr0 >> (42 - 32)) & 0x1;
+    device.scr.bus_widths = (scr0 >> (48-32)) & 0xF;
+    device.scr.version = SD_UNKNOWN;
+
+    if (!sdspec)
+        device.scr.version = SD_V1;
+    else if (sdspec == 1)
+        device.scr.version = SD_V1_1;
+    else if (sdspec == 2)
+    {
+        if (!sdspec3)
+            device.scr.version = SD_V2;
+        else if (sdspec3 == 1)
+        {
+            if (!sdspec4)
+                device.scr.version = SD_V3;
+            else if (sdspec4 == 1)
+                device.scr.version = SD_V4;
+        }
+    }
+}
+
 int init_emmc(s_device *dev)
 {
     emmc = (s_emmc *)(dev->addr);
@@ -513,7 +572,132 @@ int init_emmc(s_device *dev)
     emmc->intmsk.raw = intmsk;
     wait(10);
 
-    //TODO (base : 355)
+    if (!issuecmd(EMMC_IDLE, 0))
+        return -1;
+    int v2 = 0;
+    if (!issuecmd(EMMC_SENDIF, 0x1AA))
+        return -1;
+    if ((device.rep0 & 0xFFF) != 0x1AA)
+        return -1;
+    v2 = 1;
+    if (!issuecmd(ACMD(41), 0))
+        return -1;
+
+    uint32_t csupvswitch = 0;
+    while (1)
+    {
+        uint32_t flags = 0;
+        if (v2)
+        {
+            flags |= (1 << 30);
+            if (!device.failed)
+                flags |= (1 << 24);
+            flags |= (1 << 28);
+        }
+
+        if (!issuecmd(ACMD(41), 0x00FF8000 | flags))
+            return -1;
+
+        if ((device.rep0 >> 31) & 0x1)
+        {
+            device.ocr = (device.rep0 >> 8) & 0xFFFF;
+            device.sup_sdhc = (device.rep0 >> 30) & 0x1;
+            csupvswitch = (device.rep0 >> 24) & 0x1;
+            break;
+        }
+        wait(50);
+    }
+
+    switchclkrate(baseclk, SDCLK_NORMAL);
+    wait(20);
+
+    if (csupvswitch)
+    {
+        if (!issuecmd(EMMC_SWVOLT, 0))
+            return vswitchfailed(dev);
+
+        emmc->ctrl1.raw &= ~(1 << 2);
+
+        uint32_t streg = emmc->status.raw;
+        uint32_t dat30 = (streg >> 20) & 0xF;
+        if (dat30)
+            return vswitchfailed(dev);
+
+        emmc->ctrl0.raw |= (1 << 8);
+        wait(20);
+        if (!((emmc->ctrl0.raw >> 8) & 0x1))
+            return vswitchfailed(dev);
+
+        emmc->ctrl1.raw |= (1 << 2);
+        wait(10);
+        streg = emmc->status.raw;
+        dat30 = (streg >> 20) & 0xF;
+        if (dat30 != 0xF)
+            return vswitchfailed(dev);
+    }
+
+    if (!issuecmd(EMMC_ALLCID, 0x0))
+        return -1;
+
+    device.cid[0] = device.rep0;
+    device.cid[1] = device.rep1;
+    device.cid[2] = device.rep2;
+    device.cid[3] = device.rep3;
+
+    if (!issuecmd(EMMC_RELADDR, 0))
+        return -1;
+
+    uint32_t cmd3rep = device.rep0;
+    device.rca = (cmd3rep >> 16) & 0xFFFF;
+    uint32_t crcerr = (cmd3rep >> 15) & 0x1;
+    uint32_t illcmd = (cmd3rep >> 14) & 0x1;
+    uint32_t error = (cmd3rep >> 13) & 0x1;
+    uint32_t status = (cmd3rep >> 9) & 0xF;
+    uint32_t ready = (cmd3rep >> 8) & 0x1;
+    if (crcerr || illcmd || error || !ready)
+        return -1;
+    if (!issuecmd(EMMC_SELCARD, device.rca << 16))
+        return -1;
+
+    uint32_t cmd7rep = device.rep0;
+    status = (cmd7rep >> 9) & 0xF;
+    if ((status != 3) && (status != 4))
+        return -1;
+
+    if (!device.sup_sdhc)
+        if (!issuecmd(EMMC_BLKLEN, 512))
+            return -1;
+
+    device.blksz = 512;
+    uint32_t ctrl_blksz = emmc->blkszcnt.raw;
+    ctrl_blksz &= (~0xFFF);
+    ctrl_blksz |= 0x200;
+    emmc->blkszcnt.raw = ctrl_blksz;
+
+    device.rcv_buf = (uint32_t *)&(device.scr.scr[0]);
+    device.blksz = 9;
+    device.blks_tr = 1;
+    if (!issuecmd(ACMD(51), 0))
+        return -1;
+
+    device.blksz = 512;
+
+    setversion_sd();
+
+    if (device.scr.bus_widths != 5)
+    {
+        uint32_t oldintmsk = emmc->intmsk.raw;
+        uint32_t newintmsk = oldintmsk & ~(1 << 8);
+        emmc->intmsk.raw = newintmsk;
+
+        if (!issuecmd(ACMD(6), 0x2))
+        {
+            emmc->ctrl0.raw |= 0x2;
+            emmc->intmsk.raw = oldintmsk;
+        }
+    }
+
+    emmc->interrupt.raw = 0xFFFFFFFF;
 
     return 0;
 }

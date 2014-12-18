@@ -34,6 +34,7 @@
 # define SD_REPR7       SD_REPR6
 
 # define APP_CMD        0x80000000
+# define ACMD(X)        (X | APP_CMD)
 
 # define SDCMD_DDHC     0
 # define SDCMD_DMA      1
@@ -142,6 +143,7 @@ typedef struct sdscr
 
 typedef struct sd
 {
+    s_sdscr scr;
     uint32_t rep0;
     uint32_t rep1;
     uint32_t rep2;
@@ -573,6 +575,7 @@ typedef struct sdrep7
     uint32_t end        : 1;
 } s_sdrep7;
 
+int init_emmc(s_device *dev);
 int init_emmc_driver(void);
 
 #endif /* !EMMC_H */
