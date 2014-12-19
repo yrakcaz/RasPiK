@@ -15,7 +15,7 @@ typedef struct driver
     int (*init) (struct device *);
     int (*read) (struct device *, uint32_t *, void *, uint32_t);
     int (*write) (struct device *, uint32_t *, const void *, uint32_t);
-    int (*ioctl) (struct device *, int, void *);
+    int (*ioctl) (struct device *, int, int);
 } s_driver;
 
 typedef struct device

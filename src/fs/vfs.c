@@ -265,7 +265,7 @@ int seek(int fd, uint32_t offset, int whence)
     return current_process->fd_table[fd].offset;
 }
 
-int ioctl(int fd, int cmd, void *args)
+int ioctl(int fd, int cmd, int args)
 {
     void *addr = current_process->fd_table[fd].addr;
     switch(current_process->fd_table[fd].type)

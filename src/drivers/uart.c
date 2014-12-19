@@ -1,6 +1,6 @@
 #include "drivers/uart.h"
 
-int init_uart(s_device *dev)
+static int init_uart(s_device *dev)
 {
     DO_NOTHING_WITH(dev);
 
@@ -57,7 +57,7 @@ static uint8_t getchar_uart(void)
     return read_mmio(DR_UART);
 }
 
-int write_uart(s_device *dev, uint32_t *offset, const void *str, uint32_t size)
+static int write_uart(s_device *dev, uint32_t *offset, const void *str, uint32_t size)
 {
     DO_NOTHING_WITH(offset);
     if (((dev->perm & PERM_WRITE) != PERM_WRITE) || dev->lock)
@@ -70,7 +70,7 @@ int write_uart(s_device *dev, uint32_t *offset, const void *str, uint32_t size)
     return i;
 }
 
-int read_uart(s_device *dev, uint32_t *offset, void *str, uint32_t size)
+static int read_uart(s_device *dev, uint32_t *offset, void *str, uint32_t size)
 {
     DO_NOTHING_WITH(dev);
     DO_NOTHING_WITH(offset);
@@ -80,10 +80,10 @@ int read_uart(s_device *dev, uint32_t *offset, void *str, uint32_t size)
     return i;
 }
 
-int ioctl_uart(s_device *dev, int op, void *args)
+static int ioctl_uart(s_device *dev, int cmd, int args)
 {
     DO_NOTHING_WITH(dev);
-    DO_NOTHING_WITH(op);
+    DO_NOTHING_WITH(cmd);
     DO_NOTHING_WITH(args);
     return 0;
 }
