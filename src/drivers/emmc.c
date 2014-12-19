@@ -286,7 +286,7 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
     }
 
     if (device.blks_tr > 0xFFFF)
-        return -1;
+        return 0;
 
     uint32_t blkszcnt = device.blksz | (device.blks_tr << 16);
     emmc->blkszcnt.raw = blkszcnt;
@@ -305,7 +305,7 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
     if ((irpt & 0xFFFF0001) != 0x1)
     {
         lasterr = irpt & 0xFFFF0000;
-        return -1;
+        return 0;
     }
     waitms(5);
 
@@ -345,7 +345,7 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
             if ((irpt & (0xFFFF0000 | wrint)) != wrint)
             {
                 lasterr = irpt & 0xFFFF0000;
-                return -1;
+                return 0;
             }
 
             uint32_t curbytenum = 0;
@@ -381,7 +381,7 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
             if (((irpt & 0xFFFF0002) != 0x2) && ((irpt & 0xFFFF0002) != 0x100002))
             {
                 lasterr = irpt & 0xFFFF0000;
-                return -1;
+                return 0;
             }
             emmc->interrupt.raw = 0xFFFF0002;
         }
@@ -399,12 +399,12 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
             if ((irpt & 0x8000) && ((irpt & 0x2) != 0x2))
             {
                 lasterr = irpt & 0xFFFF0000;
-                return -1;
+                return 0;
             }
             if ((irpt & 0x8) && ((irpt & 0x2) != 0x2))
             {
                 lasterr = irpt & 0xFFFF0000;
-                return -1;
+                return 0;
             }
 
             if (irpt & 0x2)
@@ -418,7 +418,7 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
                     waitms(200);
                 }
                 lasterr = irpt & 0xFFFF0000;
-                return -1;
+                return 0;
             }
         }
     }
@@ -435,7 +435,7 @@ static int issuecmd(uint32_t cmd, uint32_t arg)
     {
         cmd &= 0xFF;
         if (ACMD[cmd] == SDCMD_RES(0))
-            return -1;
+            return 0;
         lastcmd = EMMC_ACMD;
 
         uint32_t rca = 0;
@@ -450,7 +450,7 @@ static int issuecmd(uint32_t cmd, uint32_t arg)
     else
     {
         if (CMD[cmd] == SDCMD_RES(0))
-            return -1;
+            return 0;
         lastcmd = cmd;
         issuecmdint(CMD[cmd], arg);
     }

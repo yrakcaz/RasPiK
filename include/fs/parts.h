@@ -17,7 +17,7 @@ typedef struct mbr
 {
     uint8_t code[446];
     s_mbrentry parts[4];
-    uint8_t sig[2];
+    uint16_t sig;
 }__attribute__((packed)) s_mbr;
 
 typedef struct part
