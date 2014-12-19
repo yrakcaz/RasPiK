@@ -20,7 +20,6 @@
 # define REP_SUCCESS     0x80000000
 # define REP_FAILURE     0x80000001
 
-# define KERNEL_START    0x80000000
 # define CLOCK_TAG       0x00030002
 # define POWERGET_TAG    0x00020001
 # define POWERSET_TAG    0x00028001

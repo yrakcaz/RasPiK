@@ -171,7 +171,6 @@ static uint32_t basefreq_sd(void)
     buff[6] = 0;
     buff[7] = 0;
     uint32_t addr = (uint32_t)&buff;
-    addr -= KERNEL_START;
     write_mailbox(8, addr);
     read_mailbox(8);
     if (buff[1] != REP_SUCCESS || buff[5] != 0x1)
@@ -191,7 +190,6 @@ static int power_emmc(uint32_t state)
     buff[6] = state;
     buff[7] = 0;
     uint32_t addr = (uint32_t)&buff;
-    addr -= KERNEL_START;
     write_mailbox(8, addr);
     waitms(200);
     read_mailbox(8);
@@ -369,7 +367,7 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
     }
 
     if ((((cmd & SDCMD_REPMSK) == SDCMD_REP48B) ||
-                (cmd & SDCMD_ISDATA)) & (sdma))
+                (cmd & SDCMD_ISDATA)) && (!sdma))
     {
         if (!(emmc->status.raw & 0x2))
             emmc->interrupt.raw = 0xFFFF0002;
