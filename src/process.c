@@ -46,6 +46,8 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
         }
     }
 
+    for (int i = 0; i < NBMAX_FD; i++)
+        process->fd_table[i].addr = NULL;
     //STDIOS here!
 
     switch (real_nbproc)

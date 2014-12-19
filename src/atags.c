@@ -117,7 +117,7 @@ void print_atags(s_aheader *atags)
             case AFB:
                 print_afb((s_afb *)atags);
                 break;
-            case ACMD:
+            case ACMND:
                 print_acmd((s_acmd *)atags);
                 break;
             default:

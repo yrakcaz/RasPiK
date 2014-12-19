@@ -2,21 +2,10 @@
 # define GRAPHICS_H
 
 # include <stdint.h>
-# include "mmio.h"
 # include "utils.h"
+# include "mailbox.h"
 
 /* Usefull defines for graphic driver. */
-# define MAILBOX_ADDR    0x2000B880
-
-# define MAILBOX_READ    0x00
-# define MAILBOX_WRITE   0x20
-# define MAILBOX_STATE   0x18
-
-# define MAILBOX_FULL    0x80000000
-# define MAILBOX_EMPTY   0x40000000
-
-# define MAILBOX_TIMEOUT (1 << 20)
-
 # define FRAME_BUFFER    0x00002000
 # define ARM_BUS_ADDR    0x40000000
 
@@ -63,8 +52,6 @@ typedef struct framebuffer
 s_fb *fb;
 
 /* External functions... */
-void send_to_mailbox(uint8_t chan, uint32_t data);
-uint32_t verify_mailbox(uint8_t chan);
 int init_graphics(void);
 s_color hex_to_rgb(uint32_t color);
 uint32_t rgb_to_hex(s_color color);

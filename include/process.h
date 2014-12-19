@@ -16,8 +16,10 @@
 # include <stdint.h>
 # include "mem.h"
 # include "timers.h"
+# include "fs/vfs.h"
 
 # define NBMAX_PROC 4096
+# define NBMAX_FD   4096
 # define STACK_SIZE 2048
 
 typedef struct proc
@@ -30,6 +32,7 @@ typedef struct proc
     int stack_idx;
     uint32_t pc;
     uint32_t sp;
+    s_fd fd_table[NBMAX_FD];
     struct proc *next;
     struct proc *prev;
 } s_proc;
