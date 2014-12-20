@@ -12,6 +12,8 @@
 # define MAILBOX_WRITE   0x20
 # define MAILBOX_STATE   0x18
 
+# define MAILBOX_PROP    8
+
 # define MAILBOX_FULL    0x80000000
 # define MAILBOX_EMPTY   0x40000000
 
