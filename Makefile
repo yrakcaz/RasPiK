@@ -4,7 +4,7 @@ C_SRC := src/utils.c src/mailbox.c src/graphics.c src/klog.c src/atags.c src/mem
 		 src/syscall.c src/timers.c src/interrupts.c src/process.c           \
 		 src/scheduler.c src/main.c
 C_SRC += src/fs/parts.c src/fs/vffs.c src/fs/devfs.c src/fs/fat32.c src/fs/vfs.c
-C_SRC += src/drivers/uart.c src/drivers/emmc.c
+C_SRC += src/drivers/uart.c
 OBJ := $(ASM_SRC:.S=.o)
 OBJ += $(C_SRC:.c=.o)
 LINK := src/rpi-link.ld
