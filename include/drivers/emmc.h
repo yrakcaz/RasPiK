@@ -46,7 +46,7 @@
 # define SDCMD_ISDATA   (1 << 21)
 # define SDCMD_ABORT    (3 << 22)
 
-# define SDCMD_INDEX(X) (X << 24)
+# define SDCMD_INDEX(X) ((X) << 24)
 # define SDCMD_RES(X)   0xFFFFFFFF
 # define SD_READ        (SDCMD_ISDATA | SDCMD_DDCH)
 # define SD_WRITE       (SDCMD_ISDATA | SDCMD_DDHC)

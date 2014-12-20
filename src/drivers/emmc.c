@@ -296,7 +296,10 @@ static int issuecmdint(uint32_t cmd, uint32_t arg)
     emmc->cmdtm.raw = cmd;
     waitms(5);
 
-    while (!(emmc->interrupt.bits.cmd_done) && !(emmc->interrupt.bits.error)) {}
+    int j = 0;
+    while (j++ < 1000) 
+        if (emmc->interrupt.raw & 0x8001)
+            break;
 
     uint32_t irpt = emmc->interrupt.raw;
     emmc->interrupt.raw = 0xFFFF0001;
@@ -456,6 +459,14 @@ static int issuecmd(uint32_t cmd, uint32_t arg)
     return 1;
 }
 
+static void resetdat(void)
+{
+    uint32_t ctrl1 = emmc->ctrl1.raw;
+    ctrl1 |= (1 << 26);
+    emmc->ctrl1.raw = ctrl1;
+    while (!(emmc->ctrl1.raw & (1 << 26))) {}
+}
+
 void handleemmcint(void)
 {
     uint32_t irpt = emmc->interrupt.raw;
@@ -469,9 +480,15 @@ void handleemmcint(void)
     if (irpt & (1 << 3))
         rstmsk |= (1 << 3);
     if (irpt & (1 << 4))
+    {
         rstmsk |= (1 << 4);
+        resetdat();
+    }
     if (irpt & (1 << 5))
+    {
         rstmsk |= (1 << 5);
+        resetdat();
+    }
     if (irpt & (1 << 6))
         rstmsk |= (1 << 6);
     if (irpt & (1 << 7))
@@ -479,7 +496,7 @@ void handleemmcint(void)
     if (irpt & (1 << 8))
     {
         if (device.rca)
-            issuecmd(EMMC_SENDSTAT, (device.rca << 16));
+            issuecmdint(CMD[EMMC_SENDSTAT], (device.rca << 16));
         rstmsk = (1 << 8);
     }
     if (irpt & 0x8000)
