@@ -1,0 +1,5 @@
+Every sources in this directory are directly imported from other open source
+projects, and I thanks a lot the developpers, before I take the time to
+re-write it myself (if necessary).
+
+emmc driver : https://github.com/jncronin/rpi-boot.git
