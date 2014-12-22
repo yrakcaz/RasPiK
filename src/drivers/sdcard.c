@@ -24,6 +24,7 @@ static int write_sdcard(s_device *dev, uint32_t *offset, const void *buff, uint3
 static int ioctl_sdcard(s_device *dev, int cmd, int args)
 {
     DO_NOTHING_WITH(dev);
+    //TODO CHANGE IT : cast will not work...
     return emmc_issue_command((struct emmc_block_dev *)bd, cmd, args, HUMAN_TIME / 2);
 }
 
