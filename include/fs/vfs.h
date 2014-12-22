@@ -76,5 +76,6 @@ int insmod(const char *path, void *addr, s_driver *driver);
 void print_vfs(void);
 
 int init_vfs(void);
+int mount_devices(void);
 
 #endif /* !VFS_H */

@@ -226,6 +226,8 @@ const char **readdir(const char *path)
                     return readdir_vffs(vfsroot.list[i].fs);
                 if (vfsroot.list[i].type == DEVICES)
                     return readdir_devfs(vfsroot.list[i].fs);
+                if (vfsroot.list[i].type == FAT32)
+                    return readdir_fat32(vfsroot.list[i].fs);
             }
         }
         return NULL;
@@ -439,6 +441,10 @@ void print_vfs(void)
                 klog("DEVFS : ", 8, YELLOW);
                 klog(vfsroot.list[i].name, strlen(vfsroot.list[i].name), YELLOW);
                 klog("\n\t", 2, YELLOW);
+            case FAT32:
+                klog("FAT32 : ", 8, WHITE);
+                klog(vfsroot.list[i].name, strlen(vfsroot.list[i].name), WHITE);
+                klog("\n\t", 2, WHITE);
             default:
                 break;
         }
@@ -466,8 +472,27 @@ int init_vfs(void)
         return 0;
     }
 
-    wait (HUMAN_TIME / 2);
+    wait(HUMAN_TIME / 2);
     klog("\b\b\b\bOK", 6, GREEN);
     klog("]\tVirtual File System initialized!\n", 35, WHITE);
+    return 1;
+}
+
+int mount_devices(void)
+{
+    klog("[", 1, WHITE);
+    klog("...", 3, RED);
+    klog("]", 1, WHITE);
+
+    if (mount("/dev/sdcard", "sdcard", FAT32) < 0)
+    {
+        klog("\b\b\b\bKO", 6, RED);
+        klog("]\tDevices mounting failed.\n", 27, WHITE);
+        return 0;
+    }
+
+    wait(HUMAN_TIME / 2);
+    klog("\b\b\b\bOK", 6, GREEN);
+    klog("]\tDevices mounted!\n", 19, WHITE);
     return 1;
 }

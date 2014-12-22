@@ -69,7 +69,7 @@ TODO:
     |
     ---> GPIO
     |
-    ---> SD
+    ---> SD                                                                DONE (taken from rpi-boot, re-write it if necessary...)
     |
     ---> USB
     |

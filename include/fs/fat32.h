@@ -7,6 +7,13 @@
 
 # define BLK_SIZE  512
 
+# define FAT32_RO  (1 << 0)
+# define FAT32_HID (1 << 1)
+# define FAT32_SYS (1 << 2)
+# define FAT32_VOL (1 << 3)
+# define FAT32_DIR (1 << 4)
+# define FAT32_ACH (1 << 5)
+
 typedef struct ebpb32
 {
     uint32_t secperfat;
@@ -45,8 +52,38 @@ typedef struct bpb
     s_ebpb32   ebpb;
 }__attribute__((packed)) s_bpb;
 
+typedef struct fatdir
+{
+    uint8_t name[8];
+    uint8_t ext[3];
+    uint8_t attrs;
+    uint8_t res;
+    uint8_t crms;
+    uint16_t crtime;
+    uint16_t crdate;
+    uint16_t acdate;
+    uint16_t clhigh;
+    uint16_t modtime;
+    uint16_t moddate;
+    uint16_t cllow;
+    uint32_t size;
+} s_fatdir;
+
+typedef struct lfn
+{
+    uint8_t ord;
+    uint16_t chr1[5];
+    uint8_t attrs;
+    uint8_t res1;
+    uint8_t cksum;
+    uint16_t chr2[6];
+    uint16_t res2;
+    uint16_t chr3[2];
+}__attribute__((packed)) s_lfn;
+
 typedef struct fat32
 {
+    const char *devpath;
     uint16_t seclen;
     uint8_t cluslen;
     uint8_t nbfats;
