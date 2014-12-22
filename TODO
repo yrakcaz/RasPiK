@@ -20,7 +20,9 @@ TODO:
     ---> Optimize scrolling
     |
     ---> At sched init, clear screen and redirect klogs
-         (without scroll) into a file.
+    |     (without scroll) into a file.
+    |
+    ---> printk / panic!
 
 -> Memory Management
     |
