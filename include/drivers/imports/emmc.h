@@ -71,24 +71,24 @@ struct block_device {
 
 };
 
-struct sd_scr
+struct emmc_scr
 {
     uint32_t    scr[2];
-    uint32_t    sd_bus_widths;
-    int         sd_version;
+    uint32_t    emmc_bus_widths;
+    int         emmc_version;
 };
 
 struct emmc_block_dev
 {
     struct block_device bd;
-    uint32_t card_supports_sdhc;
+    uint32_t card_supports_emmchc;
     uint32_t card_supports_18v;
     uint32_t card_ocr;
     uint32_t card_rca;
     uint32_t last_interrupt;
     uint32_t last_error;
 
-    struct sd_scr *scr;
+    struct emmc_scr *scr;
 
     int failed_voltage_switch;
 
@@ -103,7 +103,7 @@ struct emmc_block_dev
     void *buf;
     int blocks_to_transfer;
     size_t block_size;
-    int use_sdma;
+    int use_emmcma;
     int card_removal;
     uint32_t base_clock;
 };
@@ -286,7 +286,11 @@ struct emmc_block_dev
 
 # define SD_GET_CLOCK_DIVIDER_FAIL    0xffffffff
 
-int sd_read(struct block_device *dev, uint8_t *buf, size_t buf_size, uint32_t block_no);
-int sd_write(struct block_device *dev, uint8_t *buf, size_t buf_size, uint32_t block_no);
+typedef uint64_t useconds_t;
+
+int emmc_card_init(struct block_device **dev);
+int emmc_read(struct block_device *dev, uint8_t *buf, size_t buf_size, uint32_t block_no);
+int emmc_write(struct block_device *dev, uint8_t *buf, size_t buf_size, uint32_t block_no);
+int emmc_issue_command(struct emmc_block_dev *dev, uint32_t command, uint32_t argument, useconds_t timeout);
 
 #endif
