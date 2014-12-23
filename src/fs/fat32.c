@@ -138,3 +138,68 @@ const char **readdir_fat32(s_fat32 *fat32)
     kfree(dir);
     return ret;
 }
+
+static char upper(char c)
+{
+    if (c >= 'a' && c <= 'z')
+        return (c - 'a' + 'A');
+    return c;
+}
+
+static int check_filename(s_fatdir file, const char *name)
+{
+    for (int i = 0; i < 8 && file.name[i] && file.name[i] != ' '; i++)
+        if (file.name[i] != upper(name[i]))
+            return 0;
+    for (int i = strlen(name) - 1, j = 2; j >= 0; j--, i--)
+        if (file.ext[j] != upper(name[i]))
+            return 0;
+    return 1;
+}
+
+s_fatdir *getnode_fat32(s_fat32 *fat32, const char *name)
+{
+    s_fatdir *dir = kmalloc(fat32->cluslen * fat32->seclen);
+    if (!dir)
+        return NULL;
+
+    int fd = open(fat32->devpath, O_RDONLY);
+    if (fd < 0)
+    {
+        kfree(dir);
+        return NULL;
+    }
+
+    if (seek(fd, fat32->root, SEEK_SET) < 0)
+    {
+        close(fd);
+        kfree(dir);
+        return NULL;
+    }
+
+    uint32_t size = fat32->cluslen * fat32->seclen;
+    if (read(fd, dir, size) != size)
+    {
+        close(fd);
+        kfree(dir);
+        return NULL;
+    }
+    close(fd);
+
+    uint32_t maxnbfile = fat32->cluslen * fat32->seclen / sizeof (s_fatdir);
+    for (int i = 0; i < maxnbfile; i++)
+    {
+        if ((dir[i].attrs & FAT32_VOL) || (dir[i].attrs & FAT32_DIR))
+            continue;
+        if (dir[i].name[0] == 0xE5)
+            continue;
+        if (dir[i].name[0] == 0x00)
+            break;
+
+        if (check_filename(dir[i], name))
+            return (dir + i);
+    }
+
+    kfree(dir);
+    return NULL;
+}

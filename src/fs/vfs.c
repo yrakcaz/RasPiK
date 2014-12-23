@@ -80,6 +80,21 @@ static void *getnode(const char *path, int *type, int mode, int *offset)
                 }
                 return file;
             }
+            if (*type == FAT32)
+            {
+                s_fatdir *file = getnode_fat32(vfsroot.list[i].fs, parsed[1]);
+                if (!file)
+                {
+                    //TODO : Create file if necessary..
+                    break;
+                }
+                //TODO : permissions??
+                if ((mode & O_APPEND) == O_APPEND)
+                    *offset = file->size; //TODO : verify it...
+                else
+                    *offset = 0;
+                return file;
+            }
             if (*type == DEVICES)
             {
                 s_device *device = getnode_devfs(vfsroot.list[i].fs, parsed[1]);
@@ -247,6 +262,9 @@ int seek(int fd, uint32_t offset, int whence)
         case DEVICES:
             len = 0;
             break;
+        case FAT32:
+            len = ((s_fatdir *)current_process->fd_table[fd].addr)->size;
+            break;
         default:
             return -1;
     }
@@ -276,6 +294,8 @@ int ioctl(int fd, int cmd, int args)
             return -1;
         case DEVICES:
             return ((s_device *)addr)->driver->ioctl(addr, cmd, args);
+        case FAT32:
+            return -1;
         default:
             return -1;
     }

@@ -57,11 +57,45 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     mount_devices();
     init_scheduler();
 
+    //TESTS/////////////////
+
     klog("\n\n", 2, WHITE);
 
     print_vfs();
 
     klog("\n\n", 2, WHITE);
+
+    int fd1 = open("/sdcard/lol.mp3", O_RDONLY);
+    if (fd1 < 0)
+    {
+        klog("fd1 failed!\n", 12, RED);
+        goto end;
+    }
+    else
+        klog("fd1 good!\n", 10, GREEN);
+    int fd2 = open("/sdcard/test.false", O_RDONLY);
+    if (fd2 < 0)
+        klog("fd2 good!\n", 10, GREEN);
+    else
+        klog("fd2 failed!\n", 12, RED);
+
+    if (ioctl(fd1, 0, 0) < 0)
+        klog("ioctl good!\n", 12, GREEN);
+    else
+        klog("ioctl failed!\n", 14, RED);
+    if (seek(fd1, 0, SEEK_SET) < 0)
+        klog("seek failed!\n", 13, RED);
+    else
+        klog("seek good!\n", 11, GREEN);
+    if (close(fd1) < 0)
+        klog("close failed!\n", 14, RED);
+    else
+        klog("close good!\n", 12, GREEN);
+
+end:
+    klog("\n\n", 2, WHITE);
+
+    //TESTS/////////////////
 
     for (;;)
         draw_star();
