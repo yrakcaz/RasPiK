@@ -87,19 +87,19 @@ const char **readdir_fat32(s_fat32 *fat32)
         return NULL;
     }
 
-    uint32_t size = fat32->cluslen * fat32->seclen / 512;
+    uint32_t size = fat32->cluslen * fat32->seclen;
     if (read(fd, dir, size) != size)
     {
         close(fd);
         kfree(dir);
         return NULL;
     }
+    close(fd);
 
     uint32_t maxnbfile = fat32->cluslen * fat32->seclen / sizeof (s_fatdir);
     const char **ret = kmalloc(maxnbfile * sizeof (char *));
     if (!ret)
     {
-        close(fd);
         kfree(dir);
         return NULL;
     }
@@ -114,20 +114,27 @@ const char **readdir_fat32(s_fat32 *fat32)
         if (dir[i].name[0] == 0x00)
             break;
 
-        char *filename = kmalloc(13);
+        char *filename = kmalloc(13 * sizeof (char));
+        if (!filename)
+        {
+            kfree(ret);
+            kfree(dir);
+            return NULL;
+        }
+
         int pos = 0;
-        for (int j = 0; j < 8; j++)
+        for (int j = 0; j < 8 && dir[i].name[j] && dir[i].name[j] != ' '; j++)
             filename[pos++] = dir[i].name[j];
         filename[pos++] = '.';
         for (int j = 0; j < 3; j++)
             filename[pos++] = dir[i].ext[j];
+        filename[pos] = '\0';
 
-        count++;
+        ret[count++] = filename;
     }
 
     ret[count] = NULL;
 
-    close(fd);
     kfree(dir);
     return ret;
 }

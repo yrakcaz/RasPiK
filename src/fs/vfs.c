@@ -441,14 +441,18 @@ void print_vfs(void)
                 klog("DEVFS : ", 8, YELLOW);
                 klog(vfsroot.list[i].name, strlen(vfsroot.list[i].name), YELLOW);
                 klog("\n\t", 2, YELLOW);
+                break;
             case FAT32:
                 klog("FAT32 : ", 8, WHITE);
                 klog(vfsroot.list[i].name, strlen(vfsroot.list[i].name), WHITE);
                 klog("\n\t", 2, WHITE);
+                break;
             default:
                 break;
         }
         const char **dir = readdir(vfsroot.list[i].name);
+        if (!dir)
+            return;
         for (int j = 0; dir[j]; j++)
         {
             klog(dir[j], strlen(dir[j]), WHITE);

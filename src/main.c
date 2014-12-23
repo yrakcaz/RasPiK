@@ -59,6 +59,10 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 
     klog("\n\n", 2, WHITE);
 
+    print_vfs();
+
+    klog("\n\n", 2, WHITE);
+
     for (;;)
         draw_star();
 }

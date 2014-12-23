@@ -2,11 +2,8 @@
 
 s_part *get_parts(s_mbr *mbr)
 {
-    if ((mbr->sig != 0xAA55) && (mbr->sig != 0x55AA))
-    {
-        klog("Not an mbr!\n", 12, RED);
+    if (mbr->sig != 0xAA55)
         return NULL;
-    }
 
     s_part *parts = kmalloc(4 * sizeof (s_part));
 
