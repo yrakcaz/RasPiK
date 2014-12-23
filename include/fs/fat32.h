@@ -3,6 +3,12 @@
 
 # include "fs/parts.h"
 
+/*
+** For the moment, LFN are not handled,
+** and spaces are not allowed in file
+** names...
+*/
+
 # define TYPEFAT32 0x0B
 
 # define BLK_SIZE  512
