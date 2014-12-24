@@ -214,6 +214,7 @@ s_fatfile *getnode_fat32(s_fat32 *fat32, const char *name)
     return NULL;
 }
 
+//TODO : SPLIT IT!!
 int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
 {
     if (len <= 0)
@@ -230,11 +231,10 @@ int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
         nbsectors++;
 
     uint32_t total = 0;
-    uint32_t i;
 
     if (nbsectors <= file->info->cluslen)
     {
-        for (i = 0; i < nbsectors; i++)
+        for (uint32_t i = 0; i < nbsectors; i++)
         {
             char *buff = kmalloc(BLK_SIZE);
             if (!buff)
@@ -258,17 +258,66 @@ int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
             for (int j = 0; j < nbcpy; j++)
                 ((char *)buf)[total++] = buff[j];
             len -= nbcpy;
-            total += nbcpy;
             sector++;
 
             close(fd);
             kfree(buff);
         }
-
     }
     else
     {
-        //FIXME
+        uint32_t nbclusters = nbsectors / file->info->cluslen;
+        for (uint32_t i = 0; i < nbclusters; i++)
+        {
+            for (uint32_t j = 0; j < file->info->cluslen; j++)
+            {
+                char *buff = kmalloc(BLK_SIZE);
+                if (!buff)
+                    return -1;
+                int fd = open(file->info->devpath, O_RDONLY);
+                if (fd < 0 || seek(fd, sector, SEEK_SET) < 0)
+                {
+                    if (fd < 0)
+                        close(fd);
+                    kfree(buff);
+                    return -1;
+                }
+
+                if (read(fd, buff, BLK_SIZE) <= 0)
+                {
+                    close(fd);
+                    kfree(buff);
+                    return -1;
+                }
+                uint32_t nbcpy = len > BLK_SIZE ? BLK_SIZE : len;
+                for (int k = 0; k < nbcpy; k++)
+                    ((char *)buf)[total++] = buff[k];
+                len -= nbcpy;
+
+                close(fd);
+                kfree(buff);
+
+                if (len <= 0)
+                    break;
+
+                sector++;
+            }
+
+            if (len <= 0)
+                break;
+
+            sector--;
+            uint32_t curclus = ((sector - file->info->root) / file->info->cluslen);
+            uint32_t entry = file->info->root + ((curclus - 2) * file->info->cluslen);
+            if (entry == -1)
+                break;
+
+            entry &= 0x0FFFFFFF;
+            if (entry >= 0x0FFFFFF7)
+                break;
+
+            sector = file->info->root + ((entry - 2) * file->info->cluslen);
+        }
     }
 
     *offset += total;
