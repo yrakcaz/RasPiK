@@ -13,7 +13,7 @@
 
 # define BLK_SIZE  512
 
-# define FAT32_RO  (1 << 0)
+# define FAT32_RO  (1 << 0) //TODO : permissions with that..
 # define FAT32_HID (1 << 1)
 # define FAT32_SYS (1 << 2)
 # define FAT32_VOL (1 << 3)
@@ -99,15 +99,21 @@ typedef struct fat32
     uint32_t root;
 } s_fat32;
 
+typedef struct fatfile
+{
+    s_fat32 *info;
+    s_fatdir *dir;
+} s_fatfile;
+
 s_fat32 *create_fat32(const char *devpath);
 void remove_fat32(s_fat32 *fat32);
 const char **readdir_fat32(s_fat32 *fat32);
-s_fatdir *getnode_fat32(s_fat32 *fat32, const char *name);
+s_fatfile *getnode_fat32(s_fat32 *fat32, const char *name);
 
 //TODO:
 int create_fat32file(s_fat32 *fat32, const char *name);
 int remove_fat32file(s_fat32 *fat32, const char *name);
-int read_fat32file(s_fat32 *fat32, uint32_t *offset, void *buf, uint32_t len);
+int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len);
 int write_fat32file(s_fat32 *fat32, uint32_t *offset, const void *buf, uint32_t len);
 int chmod_fat32file(s_fat32 *fat32, const char *name, int perm);
 

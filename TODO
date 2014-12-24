@@ -54,6 +54,10 @@ TODO:
     ---> Handle Ext2
     |
     ---> IO! (file management, devices...)                                 DONE
+    |       |
+    |       ---> Re-think about devices offsets...
+    |       |
+    |       ---> Get file size!
     |
     ---> ProcFS for processes tracing
     |

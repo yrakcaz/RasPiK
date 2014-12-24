@@ -87,6 +87,33 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
         klog("seek failed!\n", 13, RED);
     else
         klog("seek good!\n", 11, GREEN);
+
+    s_stat sb;
+    if (stat(fd1, &sb) < 0)
+    {
+        klog("stat failed!\n", 13, RED);
+        goto close;
+    }
+    klog("Size : ", 7, YELLOW);
+    klog(itoa(sb.st_size, 10), strlen(itoa(sb.st_size, 10)), YELLOW);
+    klog("\n", 1, YELLOW);
+
+    char *readtest = kmalloc(sb.st_size + 1);
+    if (!readtest)
+    {
+        klog("mem fail!\n", 10, RED);
+        goto close;
+    }
+    if (read(fd1, readtest, sb.st_size) <= 0)
+        klog("read failed!\n", 13, RED);
+    else
+    {
+        readtest[sb.st_size] = 0;
+        klog(readtest, sb.st_size, GREEN);
+        klog("\n", 1, WHITE);
+    }
+
+close:
     if (close(fd1) < 0)
         klog("close failed!\n", 14, RED);
     else

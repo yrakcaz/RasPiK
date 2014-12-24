@@ -55,6 +55,12 @@ typedef struct fd
     uint32_t offset;
 } s_fd;
 
+typedef struct stat
+{
+    uint32_t st_size;
+    //TODO : ADD TIME!
+} s_stat;
+
 int open(const char *path, int mode);
 int close(int fd);
 
@@ -66,6 +72,8 @@ const char **readdir(const char *path);
 
 int seek(int fd, uint32_t offset, int whence);
 int ioctl(int fd, int cmd, int args);
+
+int stat(int fd, s_stat *stat);
 
 int mount(const char *devpath, const char *mountpath, int type);
 int unmount(const char *path);

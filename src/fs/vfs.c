@@ -82,7 +82,7 @@ static void *getnode(const char *path, int *type, int mode, int *offset)
             }
             if (*type == FAT32)
             {
-                s_fatdir *file = getnode_fat32(vfsroot.list[i].fs, parsed[1]);
+                s_fatfile *file = getnode_fat32(vfsroot.list[i].fs, parsed[1]);
                 if (!file)
                 {
                     //TODO : Create file if necessary..
@@ -90,7 +90,7 @@ static void *getnode(const char *path, int *type, int mode, int *offset)
                 }
                 //TODO : permissions??
                 if ((mode & O_APPEND) == O_APPEND)
-                    *offset = file->size; //TODO : verify it...
+                    *offset = file->dir->size;
                 else
                     *offset = 0;
                 return file;
@@ -162,6 +162,8 @@ int read(int fd, void *buf, uint32_t len)
             return read_vfile(addr, &(current_process->fd_table[fd].offset), buf, len);
         case DEVICES:
             return ((s_device *)addr)->driver->read(addr, &(current_process->fd_table[fd].offset), buf, len);
+        case FAT32:
+            return read_fat32file(addr, &(current_process->fd_table[fd].offset), buf, len);
         default:
             return -1;
     }
@@ -287,7 +289,13 @@ int seek(int fd, uint32_t offset, int whence)
 
 int ioctl(int fd, int cmd, int args)
 {
+    if (fd < 0 || fd > NBMAX_FD)
+        return -1;
+
     void *addr = current_process->fd_table[fd].addr;
+    if (!addr)
+        return -1;
+
     switch(current_process->fd_table[fd].type)
     {
         case VFILES:
@@ -296,6 +304,30 @@ int ioctl(int fd, int cmd, int args)
             return ((s_device *)addr)->driver->ioctl(addr, cmd, args);
         case FAT32:
             return -1;
+        default:
+            return -1;
+    }
+}
+
+int stat(int fd, s_stat *sb)
+{
+    if (fd < 0 || fd > NBMAX_FD || !sb)
+        return -1;
+
+    void *addr = current_process->fd_table[fd].addr;
+    if (!addr)
+        return -1;
+
+    switch(current_process->fd_table[fd].type)
+    {
+        case VFILES:
+            sb->st_size = ((s_vfile *)addr)->size;
+            return -1;
+        case DEVICES:
+            return -1;
+        case FAT32:
+            sb->st_size = ((s_fatfile *)addr)->dir->size;
+            return 0;
         default:
             return -1;
     }

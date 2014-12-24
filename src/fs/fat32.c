@@ -157,7 +157,7 @@ static int check_filename(s_fatdir file, const char *name)
     return 1;
 }
 
-s_fatdir *getnode_fat32(s_fat32 *fat32, const char *name)
+s_fatfile *getnode_fat32(s_fat32 *fat32, const char *name)
 {
     s_fatdir *dir = kmalloc(fat32->cluslen * fat32->seclen);
     if (!dir)
@@ -197,9 +197,80 @@ s_fatdir *getnode_fat32(s_fat32 *fat32, const char *name)
             break;
 
         if (check_filename(dir[i], name))
-            return (dir + i);
+        {
+            s_fatfile *file = kmalloc(sizeof (s_fatfile));
+            if (!file)
+            {
+                kfree(dir);
+                return NULL;
+            }
+            file->info = fat32;
+            file->dir = dir + i;
+            return file;
+        }
     }
 
     kfree(dir);
     return NULL;
+}
+
+int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
+{
+    if (len <= 0)
+        return len;
+
+    uint32_t left = file->dir->size - *offset;
+    if (left < len)
+        len = left;
+
+    uint32_t firstclus = (file->dir->clhigh << 16) | file->dir->cllow;
+    uint32_t sector = file->info->root + ((firstclus - 2) * file->info->cluslen);
+    uint32_t nbsectors = len / BLK_SIZE;
+    if (nbsectors % BLK_SIZE || !nbsectors)
+        nbsectors++;
+
+    uint32_t total = 0;
+    uint32_t i;
+
+    if (nbsectors <= file->info->cluslen)
+    {
+        for (i = 0; i < nbsectors; i++)
+        {
+            char *buff = kmalloc(BLK_SIZE);
+            if (!buff)
+                return -1;
+            int fd = open(file->info->devpath, O_RDONLY);
+            if (fd < 0 || seek(fd, sector, SEEK_SET) < 0)
+            {
+                if (fd < 0)
+                    close(fd);
+                kfree(buff);
+                return -1;
+            }
+
+            if (read(fd, buff, BLK_SIZE) <= 0)
+            {
+                close(fd);
+                kfree(buff);
+                return -1;
+            }
+            uint32_t nbcpy = len > BLK_SIZE ? BLK_SIZE : len;
+            for (int j = 0; j < nbcpy; j++)
+                ((char *)buf)[total++] = buff[j];
+            len -= nbcpy;
+            total += nbcpy;
+            sector++;
+
+            close(fd);
+            kfree(buff);
+        }
+
+    }
+    else
+    {
+        //FIXME
+    }
+
+    *offset += total;
+    return total;
 }
