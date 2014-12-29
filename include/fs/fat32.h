@@ -73,7 +73,7 @@ typedef struct fatdir
     uint16_t moddate;
     uint16_t cllow;
     uint32_t size;
-} s_fatdir;
+}__attribute__((packed)) s_fatdir;
 
 typedef struct lfn
 {

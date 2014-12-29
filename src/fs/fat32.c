@@ -285,6 +285,7 @@ int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
 
                 if (read(fd, buff, BLK_SIZE) <= 0)
                 {
+                    klog("I'm here!\n", 10, YELLOW);
                     close(fd);
                     kfree(buff);
                     return -1;
@@ -308,7 +309,7 @@ int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
 
             sector--;
             uint32_t curclus = ((sector - file->info->root) / file->info->cluslen);
-            uint32_t entry = file->info->root + ((curclus - 2) * file->info->cluslen);
+            uint32_t entry = (((curclus - 2) * file->info->cluslen) + file->info->root) * file->info->seclen;
             if (entry == -1)
                 break;
 
