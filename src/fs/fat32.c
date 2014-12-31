@@ -215,7 +215,7 @@ s_fatfile *getnode_fat32(s_fat32 *fat32, const char *name)
 }
 
 static int read_shortfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
-                          uint32_t *len, uint32_t *total, void *buf)
+                          uint32_t len, uint32_t *total, void *buf)
 {
     for (uint32_t i = 0; i < nbsectors; i++)
     {
@@ -237,7 +237,7 @@ static int read_shortfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
             kfree(buff);
             return -1;
         }
-        uint32_t nbcpy = *len > BLK_SIZE ? BLK_SIZE : *len;
+        uint32_t nbcpy = len > BLK_SIZE ? BLK_SIZE : len;
         for (int j = 0; j < nbcpy; j++)
             ((char *)buf)[(*total)++] = buff[j];
         len -= nbcpy;
@@ -290,6 +290,72 @@ static int get_entry(s_fat32 *info, uint32_t cluster)
     return entry;
 }
 
+static int read_longfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
+                         uint32_t len, uint32_t *total, void *buf, uint32_t *offset)
+{
+    uint32_t nbclusters = nbsectors / file->info->cluslen;
+    for (uint32_t i = 0; i < nbclusters; i++)
+    {
+        for (uint32_t j = 0; j < file->info->cluslen; j++)
+        {
+            int fd = open(file->info->devpath, O_RDONLY);
+            if (fd < 0)
+            {
+                *offset += *total;
+                return *total;
+            }
+            if (seek(fd, sector, SEEK_SET) < 0)
+            {
+                close(fd);
+                *offset += *total;
+                return *total;
+            }
+            char *buff = kmalloc(BLK_SIZE);
+            if (!buff)
+            {
+                close(fd);
+                *offset += *total;
+                return *total;
+            }
+            if (read(fd, buff, BLK_SIZE) < 0)
+            {
+                kfree(buff);
+                close(fd);
+                *offset += *total;
+                return *total;
+            }
+            close(fd);
+
+            uint32_t bread = len > 512 ? 512 : len;
+            for (int k = 0; k < bread; k++)
+                ((char *)buf + *total)[k] = buff[k];
+            kfree(buff);
+
+            len -= bread;
+            *total += bread;
+            if (len <= 0)
+                break;
+            sector++;
+        }
+        if (len <= 0)
+            break;
+
+        sector--;
+        uint32_t curclus = ((sector - file->info->root) / file->info->cluslen);
+        int entry = get_entry(file->info, curclus);
+        if (entry < 0)
+            break;
+
+        entry &= 0x0FFFFFFF;
+        if (entry >= 0x0FFFFFF7)
+            break;
+
+        sector = file->info->root + ((entry - 2) * file->info->cluslen);
+    }
+    return 0;
+}
+
+//TODO : Fix offset things...
 int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
 {
     if (len <= 0)
@@ -309,70 +375,13 @@ int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
 
     if (nbsectors <= file->info->cluslen)
     {
-        if (read_shortfile(nbsectors, file, sector, &len, &total, buf) < 0)
+        if (read_shortfile(nbsectors, file, sector, len, &total, buf) < 0)
             return -1;
     }
     else
     {
-        uint32_t nbclusters = nbsectors / file->info->cluslen;
-        for (uint32_t i = 0; i < nbclusters; i++)
-        {
-            for (uint32_t j = 0; j < file->info->cluslen; j++)
-            {
-                int fd = open(file->info->devpath, O_RDONLY);
-                if (fd < 0)
-                {
-                    *offset += total;
-                    return total;
-                }
-                if (seek(fd, sector, SEEK_SET) < 0)
-                {
-                    close(fd);
-                    *offset += total;
-                    return total;
-                }
-                char *buff = kmalloc(BLK_SIZE);
-                if (!buff)
-                {
-                    close(fd);
-                    *offset += total;
-                    return total;
-                }
-                if (read(fd, buff, BLK_SIZE) < 0)
-                {
-                    kfree(buff);
-                    close(fd);
-                    *offset += total;
-                    return total;
-                }
-                close(fd);
-
-                uint32_t bread = len > 512 ? 512 : len;
-                for (int k = 0; k < bread; k++)
-                    ((char *)buf + total)[k] = buff[k];
-                kfree(buff);
-
-                len -= bread;
-                total += bread;
-                if (len <= 0)
-                    break;
-                sector++;
-            }
-            if (len <= 0)
-                break;
-
-            sector--;
-            uint32_t curclus = ((sector - file->info->root) / file->info->cluslen);
-            int entry = get_entry(file->info, curclus);
-            if (entry < 0)
-                break;
-
-            entry &= 0x0FFFFFFF;
-            if (entry >= 0x0FFFFFF7)
-                break;
-
-            sector = file->info->root + ((entry - 2) * file->info->cluslen);
-        }
+        if (read_longfile(nbsectors, file, sector, len, &total, buf, offset) < 0)
+            return -1;
     }
 
     *offset += total;
