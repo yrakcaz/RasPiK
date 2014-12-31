@@ -57,7 +57,7 @@ TODO:
     |       |
     |       ---> Re-think about devices offsets...
     |       |
-    |       ---> Get file size!
+    |       ---> Get file size!                                            DONE
     |
     ---> ProcFS for processes tracing
     |
