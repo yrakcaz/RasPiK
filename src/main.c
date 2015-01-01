@@ -93,10 +93,13 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
         klog("mem fail!\n", 10, RED);
         goto close;
     }
-    if (read(fd1, readtest, sb1.st_size) < 0)
+    int ret = read(fd1, readtest, sb1.st_size);
+    if (ret < 0)
         klog("read failed!\n", 13, RED);
     else
     {
+        klog(itoa(ret, 10), strlen(itoa(ret, 10)), YELLOW);
+        klog(" bytes read!\n", 13, YELLOW);
         readtest[sb1.st_size] = 0;
         klog(readtest, sb1.st_size, GREEN);
         klog("\n", 1, WHITE);

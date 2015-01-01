@@ -284,7 +284,7 @@ static int get_entry(s_fat32 *info, uint32_t cluster)
         return -1;
     }
 
-    int entry = byte_to_int(buff + index);
+    int entry = byte_to_int(&buff[index]);
 
     close(fd);
     return entry;
@@ -294,6 +294,8 @@ static int read_longfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
                          uint32_t len, uint32_t *total, void *buf, uint32_t *offset)
 {
     uint32_t nbclusters = nbsectors / file->info->cluslen;
+    if (nbsectors % file->info->cluslen)
+        nbclusters++;
     for (uint32_t i = 0; i < nbclusters; i++)
     {
         for (uint32_t j = 0; j < file->info->cluslen; j++)
@@ -341,7 +343,7 @@ static int read_longfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
             break;
 
         sector--;
-        uint32_t curclus = ((sector - file->info->root) / file->info->cluslen);
+        uint32_t curclus = ((sector - file->info->root) / file->info->cluslen) + 2;
         int entry = get_entry(file->info, curclus);
         if (entry < 0)
             break;
@@ -352,6 +354,7 @@ static int read_longfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
 
         sector = file->info->root + ((entry - 2) * file->info->cluslen);
     }
+
     return 0;
 }
 
@@ -367,7 +370,7 @@ int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
 
     uint32_t firstclus = (file->dir->clhigh << 16) | file->dir->cllow;
     uint32_t sector = file->info->root + ((firstclus - 2) * file->info->cluslen);
-    uint32_t nbsectors = len / BLK_SIZE;
+    uint32_t nbsectors = len / file->info->seclen;
     if (nbsectors % BLK_SIZE || !nbsectors)
         nbsectors++;
 
