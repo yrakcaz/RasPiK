@@ -88,7 +88,11 @@ static void *getnode(const char *path, int *type, int mode, int *offset)
                     //TODO : Create file if necessary..
                     break;
                 }
-                //TODO : permissions??
+                if ((mode & O_RDWR) == O_RDWR)
+                {
+                    //TODO : Fix it!
+                    break;
+                }
                 if ((mode & O_APPEND) == O_APPEND)
                     *offset = file->dir->size;
                 else

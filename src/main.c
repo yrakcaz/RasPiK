@@ -57,63 +57,7 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     mount_devices();
     init_scheduler();
 
-    //TESTS/////////////////
-
     klog("\n\n", 2, WHITE);
-
-    print_vfs();
-
-    klog("\n\n", 2, WHITE);
-
-    int fd1 = open("/sdcard/ptdr.jpg", O_RDONLY);
-    if (fd1 < 0)
-    {
-        klog("fd1 failed!\n", 12, RED);
-        goto end;
-    }
-    else
-        klog("fd1 good!\n", 10, GREEN);
-    if (seek(fd1, 0, SEEK_SET) < 0)
-        klog("seek failed!\n", 13, RED);
-    else
-        klog("seek good!\n", 11, GREEN);
-    s_stat sb1;
-    if (stat(fd1, &sb1) < 0)
-    {
-        klog("stat failed!\n", 13, RED);
-        goto close;
-    }
-    klog("Size1 : ", 7, YELLOW);
-    klog(itoa(sb1.st_size, 10), strlen(itoa(sb1.st_size, 10)), YELLOW);
-    klog("\n", 1, YELLOW);
-
-    char *readtest = kmalloc(11);
-    if (!readtest)
-    {
-        klog("mem fail!\n", 10, RED);
-        goto close;
-    }
-    seek(fd1, 4, SEEK_CUR);
-    int ret = read(fd1, readtest, 10);
-    if (ret < 0)
-        klog("read failed!\n", 13, RED);
-    else
-    {
-        klog(itoa(ret, 10), strlen(itoa(ret, 10)), YELLOW);
-        klog(" bytes read!\n", 13, YELLOW);
-        readtest[10] = 0;
-        klog(readtest, sb1.st_size, GREEN);
-        klog("\n", 1, WHITE);
-    }
-    kfree(readtest);
-
-close:
-    close(fd1);
-
-end:
-    klog("\n\n", 2, WHITE);
-
-    //TESTS/////////////////
 
     for (;;)
         draw_star();
