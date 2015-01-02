@@ -65,7 +65,7 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 
     klog("\n\n", 2, WHITE);
 
-    int fd1 = open("/sdcard/lol.mp3", O_RDONLY);
+    int fd1 = open("/sdcard/ptdr.jpg", O_RDONLY);
     if (fd1 < 0)
     {
         klog("fd1 failed!\n", 12, RED);
@@ -87,20 +87,21 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     klog(itoa(sb1.st_size, 10), strlen(itoa(sb1.st_size, 10)), YELLOW);
     klog("\n", 1, YELLOW);
 
-    char *readtest = kmalloc(sb1.st_size + 1);
+    char *readtest = kmalloc(11);
     if (!readtest)
     {
         klog("mem fail!\n", 10, RED);
         goto close;
     }
-    int ret = read(fd1, readtest, sb1.st_size);
+    seek(fd1, 4, SEEK_CUR);
+    int ret = read(fd1, readtest, 10);
     if (ret < 0)
         klog("read failed!\n", 13, RED);
     else
     {
         klog(itoa(ret, 10), strlen(itoa(ret, 10)), YELLOW);
         klog(" bytes read!\n", 13, YELLOW);
-        readtest[sb1.st_size] = 0;
+        readtest[10] = 0;
         klog(readtest, sb1.st_size, GREEN);
         klog("\n", 1, WHITE);
     }

@@ -291,7 +291,7 @@ static int get_entry(s_fat32 *info, uint32_t cluster)
 }
 
 static int read_longfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
-                         uint32_t len, uint32_t *total, void *buf, uint32_t *offset)
+                         uint32_t len, uint32_t *total, void *buf)
 {
     uint32_t nbclusters = nbsectors / file->info->cluslen;
     if (nbsectors % file->info->cluslen)
@@ -302,29 +302,23 @@ static int read_longfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
         {
             int fd = open(file->info->devpath, O_RDONLY);
             if (fd < 0)
-            {
-                *offset += *total;
-                return *total;
-            }
+                return -1;
             if (seek(fd, sector, SEEK_SET) < 0)
             {
                 close(fd);
-                *offset += *total;
-                return *total;
+                return -1;
             }
             char *buff = kmalloc(BLK_SIZE);
             if (!buff)
             {
                 close(fd);
-                *offset += *total;
-                return *total;
+                return -1;
             }
             if (read(fd, buff, BLK_SIZE) < 0)
             {
                 kfree(buff);
                 close(fd);
-                *offset += *total;
-                return *total;
+                return -1;
             }
             close(fd);
 
@@ -358,7 +352,6 @@ static int read_longfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
     return 0;
 }
 
-//TODO : Fix offset things...
 int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
 {
     if (len <= 0)
@@ -376,17 +369,29 @@ int read_fat32file(s_fatfile *file, uint32_t *offset, void *buf, uint32_t len)
 
     uint32_t total = 0;
 
+    char *buff = kmalloc(file->dir->size + 1);
     if (nbsectors <= file->info->cluslen)
     {
-        if (read_shortfile(nbsectors, file, sector, len, &total, buf) < 0)
+        if (read_shortfile(nbsectors, file, sector, file->dir->size, &total, buff) < 0)
+        {
+            kfree(buff);
             return -1;
+        }
     }
     else
     {
-        if (read_longfile(nbsectors, file, sector, len, &total, buf, offset) < 0)
+        if (read_longfile(nbsectors, file, sector, file->dir->size, &total, buff) < 0)
+        {
+            kfree(buff);
             return -1;
+        }
     }
 
-    *offset += total;
-    return total;
+    int i;
+    for (i = 0; i < len && (*offset + i) < file->dir->size; i++)
+        ((char *)buf)[i] = buff[*offset + i];
+    ((char *)buf)[i] = 0;
+
+    *offset += i;
+    return i;
 }
