@@ -92,6 +92,10 @@ int fork(void)
 
     if (add_process(name, pc) < 0)
         return -1;
+
+    //TODO : copy stack, returnthe great value for each process...
+
+    return 0;
 }
 
 int remove_process(int pid)
