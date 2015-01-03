@@ -46,5 +46,6 @@ int remove_process(int pid);
 int kill(int pid, int status);
 void exit(int status);
 void init_process(void);
+int fork(void);
 
 #endif /* !PROCESS_H */

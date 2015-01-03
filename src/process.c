@@ -48,7 +48,7 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
 
     for (int i = 0; i < NBMAX_FD; i++)
         process->fd_table[i].addr = NULL;
-    //STDIOS here!
+    //TODO : STDIOS here!
 
     switch (real_nbproc)
     {
@@ -73,7 +73,7 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
     nbproc++;
     real_nbproc++;
 
-    //Create corresponding file?
+    //TODO : Create corresponding file?
 
     if (real_nbproc == 1)
         current_process->nbrun++;
@@ -81,6 +81,17 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
     ENABLE_INTERRUPTS();
 
     return process->pid;
+}
+
+int fork(void)
+{
+    char *name = strcat("undefined", itoa(nbproc, 10));
+
+    uint32_t pc;
+    asm volatile ("mov %0, pc\n\t" : "=r"(pc));
+
+    if (add_process(name, pc) < 0)
+        return -1;
 }
 
 int remove_process(int pid)
@@ -117,7 +128,7 @@ int remove_process(int pid)
         process = process->next;
     } while (process->pid != base);
 
-    //Kill children processes?
+    //TODO : Kill children processes?
 
     ENABLE_INTERRUPTS();
     return -1;
@@ -146,7 +157,7 @@ int kill(int pid, int status)
 
 void exit(int status)
 {
-    DO_NOTHING_WITH(status); // <-- Do something with it..
+    DO_NOTHING_WITH(status); // TODO : <-- Do something with it..
     kill(current_process->pid, TERM);
 }
 
