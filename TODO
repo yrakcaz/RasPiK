@@ -87,7 +87,7 @@ TODO:
     |
     ---> Scheduler                                                         DONE
     |       |
-    |       ---> Improve it!!
+    |       ---> Implement priority queue and timing...
     |
     ---> One fd table per process (add STDIOs) -> file locking!
     |
