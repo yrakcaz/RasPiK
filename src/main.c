@@ -57,8 +57,16 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     mount_devices();
     init_scheduler();
 
-    //int pid = fork();
-    //klog(itoa(pid, 10), strlen(itoa(pid, 10)), YELLOW);
+    int pid = fork();
+    if (!pid)
+    {
+        klog("Hi daddy!\n", 10, GREEN);
+        exit(0);
+    }
+    else
+    {
+        klog("I'm your father!\n", 17, BLUE);
+    }
 
     klog("\n\n", 2, WHITE);
 

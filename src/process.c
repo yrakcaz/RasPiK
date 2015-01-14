@@ -115,14 +115,22 @@ static int copy_stack(int dstpid, int srcpid)
     return STACK_SIZE;
 }
 
+static uint32_t fork_exit = 0;
+
+static void child(void)
+{
+    while (!fork_exit) {}
+    uint32_t pc = fork_exit;
+    fork_exit = 0;
+    asm volatile("mov r0, %0\n\t" :: "r"(0));
+    asm volatile("mov pc, %0\n\t" :: "r"(pc));
+}
+
 int fork(void)
 {
     char *name = strcat("undefined", itoa(nbproc, 10));
 
-    uint32_t pc;
-    asm volatile ("mov %0, pc\n\t" : "=r"(pc)); //TODO: verify it...
-
-    int newpid = add_process(name, pc);
+    int newpid = add_process(name, (uint32_t)&child);
     if (newpid < 0)
         return -1;
 
@@ -132,9 +140,9 @@ int fork(void)
         return -1;
     }
 
-    //TODO : return the great value for each process...
+    asm volatile ("mov %0, lr\n\t" : "=r"(fork_exit));
 
-    return 0;
+    return newpid;
 }
 
 int remove_process(int pid)
