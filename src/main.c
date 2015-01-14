@@ -57,6 +57,9 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     mount_devices();
     init_scheduler();
 
+    //int pid = fork();
+    //klog(itoa(pid, 10), strlen(itoa(pid, 10)), YELLOW);
+
     klog("\n\n", 2, WHITE);
 
     for (;;)

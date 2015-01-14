@@ -83,17 +83,56 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
     return process->pid;
 }
 
+static int copy_stack(int dstpid, int srcpid)
+{
+    if (dstpid < 0 || srcpid < 0 || srcpid == dstpid)
+        return -1;
+
+    int src = -1;
+    int dst = -1;
+
+    s_proc *proc = current_process;
+    int base = proc->pid;
+    do
+    {
+        if (proc->pid == dstpid)
+            dst = proc->stack_idx;
+        if (proc->pid == srcpid)
+            src = proc->stack_idx;
+
+        proc = proc->next;
+    } while (proc->pid != base);
+
+    if (src < 0 || dst < 0)
+        return -1;
+
+    char *dststack = ((char *)stacks[dst]);
+    char *srcstack = ((char *)stacks[src]);
+
+    for (int i = 0; i < STACK_SIZE; i++)
+        dststack[i] = srcstack[i];
+
+    return STACK_SIZE;
+}
+
 int fork(void)
 {
     char *name = strcat("undefined", itoa(nbproc, 10));
 
     uint32_t pc;
-    asm volatile ("mov %0, pc\n\t" : "=r"(pc));
+    asm volatile ("mov %0, pc\n\t" : "=r"(pc)); //TODO: verify it...
 
-    if (add_process(name, pc) < 0)
+    int newpid = add_process(name, pc);
+    if (newpid < 0)
         return -1;
 
-    //TODO : copy stack, returnthe great value for each process...
+    if (copy_stack(newpid, current_process->pid) < 0)
+    {
+        remove_process(newpid);
+        return -1;
+    }
+
+    //TODO : return the great value for each process...
 
     return 0;
 }
