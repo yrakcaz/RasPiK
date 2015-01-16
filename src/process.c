@@ -4,7 +4,7 @@ static uint32_t stacks[NBMAX_PROC];
 
 extern uint32_t get_sp(void);
 
-int add_process(const char *name, uint32_t pc/* stdio later...*/)
+int add_process(const char *name, uint32_t pc, int status/* stdio later...*/)
 {
     s_proc *process = kmalloc(sizeof (s_proc));
     if (!process)
@@ -15,7 +15,7 @@ int add_process(const char *name, uint32_t pc/* stdio later...*/)
     process->name = name;
     process->pid = nbproc;
     process->ppid = !current_process ? -1 : current_process->pid;
-    process->status = WAIT;
+    process->status = status;
     process->nbrun = 0;
     process->pc = pc;
 
@@ -115,22 +115,17 @@ static int copy_stack(int dstpid, int srcpid)
     return STACK_SIZE;
 }
 
-static uint32_t fork_exit = 0;
-
 static void child(void)
 {
-    while (!fork_exit) {}
-    uint32_t pc = fork_exit;
-    fork_exit = 0;
-    asm volatile("mov r0, %0\n\t" :: "r"(0));
-    asm volatile("mov pc, %0\n\t" :: "r"(pc));
+    asm volatile ("mov lr, %0\n\t" :: "r"(0));
+    asm volatile ("pop {pc}\n\t");
 }
 
 int fork(void)
 {
     char *name = strcat("undefined", itoa(nbproc, 10));
 
-    int newpid = add_process(name, (uint32_t)&child);
+    int newpid = add_process(name, (uint32_t)&child, SLEEP);
     if (newpid < 0)
         return -1;
 
@@ -140,7 +135,7 @@ int fork(void)
         return -1;
     }
 
-    asm volatile ("mov %0, lr\n\t" : "=r"(fork_exit));
+    kill(newpid, WAIT);
 
     return newpid;
 }

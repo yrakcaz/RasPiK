@@ -41,7 +41,7 @@ s_proc *current_process;
 int nbproc;
 int real_nbproc;
 
-int add_process(const char *name, uint32_t pc/* stdio later... */);
+int add_process(const char *name, uint32_t pc, int status/* stdio later... */);
 int remove_process(int pid);
 int kill(int pid, int status);
 void exit(int status);

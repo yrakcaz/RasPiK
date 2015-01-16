@@ -57,7 +57,7 @@ int init_scheduler(void)
 
     wait(HUMAN_TIME / 2);
 
-    if (add_process("init", (uint32_t)&endloop) < 0)
+    if (add_process("init", (uint32_t)&endloop, WAIT) < 0)
     {
         klog("\b\b\b\bKO", RED, 6);
         klog("]\tScheduler initialization failed.\n", 35, WHITE);
