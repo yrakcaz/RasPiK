@@ -61,7 +61,6 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     if (!pid)
     {
         klog("Hi daddy!\n", 10, GREEN);
-        exit(0);
     }
     else
     {
