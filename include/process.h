@@ -41,11 +41,16 @@ s_proc *current_process;
 int nbproc;
 int real_nbproc;
 
+void init_process(void);
 int add_process(const char *name, uint32_t pc, int status/* stdio later... */);
 int remove_process(int pid);
+
 int kill(int pid, int status);
 void exit(int status);
-void init_process(void);
-int fork(void);
+
+//TODO:
+int fork_exec(const char *path, char **args); //returns pid
+int fork_call(uint32_t addr, char **args); //returns pid
+int waitpid(int pid); //returns the return value of the executed app on fork.
 
 #endif /* !PROCESS_H */

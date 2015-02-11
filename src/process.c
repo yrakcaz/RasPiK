@@ -4,7 +4,6 @@ static uint32_t stacks[NBMAX_PROC];
 
 extern uint32_t get_sp(void);
 
-//TODO : Will be modified to be used as "thread creator"
 int add_process(const char *name, uint32_t pc, int status/* stdio later...*/)
 {
     s_proc *process = kmalloc(sizeof (s_proc));
@@ -85,6 +84,8 @@ int add_process(const char *name, uint32_t pc, int status/* stdio later...*/)
 }
 
 //TODO : New solution without real linux fork function
+int fork_exec(/*...*/);
+int fork_call(/*...*/);
 
 int remove_process(int pid)
 {
