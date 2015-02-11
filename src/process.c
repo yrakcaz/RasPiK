@@ -4,6 +4,7 @@ static uint32_t stacks[NBMAX_PROC];
 
 extern uint32_t get_sp(void);
 
+//TODO : Will be modified to be used as "thread creator"
 int add_process(const char *name, uint32_t pc, int status/* stdio later...*/)
 {
     s_proc *process = kmalloc(sizeof (s_proc));
@@ -130,6 +131,13 @@ int get_process_location(void)
         if (!stacks[i])
             break;
     return i >= NBMAX_PROC ? -1 : i;
+}
+
+int copy_process(int nstack)
+{
+    //FIXME
+    DO_NOTHING_WITH(nstack);
+    return -1;
 }
 
 int fork(void)
