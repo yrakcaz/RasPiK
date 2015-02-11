@@ -121,6 +121,17 @@ static void child(void)
     asm volatile ("pop {pc}\n\t");
 }
 
+////////// FORKING TESTS ///////////////////////////////////////////////////////
+
+int get_process_location(void)
+{
+    int i;
+    for (i = 0; i < NBMAX_PROC; i++)
+        if (!stacks[i])
+            break;
+    return i >= NBMAX_PROC ? -1 : i;
+}
+
 int fork(void)
 {
 
@@ -144,6 +155,8 @@ int fork(void)
 
     return newpid;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 int remove_process(int pid)
 {
