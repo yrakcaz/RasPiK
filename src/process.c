@@ -123,6 +123,11 @@ static void child(void)
 
 int fork(void)
 {
+
+    //TODO : Try to re-write fork without add_process, like in linux 0.10
+    //       --> Find empty process then copy process etc.
+    //       --> ASM Wrapper
+
     char *name = strcat("undefined", itoa(nbproc, 10));
 
     int newpid = add_process(name, (uint32_t)&child, SLEEP);
