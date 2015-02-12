@@ -96,6 +96,8 @@ TODO:
     ---> Elf and apps exec
     |
     ---> Task context switching                                            DONE
+    |
+    ---> Environnement?
 
 -> Userland
     |

@@ -17,6 +17,7 @@
 # include "mem.h"
 # include "timers.h"
 # include "fs/vfs.h"
+# include "elf.h"
 
 # define NBMAX_PROC 4096
 # define NBMAX_FD   4096

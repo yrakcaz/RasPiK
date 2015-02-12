@@ -136,6 +136,13 @@ int fork_call(uint32_t addr, char **args)
     return add_process(current_process->name, addr, args, WAIT);
 }
 
+int fork_exec(const char *path, char **args)
+{
+    //TODO : STDIO later
+    uint32_t entry = load_elf(path);
+    return add_process(path, entry, args, WAIT);
+}
+
 static s_proc *get_process(int pid)
 {
     s_proc *proc = current_process;
