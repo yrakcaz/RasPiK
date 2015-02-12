@@ -36,7 +36,12 @@ void schedule(void)
     do
     {
         if (current_process->next->status == TERM)
-            remove_process(current_process->next->pid);
+        {
+            if (!current_process->next->waited || current_process->next->waited == HUMAN_TIME)
+                remove_process(current_process->next->pid);
+            else
+                current_process->next->waited++;
+        }
         current_process = current_process->next;
     } while (current_process->status != WAIT);
     current_process->status = RUN;

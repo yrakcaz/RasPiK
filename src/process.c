@@ -18,6 +18,8 @@ int add_process(const char *name, uint32_t pc, char **args, int status/* stdio l
     process->status = status;
     process->nbrun = 0;
     process->pc = pc;
+    current_process->retval = 0;
+    current_process->waited = 0;
 
     int argc;
     for (argc = 0; args[argc]; argc++);
@@ -128,6 +130,38 @@ int remove_process(int pid)
     return -1;
 }
 
+int fork_call(uint32_t addr, char **args)
+{
+    //TODO : STDIO later
+    return add_process(current_process->name, addr, args, WAIT);
+}
+
+static s_proc *get_process(int pid)
+{
+    s_proc *proc = current_process;
+    int base = proc->pid;
+    do
+    {
+        if (proc->pid == pid)
+            return proc;
+        proc = proc->next;
+    } while (proc->pid != base);
+    return NULL;
+}
+
+int waitpid(int pid, int *retval)
+{
+    s_proc *proc = get_process(pid);
+    if (!pid)
+        return -1;
+
+    proc->waited = 1;
+    while (proc->status != TERM);
+    *retval = proc->retval;
+
+    return 0;
+}
+
 int kill(int pid, int status)
 {
     s_proc *process = current_process;
@@ -151,7 +185,7 @@ int kill(int pid, int status)
 
 void exit(int status)
 {
-    DO_NOTHING_WITH(status); // TODO : <-- Do something with it..
+    current_process->retval = status;
     kill(current_process->pid, TERM);
 }
 

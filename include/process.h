@@ -34,6 +34,8 @@ typedef struct proc
     uint32_t sp;
     uint32_t r0;
     uint32_t r1;
+    int retval;
+    int waited;
     s_fd fd_table[NBMAX_FD];
     struct proc *next;
     struct proc *prev;
@@ -53,6 +55,6 @@ void exit(int status);
 //TODO:
 int fork_call(uint32_t addr, char **args); //returns pid
 int fork_exec(const char *path, char **args); //returns pid
-int waitpid(int pid); //returns the return value of the executed app on fork.
+int waitpid(int pid, int *retval);
 
 #endif /* !PROCESS_H */
