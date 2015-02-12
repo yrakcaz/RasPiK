@@ -4,7 +4,7 @@ static uint32_t stacks[NBMAX_PROC];
 
 extern uint32_t get_sp(void);
 
-int add_process(const char *name, uint32_t pc, int status/* stdio later...*/)
+int add_process(const char *name, uint32_t pc, char **args, int status/* stdio later...*/)
 {
     s_proc *process = kmalloc(sizeof (s_proc));
     if (!process)
@@ -18,6 +18,11 @@ int add_process(const char *name, uint32_t pc, int status/* stdio later...*/)
     process->status = status;
     process->nbrun = 0;
     process->pc = pc;
+
+    int argc;
+    for (argc = 0; args[argc]; argc++);
+    process->r0 = (uint32_t)argc;
+    process->r1 = (uint32_t)args;
 
     if (!stacks[0])
     {
@@ -82,10 +87,6 @@ int add_process(const char *name, uint32_t pc, int status/* stdio later...*/)
 
     return process->pid;
 }
-
-//TODO : New solution without real linux fork function
-int fork_exec(/*...*/);
-int fork_call(/*...*/);
 
 int remove_process(int pid)
 {

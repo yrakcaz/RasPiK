@@ -15,6 +15,8 @@ static void switch_context(void)
     {
         asm volatile("mov r0, %0" :: "r"(current_process->pc));
         asm volatile("push {r0}");
+        asm volatile("mov r0, %0" :: "r"(current_process->r0));
+        asm volatile("mov r1, %0" :: "r"(current_process->r1));
         asm volatile("cpsie i");
         asm volatile("pop {pc}");
     }
@@ -57,7 +59,7 @@ int init_scheduler(void)
 
     wait(HUMAN_TIME / 2);
 
-    if (add_process("init", (uint32_t)&endloop, WAIT) < 0)
+    if (add_process("init", (uint32_t)&endloop, NULL, WAIT) < 0)
     {
         klog("\b\b\b\bKO", RED, 6);
         klog("]\tScheduler initialization failed.\n", 35, WHITE);

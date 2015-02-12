@@ -32,6 +32,8 @@ typedef struct proc
     int stack_idx;
     uint32_t pc;
     uint32_t sp;
+    uint32_t r0;
+    uint32_t r1;
     s_fd fd_table[NBMAX_FD];
     struct proc *next;
     struct proc *prev;
@@ -42,15 +44,15 @@ int nbproc;
 int real_nbproc;
 
 void init_process(void);
-int add_process(const char *name, uint32_t pc, int status/* stdio later... */);
+int add_process(const char *name, uint32_t pc, char **args, int status/* stdio later... */);
 int remove_process(int pid);
 
 int kill(int pid, int status);
 void exit(int status);
 
 //TODO:
-int fork_exec(const char *path, char **args); //returns pid
 int fork_call(uint32_t addr, char **args); //returns pid
+int fork_exec(const char *path, char **args); //returns pid
 int waitpid(int pid); //returns the return value of the executed app on fork.
 
 #endif /* !PROCESS_H */
