@@ -11,7 +11,7 @@ void init_syscalls(void)
     klog("...", 3, RED);
     klog("]", 1, WHITE);
 
-    syscall_table[0] = (uint32_t)&fake_syscall;
+    syscall_table[1] = (uint32_t)&fake_syscall;
 
     wait(HUMAN_TIME / 2);
     klog("\b\b\b\bOK", 6, GREEN);

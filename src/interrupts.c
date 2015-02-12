@@ -18,8 +18,6 @@ void treat_fiq(void)
     while (1) {}
 }
 
-extern void syscall_handler(uint32_t addr);
-
 void treat_swi(int r0, int r1, int r2, int r3)
 {
     uint32_t number = 0;

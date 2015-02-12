@@ -66,7 +66,7 @@ uint32_t load_elf(const char *path)
         return -1;
 
     struct stat sb;
-    if (stat(fd, &sb) <= 0)
+    if (stat(fd, &sb) < 0 || !sb.st_size)
     {
         close(fd);
         return -1;
