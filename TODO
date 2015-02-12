@@ -101,7 +101,7 @@ TODO:
 
 -> Userland
     |
-    ---> Switch to user mode
+    ---> Switch to user mode (or RT sched)
     |
     ---> libs (Errno!)
 
