@@ -51,10 +51,10 @@ int remove_process(int pid);
 
 int kill(int pid, int status);
 void exit(int status);
+int fork_call(uint32_t addr, char **args); //returns pid
+int waitpid(int pid, int *retval);
 
 //TODO:
-int fork_call(uint32_t addr, char **args); //returns pid
 int fork_exec(const char *path, char **args); //returns pid
-int waitpid(int pid, int *retval);
 
 #endif /* !PROCESS_H */
