@@ -91,7 +91,7 @@ TODO:
     |
     ---> One fd table per process (add STDIOs) -> file locking!
     |
-    ---> Thread / fork
+    ---> Fork                                                              DONE (change it to a real fork? add multithread?)
     |
     ---> Elf and apps exec
     |
