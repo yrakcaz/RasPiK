@@ -62,14 +62,14 @@ endif
 	$(CROSS_PREFIX)gcc $(SFLAGS) -c $< -o $@
 
 boot: kernel.elf
-	qemu-system-arm -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio
+	qemu-system-arm -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio -sd /dev/sde
 
 debug: distclean
 	./configure --with-debug
 	$(MAKE) -C ./ _debug
 
 _debug: kernel.elf
-	qemu-system-arm -s -S -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio
+	qemu-system-arm -s -S -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio -sd /dev/sde
 
 install: kernel.img
 	$(SHELL) scripts/script.sh
