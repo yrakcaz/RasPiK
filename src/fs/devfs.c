@@ -19,8 +19,17 @@ int add_device(s_devfs *devfs, const char *name, void *addr, s_driver *driver)
         return -1;
     }
 
-    devfs->list[devfs->nbdevice++] = device;
-    return device->driver->init(device);
+    int ret = device->driver->init(device);
+
+    if (ret < 0)
+    {
+        kfree(driver);
+        kfree(device);
+    }
+    else
+        devfs->list[devfs->nbdevice++] = device;
+
+    return ret;
 }
 
 int remove_device(s_devfs *devfs, const char *name)
