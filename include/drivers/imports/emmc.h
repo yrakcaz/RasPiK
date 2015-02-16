@@ -51,7 +51,11 @@
 // The particular SDHCI implementation
 # define SDHCI_IMPLEMENTATION_GENERIC        0
 # define SDHCI_IMPLEMENTATION_BCM_2708       1
-# define SDHCI_IMPLEMENTATION                SDHCI_IMPLEMENTATION_BCM_2708
+# if QEMU == 0
+#  define SDHCI_IMPLEMENTATION               SDHCI_IMPLEMENTATION_BCM_2708
+# else
+#  define SDHCI_IMPLEMENTATION               SDHCI_IMPLEMENTATION_GENERIC
+# endif
 
 typedef unsigned int size_t;
 
