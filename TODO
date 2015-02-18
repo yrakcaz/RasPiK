@@ -93,7 +93,7 @@ TODO:
     |
     ---> Fork                                                              DONE (change it to a real fork? add multithread?)
     |
-    ---> Elf and apps exec
+    ---> Elf and apps exec                                                 DONE (test more with syscalls)
     |
     ---> Task context switching                                            DONE
     |
