@@ -2,7 +2,7 @@ CROSS_PREFIX ?= /usr/local/cross/bin/arm-linux-
 SRC := test.c
 OBJ := $(SRC:.c=.o)
 LINK := apps.ld
-LDFLAGS     := -L/usr/local/cross/lib/gcc/arm-bcm2708hardfp-linux-gnueabi/4.7.1 -lgcc
+LDFLAGS     := -L/usr/local/cross/lib/gcc/arm-bcm2708hardfp-linux-gnueabi/4.7.1 -lgcc -L../sdk -lraspik
 
 all: test.bin
 

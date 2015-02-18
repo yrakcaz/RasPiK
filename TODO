@@ -67,6 +67,8 @@ TODO:
 
 -> Drivers
     |
+    ---> Insmod just add driver but not device, add_device cannot be a syscall : FIX IT!
+    |
     ---> UART                                                              DONE
     |
     ---> HDMI, tty + buffer swapping

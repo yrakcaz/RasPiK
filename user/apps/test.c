@@ -1,4 +1,7 @@
+#include "../sdk/libraspik.h"
+
 int main()
 {
-    asm volatile ("swi #1");
+    int fd = open("/dev/uart", O_RDWR);
+    write(fd, "zbrah\n", 6);
 }

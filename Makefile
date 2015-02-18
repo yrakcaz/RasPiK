@@ -52,9 +52,11 @@ kernel.img: kernel.elf
 
 clean:
 	rm -f $(OBJ) kernel.elf kernel.img
+	$(MAKE) clean -C user/
 
 distclean: clean
 	rm -f $(DFILES) makefile.rules
+	$(MAKE) distclean -C user/
 
 %.o: %.c
 ifeq ($(QEMU), 1)
