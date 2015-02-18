@@ -233,6 +233,6 @@ typedef struct
 # define    PT_MIPS_REGINFO    0x70000000
 
 uint32_t load_elf(const char *path);
-int exec(const char *path, char **args);
+int exec(const char *path, char **args); //Syscall
 
 #endif /* !ELF_H */

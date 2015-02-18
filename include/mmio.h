@@ -4,27 +4,9 @@
 # include <stdint.h>
 
 // Write value to mmio register.
-static inline void write_mmio(uint32_t reg, uint32_t val)
-{
-    uint32_t *addr = (uint32_t *)reg;
-    asm volatile(
-                     "str %[val], [%[reg]]"
-                     :: [reg]"r"(addr), [val]"r"(val)
-                    );
-}
-
+void outb(uint32_t reg, uint32_t val); //Syscall
 // Read value from mmio register.
-static inline uint32_t read_mmio(uint32_t reg)
-{
-    uint32_t *addr = (uint32_t *)reg;
-    uint32_t ret;
-    asm volatile(
-                     "ldr %[ret], [%[reg]]"
-                     : [ret]"=r"(ret)
-                     : [reg]"r"(addr)
-                    );
-    return ret;
-}
+uint32_t inb(uint32_t reg); //Syscall
 
 static inline void sync_mem(void)
 {

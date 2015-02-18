@@ -47,7 +47,7 @@ typedef struct timersys
 s_timersys *timersys;
 
 void init_timers(void);
-uint64_t get_time(void);
+uint64_t get_time(void); //Syscall
 void wait(uint32_t musec);
 
 #endif /* !TIMERS_H */

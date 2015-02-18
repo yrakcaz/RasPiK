@@ -27,4 +27,6 @@ void init_klog(void);
 int klog(const char *str, uint32_t size, uint32_t color);
 void clear_klogs(void);
 
+//TODO : Syscalls for console...
+
 #endif /* !KLOG_H */

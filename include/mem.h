@@ -23,7 +23,7 @@ typedef union header
     long align;
 } u_header;
 
-void *sbrk(uint32_t increment);
+void *sbrk(uint32_t increment); //Syscall
 
 void *kmalloc(uint32_t size);
 void kfree(void *ptr);

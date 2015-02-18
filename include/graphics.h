@@ -61,4 +61,6 @@ void drawchar(uint32_t x, uint32_t y, char c, uint32_t color);
 void deletechar(uint32_t x, uint32_t y);
 void replychar(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
 
+//TODO : Syscalls for graphics
+
 #endif /* !GRAPHICS_H */

@@ -61,25 +61,25 @@ typedef struct stat
     //TODO : ADD TIME!
 } s_stat;
 
-int open(const char *path, int mode);
-int close(int fd);
+int open(const char *path, int mode); //Syscall
+int close(int fd); //Syscall
 
-int read(int fd, void *buf, uint32_t len);
-int write(int fd, const void *buf, uint32_t len);
+int read(int fd, void *buf, uint32_t len); //Syscall
+int write(int fd, const void *buf, uint32_t len); //Syscall
 
-int remove(const char *path);
-const char **readdir(const char *path);
+int remove(const char *path); //Syscall
+const char **readdir(const char *path); //Syscall
 
-int seek(int fd, uint32_t offset, int whence);
-int ioctl(int fd, int cmd, int args);
+int seek(int fd, uint32_t offset, int whence); //Syscall
+int ioctl(int fd, int cmd, int args); //Syscall
 
-int stat(int fd, s_stat *stat);
+int stat(int fd, s_stat *stat); //Syscall
 
-int mount(const char *devpath, const char *mountpath, int type);
-int unmount(const char *path);
+int mount(const char *devpath, const char *mountpath, int type); //Syscall
+int unmount(const char *path); //Syscall
 
-int chmod(const char *path, int mode);
-int insmod(const char *path, void *addr, s_driver *driver);
+int chmod(const char *path, int mode); //Syscall
+int insmod(const char *path, void *addr, s_driver *driver); //Syscall
 
 void print_vfs(void);
 

@@ -2,9 +2,9 @@
 
 void write_mailbox(uint8_t chan, uint32_t data)
 {
-    while (read_mmio(MAILBOX_BASE + MAILBOX_STATE) & MAILBOX_FULL) {}
+    while (inb(MAILBOX_BASE + MAILBOX_STATE) & MAILBOX_FULL) {}
     sync_mem();
-    write_mmio((MAILBOX_BASE + MAILBOX_WRITE), chan | (data & DATAMASK32));
+    outb((MAILBOX_BASE + MAILBOX_WRITE), chan | (data & DATAMASK32));
     sync_mem();
 }
 
@@ -15,12 +15,12 @@ uint32_t read_mailbox(uint8_t chan)
 
     while (1)
     {
-        while (read_mmio(MAILBOX_BASE + MAILBOX_STATE) & MAILBOX_EMPTY)
+        while (inb(MAILBOX_BASE + MAILBOX_STATE) & MAILBOX_EMPTY)
             if (timeout++ >= MAILBOX_TIMEOUT)
                 return ERROR32;
 
         sync_mem();
-        data = read_mmio(MAILBOX_BASE);
+        data = inb(MAILBOX_BASE);
         sync_mem();
 
         if ((data & 0xF) == chan)

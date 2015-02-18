@@ -50,12 +50,10 @@ void init_process(void);
 int add_process(const char *name, uint32_t pc, char **args, int status/* stdio later... */);
 int remove_process(int pid);
 
-int kill(int pid, int status);
-void exit(int status);
-int fork_call(uint32_t addr, char **args); //returns pid
-int waitpid(int pid, int *retval);
-
-//TODO:
-int fork_exec(const char *path, char **args); //returns pid
+int kill(int pid, int status); //Syscall
+void exit(int status); //Syscall
+int fork_call(uint32_t addr, char **args); //Syscall
+int waitpid(int pid, int *retval); //Syscall
+int fork_exec(const char *path, char **args); //Syscall
 
 #endif /* !PROCESS_H */
