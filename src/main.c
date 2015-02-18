@@ -59,7 +59,7 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 
     klog("\n\n", 2, WHITE);
 
-    if (exec("/sdcard/test.bin", NULL) < 0)
+    if (fork_exec("/sdcard/test.bin", NULL) < 0)
         klog("ERROR!\n", 7, RED);
 
     for (;;)

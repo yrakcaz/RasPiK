@@ -27,13 +27,13 @@ static int check_elf(Elf32_Ehdr *hdr)
 
 static void *memcpy(void *dest, const void *src, uint32_t n)
 {
-  const char* s = src;
-  char* d = dest;
+    const char* s = src;
+    char* d = dest;
 
-  for (; n > 0; n--, d++, s++)
-    *d = *s;
+    for (; n > 0; n--, d++, s++)
+        *d = *s;
 
-  return (dest);
+    return (dest);
 }
 
 static void *memset(void *s, int c, uint32_t n)

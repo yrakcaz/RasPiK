@@ -37,7 +37,12 @@ LDFLAGS     := -L/usr/local/cross/lib/gcc/arm-bcm2708hardfp-linux-gnueabi/4.7.1 
 include $(DFILES)
 -include makefile.rules
 
-all: kernel.img
+all: kernel user
+
+kernel: kernel.img
+
+user:
+	$(MAKE) -C user/
 
 kernel.elf: $(OBJ) $(LINK)
 	$(CROSS_PREFIX)ld $(OBJ) -T$(LINK) -o $@ $(LDFLAGS)
