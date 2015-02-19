@@ -58,7 +58,7 @@ extern int exec(const char *path, char **args);
 extern int open(const char *path, int mode);
 extern int close(int fd);
 extern int read(int fd, void *buf, uint32_t len);
-int write(int fd, const void *buf, uint32_t len);
+extern int write(int fd, const void *buf, uint32_t len);
 extern int remove(const char *path);
 extern const char **readdir(const char *path);
 extern int seek(int fd, uint32_t offset, int whence);
