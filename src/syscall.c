@@ -37,8 +37,6 @@ void init_syscalls(void)
     syscall_table[SYS_CHMD] = (uint32_t)&chmod;
     syscall_table[SYS_INMD] = (uint32_t)&insmod;
 
-    //TODO : rmmod?
-
     wait(HUMAN_TIME / 2);
     klog("\b\b\b\bOK", 6, GREEN);
     klog("]\tSyscall table initialized!\n", 29, WHITE);

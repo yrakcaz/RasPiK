@@ -67,7 +67,7 @@ TODO:
 
 -> Drivers
     |
-    ---> Insmod just add driver but not device, add_device cannot be a syscall : FIX IT!
+    ---> Where are syscalls mknod and rmmod ?? : FIX IT!
     |
     ---> UART                                                              DONE
     |
