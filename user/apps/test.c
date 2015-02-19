@@ -2,6 +2,8 @@
 
 int main()
 {
-    int fd = open("/dev/uart", O_RDWR);
-    write(fd, "zbrah\n", 6);
+    if (test("blop!\n") == 42)
+        test("bonjour!\n");
+    else
+        test("lol!\n");
 }

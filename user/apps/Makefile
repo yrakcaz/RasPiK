@@ -10,7 +10,7 @@ test.bin: $(OBJ) $(LINK)
 	$(CROSS_PREFIX)ld $(OBJ) -T$(LINK) -o $@ $(LDFLAGS)
 
 %.o: %.c
-	$(CROSS_PREFIX)gcc $(CFLAGS) -c $< -o $@
+	$(CROSS_PREFIX)gcc -std=c99 $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o *.bin

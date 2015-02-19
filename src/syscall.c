@@ -1,11 +1,18 @@
 #include "syscall.h"
 
+int test(const char *str)
+{
+    klog(str, strlen(str), GREEN);
+    return 42;
+}
+
 void init_syscalls(void)
 {
     klog("[", 1, WHITE);
     klog("...", 3, RED);
     klog("]", 1, WHITE);
 
+    syscall_table[SYS_TEST] = (uint32_t)&test;
     syscall_table[SYS_SBRK] = (uint32_t)&sbrk;
     syscall_table[SYS_OUTB] = (uint32_t)&outb;
     syscall_table[SYS_INB] = (uint32_t)&inb;
