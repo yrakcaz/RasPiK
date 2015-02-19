@@ -1,5 +1,7 @@
 #include "fs/parts.h"
 
+//TODO : Renam this file (withoutn forgetting .h) -> mbr.{c,h}
+
 s_part *get_parts(s_mbr *mbr)
 {
     if (mbr->sig != 0xAA55)
