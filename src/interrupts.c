@@ -18,11 +18,9 @@ void treat_fiq(void)
     while (1) {}
 }
 
-void treat_swi(int r0, int r1, int r2, int r3)
+void treat_swi(unsigned number, unsigned *reg)
 {
-    uint32_t number = 0;
-    asm volatile ("ldrb %0, [lr, #-2]" : "=r" (number));
-    ((funcptr)syscall_table[number])(r0, r1, r2, r3);
+    ((funcptr)syscall_table[number])(reg[0], reg[1], reg[2], reg[3]);
 }
 
 void treat_pref_abort(void)

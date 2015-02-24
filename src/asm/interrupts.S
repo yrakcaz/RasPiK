@@ -15,10 +15,12 @@
 
 swi_handler:
     // Save and restore context before and after irq handling
-    stmfd sp!, {r0,r1,r2,r3,r4,r14}
+    stmfd sp!, {r0-r12, lr}
+    ldr r0, [lr,#-4]
+    bic r0, r0, #0xFF000000
+    mov r1, sp
     bl treat_swi
-    ldmfd sp!, {r0,r1,r2,r3,r4,pc}^
-    bx lr
+    ldmfd sp!, {r0-r12, pc}^
 
 context_exit:
     pop {r0, lr}

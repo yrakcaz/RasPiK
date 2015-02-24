@@ -45,7 +45,7 @@ void treat_unused(void);
 void treat_fiq(void);
 
 /* Other interrupts */
-void treat_swi(int r0, int r1, int r2, int r3);
+void treat_swi(unsigned number, unsigned *reg);
 void treat_pref_abort(void);
 void treat_data_abort(void);
 void treat_irq(void);
