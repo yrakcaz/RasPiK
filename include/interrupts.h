@@ -34,7 +34,7 @@ typedef struct interrupts
 
 s_interrupts *interrupts;
 
-typedef void (*funcptr)(int, int, int, int);
+typedef int (*funcptr)(int, int, int, int);
 
 /* Initialization */
 void init_interrupts(void);

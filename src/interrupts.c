@@ -20,7 +20,7 @@ void treat_fiq(void)
 
 void treat_swi(unsigned number, unsigned *reg)
 {
-    ((funcptr)syscall_table[number])(reg[0], reg[1], reg[2], reg[3]);
+    reg[0] = ((funcptr)syscall_table[number])(reg[0], reg[1], reg[2], reg[3]);
 }
 
 void treat_pref_abort(void)
