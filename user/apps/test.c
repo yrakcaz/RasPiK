@@ -2,8 +2,6 @@
 
 int main()
 {
-    if (test("blop!\n") == 42)
-        test("bonjour!\n");
-    else
-        test("lol!\n");
+    klog("Hello World!\n", 13, YELLOW);
+    return 0;
 }

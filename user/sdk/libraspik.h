@@ -3,6 +3,13 @@
 
 # include <stdint.h>
 
+# define BLACK  0x000000
+# define WHITE  0xFFFFFF
+# define RED    0xFF0000
+# define GREEN  0x00FF00
+# define BLUE   0x0000FF
+# define YELLOW 0xFFFF00
+
 # define DEVICES             0
 # define VFILES              1
 # define FAT32               2
@@ -44,7 +51,7 @@ typedef struct device
     int lock;
 } s_device;
 
-extern int test(const char *str);
+extern int klog(const char *str, uint32_t size, int color);
 extern void *sbrk(uint32_t increment);
 extern void outb(uint32_t reg, uint32_t val);
 extern uint32_t inb(uint32_t reg);

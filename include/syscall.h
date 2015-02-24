@@ -8,7 +8,7 @@
 
 # define NB_SYS 24
 
-# define SYS_TEST 0
+# define SYS_KLOG 0
 # define SYS_SBRK 1
 # define SYS_OUTB 2
 # define SYS_INB  3
