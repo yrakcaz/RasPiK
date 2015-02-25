@@ -43,9 +43,9 @@ TODO:
 
 -> Syscalls
     |
-    ---> Kernel land
+    ---> Kernel land                                                       DONE
     |
-    ---> User land
+    ---> User land                                                         DONE
 
 -> File Systems
     |
@@ -95,7 +95,7 @@ TODO:
     |
     ---> Fork                                                              DONE (change it to a real fork? add multithread?)
     |
-    ---> Elf and apps exec                                                 DONE (test more with syscalls)
+    ---> Elf and apps exec                                                 DONE (debug parallel elf exec!)
     |
     ---> Task context switching                                            DONE
     |
