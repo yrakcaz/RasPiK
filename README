@@ -3,11 +3,11 @@ README:
 
 The idea of this project is really simple :
 
-I would like to learn how to write an ARM kernel for a long time, and, as I had
-a Raspberry PI, I thought that write a kernel for it was the best way.
+I would like to learn more about the ARM architecture for a long time, and,
+as I had a Raspberry PI, I thought that write a kernel for it was the best way.
 
-Moreover, I envisage writing the most light micro-kernel, with nothing more that
-a GPIO driver, a File System, and a binary execution, to try to drive some
+Moreover, I envisage writing the most light kernel as possible, with nothing more
+that a GPIO driver, a Virtual File System, and a binary execution, to try to drive some
 hardware with it then rate perfs.
 
 Use make boot to try it into qemu.
