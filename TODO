@@ -10,13 +10,15 @@ TODO:
     |
     ---> Initialisation                                                    DONE
     |
-    ---> Halt / Reboot
+    ---> Halt / Reboot / Sleep (WFI)
     |
     ---> Fix wait                                                          DONE
     |
     ---> Do sth with main parameters...
     |
     ---> Multiboot.. (Use GRUB??)
+    |
+    ---> Code a real bootloader?
 
 -> Klogs                                                                   DONE
     |
@@ -103,7 +105,7 @@ TODO:
 
 -> Userland
     |
-    ---> Switch to user mode (or RT sched)
+    ---> Switch to user mode
     |
     ---> libs (Errno!)
 
