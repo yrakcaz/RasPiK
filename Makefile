@@ -1,4 +1,4 @@
-CROSS_PREFIX ?= /usr/local/cross/bin/arm-linux-
+CROSS_PREFIX ?= arm-none-eabi-
 ASM_SRC := src/asm/boot.S src/asm/interrupts.S src/asm/utils.S
 C_SRC := src/utils.c src/mailbox.c src/graphics.c src/klog.c src/atags.c src/mem.c         \
 		 src/syscall.c src/timers.c src/interrupts.c src/process.c src/elf.c           \
@@ -51,10 +51,10 @@ kernel.img: kernel.elf
 	$(CROSS_PREFIX)objcopy kernel.elf -O binary kernel.img
 
 clean:
-	rm -f $(OBJ) kernel.elf kernel.img
+	rm -f $(OBJ) $(DFILES) kernel.elf kernel.img
 
 distclean: clean
-	rm -f $(DFILES) makefile.rules
+	rm -f makefile.rules
 
 %.o: %.c
 ifeq ($(QEMU), 1)
