@@ -24,7 +24,7 @@ s_fat32 *create_fat32(const char *devpath)
     {
         if (!(parts[i].size))
             continue;
-        if (parts[i].type != TYPEFAT32)
+        if (parts[i].type != TYPEFAT32 && parts[i].type != TYPEFAT32_LBA)
             continue;
 
         fat32 = kmalloc(sizeof (s_fat32));
@@ -157,7 +157,7 @@ static int check_filename(s_fatdir file, const char *name)
     return 1;
 }
 
-s_fatfile *getnode_fat32(s_fat32 *fat32, const char *name)
+s_fatfile *get_node_fat32(s_fat32 *fat32, const char *name)
 {
     s_fatdir *dir = kmalloc(fat32->cluslen * fat32->seclen);
     if (!dir)

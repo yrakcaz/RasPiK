@@ -1,15 +1,26 @@
-#! /bin/sh
+#!/bin/sh
 
-if [ $# -eq 0 ]; then
-    echo -n "" > makefile.rules
-elif [ $# -eq 1 ]; then
-    if [ $1 = "--with-debug" ]; then
-        echo "CFLAGS+=-g3" > makefile.rules
-    elif [ $1 = "--help" ]; then
-        echo "./configure: --with-debug (debug mode)"
-    else
-        echo "use ./configure --help"
-    fi
-else
-    echo "use ./configure --help"
-fi
+set -e
+
+usage() {
+    echo "Usage: ./configure [options]"
+    echo "  --with-debug    enable debug mode (-g3 -O0 -DDEBUG)"
+    echo "  --with-qemu     build for QEMU (generic SDHCI, RGB pixel order)"
+    echo "  --help          show this help"
+}
+
+debug=0
+qemu=0
+
+for arg in "$@"; do
+    case "$arg" in
+        --with-debug) debug=1 ;;
+        --with-qemu)  qemu=1 ;;
+        --help)       usage; exit 0 ;;
+        *)            echo "Unknown option: $arg"; usage; exit 1 ;;
+    esac
+done
+
+> makefile.rules
+if [ "$debug" = 1 ]; then echo "CFLAGS+=-g3 -O0 -DDEBUG" >> makefile.rules; fi
+if [ "$qemu" = 1 ]; then echo "CFLAGS+=-DQEMU" >> makefile.rules; fi

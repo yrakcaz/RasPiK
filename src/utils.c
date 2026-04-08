@@ -22,7 +22,7 @@ static void reverse(char *str)
     while (start < end)
     {
         swap(str + start, str + end);
-        str++;
+        start++;
         end--;
     }
 }

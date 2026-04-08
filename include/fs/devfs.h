@@ -30,12 +30,12 @@ typedef struct device
 typedef struct devfs
 {
     s_device *list[NBMAX_DEVICE];
-    int nbdevice;
+    int nbdevices;
 } s_devfs;
 
 int add_device(s_devfs *devfs, const char *name, void *addr, s_driver *driver);
 int remove_device(s_devfs *devfs, const char *name);
-s_device *getnode_devfs(s_devfs *devfs, const char *name);
+s_device *get_node_devfs(s_devfs *devfs, const char *name);
 int chmod_device(s_devfs *devfs, const char *name, int perm);
 const char **readdir_devfs(s_devfs *devfs);
 s_devfs *create_devfs(void);

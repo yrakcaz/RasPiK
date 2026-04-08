@@ -2,13 +2,11 @@
 # define MEM_H
 
 # include <stdint.h>
+
 # include "klog.h"
 
-/*
-** For the moment, I don't find out how to write a real memory management on rpi's architecture,
-** so I'll just try to do it with a simple sbrk before to add a real segmentation, paging or
-** whatever...
-*/
+// Memory management is currently implemented as a simple sbrk-based allocator.
+// A proper implementation would add paging and MMU support for the ARM1176JZF-S.
 
 # define NULL    0x00000000
 # define NBALLOC 1024
@@ -25,8 +23,8 @@ typedef union header
 
 void *sbrk(uint32_t increment);
 
-void *kmalloc(uint32_t size);
 void kfree(void *ptr);
+void *kmalloc(uint32_t size);
 void *kcalloc(uint32_t num, uint32_t len);
 void *krealloc(void *ptr, uint32_t size);
 

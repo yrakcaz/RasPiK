@@ -1,5 +1,7 @@
 #include "graphics.h"
 
+s_fb *framebuffer;
+
 uint8_t fonts[] =
 {
     0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -133,39 +135,41 @@ uint8_t fonts[] =
     0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
 };
 
+// The mailbox property interface (channel 8, tag 0x00048006) can set pixel order
+// on real hardware, which would remove the #ifdef QEMU in put_pixel/get_pixel.
 static int init_framebuffer(void)
 {
     uint32_t mailbox_request = FRAME_BUFFER + ARM_BUS_ADDR;
-    uint32_t res;
+    uint32_t response;
 
     write_mailbox(1, mailbox_request);
 
     do
     {
-        res = read_mailbox(1);
-    } while (res != 0);
+        response = read_mailbox(1);
+    } while (response != 0);
 
-    if (!fb->ptr || !fb->pitch)
+    if (!framebuffer->ptr || !framebuffer->pitch)
         return 0;
 
-    fb->ptr = fb->ptr > ARM_BUS_ADDR ? fb->ptr - ARM_BUS_ADDR : fb->ptr;
+    framebuffer->ptr = framebuffer->ptr > ARM_BUS_ADDR ? framebuffer->ptr - ARM_BUS_ADDR : framebuffer->ptr;
 
     return 1;
 }
 
 int init_graphics(void)
 {
-    fb = (s_fb *)FRAME_BUFFER;
-    fb->width = SCREEN_WIDTH;
-    fb->height = SCREEN_HEIGHT;
-    fb->v_width = fb->width;
-    fb->v_height = fb->height;
-    fb->pitch = 0;
-    fb->depth = SCREEN_DEPTH;
-    fb->x_off = 0;
-    fb->y_off = 0;
-    fb->ptr = 0;
-    fb->size = 0;
+    framebuffer = (s_fb *)FRAME_BUFFER;
+    framebuffer->width = SCREEN_WIDTH;
+    framebuffer->height = SCREEN_HEIGHT;
+    framebuffer->v_width = framebuffer->width;
+    framebuffer->v_height = framebuffer->height;
+    framebuffer->pitch = 0;
+    framebuffer->depth = SCREEN_DEPTH;
+    framebuffer->x_off = 0;
+    framebuffer->y_off = 0;
+    framebuffer->ptr = 0;
+    framebuffer->size = 0;
 
     return init_framebuffer();
 }
@@ -186,26 +190,38 @@ uint32_t rgb_to_hex(s_color color)
             (color.b));
 }
 
-void putpixel(uint32_t x, uint32_t y, uint32_t color)
+void put_pixel(uint32_t x, uint32_t y, uint32_t color)
 {
     s_color rgb = hex_to_rgb(color);
-    uint32_t offset = (y * fb->pitch) + (x * 3);
-    *(uint8_t *)(fb->ptr + offset + 0) = rgb.r;
-    *(uint8_t *)(fb->ptr + offset + 1) = rgb.g;
-    *(uint8_t *)(fb->ptr + offset + 2) = rgb.b;
+    uint32_t offset = (y * framebuffer->pitch) + (x * 3);
+#ifdef QEMU
+    *(uint8_t *)(framebuffer->ptr + offset + 0) = rgb.r;
+    *(uint8_t *)(framebuffer->ptr + offset + 1) = rgb.g;
+    *(uint8_t *)(framebuffer->ptr + offset + 2) = rgb.b;
+#else
+    *(uint8_t *)(framebuffer->ptr + offset + 0) = rgb.b;
+    *(uint8_t *)(framebuffer->ptr + offset + 1) = rgb.g;
+    *(uint8_t *)(framebuffer->ptr + offset + 2) = rgb.r;
+#endif
 }
 
-uint32_t getpixel(uint32_t x, uint32_t y)
+uint32_t get_pixel(uint32_t x, uint32_t y)
 {
     s_color rgb;
-    uint32_t offset = (y * fb->pitch) + (x * 3);
-    rgb.r = *(uint8_t *)(fb->ptr + offset + 0);
-    rgb.g = *(uint8_t *)(fb->ptr + offset + 1);
-    rgb.b = *(uint8_t *)(fb->ptr + offset + 2);
+    uint32_t offset = (y * framebuffer->pitch) + (x * 3);
+#ifdef QEMU
+    rgb.r = *(uint8_t *)(framebuffer->ptr + offset + 0);
+    rgb.g = *(uint8_t *)(framebuffer->ptr + offset + 1);
+    rgb.b = *(uint8_t *)(framebuffer->ptr + offset + 2);
+#else
+    rgb.b = *(uint8_t *)(framebuffer->ptr + offset + 0);
+    rgb.g = *(uint8_t *)(framebuffer->ptr + offset + 1);
+    rgb.r = *(uint8_t *)(framebuffer->ptr + offset + 2);
+#endif
     return rgb_to_hex(rgb);
 }
 
-void drawchar(uint32_t x, uint32_t y, char c, uint32_t color)
+void draw_char(uint32_t x, uint32_t y, char c, uint32_t color)
 {
     uint8_t character[FONT_SIZE];
     for (int i = 0; i < FONT_SIZE; i++)
@@ -217,26 +233,26 @@ void drawchar(uint32_t x, uint32_t y, char c, uint32_t color)
         {
             display = (character[i] & (1 << j));
             if (display)
-                putpixel(x + j, y + i, color);
+                put_pixel(x + j, y + i, color);
         }
     }
 }
 
-void deletechar(uint32_t x, uint32_t y)
+void clear_char(uint32_t x, uint32_t y)
 {
     for (int i = 0; i < FONT_SIZE; i++)
         for (int j = 0; j < CHAR_SIZE; j++)
-            putpixel(x + j, y + i, BCKG);
+            put_pixel(x + j, y + i, BACKGROUND);
 }
 
-void replychar(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2)
+void copy_char(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2)
 {
     for (int i = 0; i < FONT_SIZE; i++)
     {
         for (int j = 0; j < CHAR_SIZE; j++)
         {
-            uint32_t color = getpixel(x1 + j, y1 + i);
-            putpixel(x2 + j, y2 + i, color);
+            uint32_t color = get_pixel(x1 + j, y1 + i);
+            put_pixel(x2 + j, y2 + i, color);
         }
     }
 }

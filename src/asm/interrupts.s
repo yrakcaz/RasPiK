@@ -1,22 +1,22 @@
 .global raise
 .global swi_handler
 .global irq_handler
-.global treat_reset
+.global handle_reset
 
 .extern start
-.extern treat_reset
-.extern treat_undef
-.extern treat_swi
-.extern treat_pref_abort
-.extern treat_data_abort
-.extern treat_unused
-.extern treat_irq
-.extern treat_fiq
+.extern handle_reset
+.extern handle_undef
+.extern handle_swi
+.extern handle_pref_abort
+.extern handle_data_abort
+.extern handle_unused
+.extern handle_irq
+.extern handle_fiq
 
 swi_handler:
     // Save and restore context before and after irq handling
     stmfd sp!, {r0,r1,r2,r3,r4,r14}
-    bl treat_swi
+    bl handle_swi
     ldmfd sp!, {r0,r1,r2,r3,r4,pc}^
     bx lr
 
@@ -35,10 +35,10 @@ irq_handler:
     sub sp, sp, r0
     push {r0, lr}
     mov r0, sp
-    bl treat_irq
+    bl handle_irq
     b context_exit
 
-treat_reset:
+handle_reset:
     mov r0, #0x8000
     mov r1, #0x0000
     ldmia r0!,{r2,r3,r4,r5,r6,r7,r8,r9}
@@ -52,5 +52,5 @@ loop:
     b loop
 
 raise:
-    //raise for gcclib's div0
-    b treat_undef
+    // Raise for gcclib's div0
+    b handle_undef

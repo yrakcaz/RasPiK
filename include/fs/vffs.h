@@ -22,11 +22,11 @@ typedef struct vfile
 typedef struct vfilefs
 {
     s_vfile *list[NBMAX_FILE];
-    int nbfile;
+    int nbfiles;
 } s_vffs;
 
 int create_vfile(s_vffs *vffs, const char *name);
-s_vfile *getnode_vffs(s_vffs *vffs, const char *name);
+s_vfile *get_node_vffs(s_vffs *vffs, const char *name);
 int remove_vfile(s_vffs *vffs, const char *name);
 int read_vfile(s_vfile *file, uint32_t *offset, void *buf, uint32_t len);
 int write_vfile(s_vfile *file, uint32_t *offset, const void *buf, uint32_t len);

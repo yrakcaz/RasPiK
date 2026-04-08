@@ -1,59 +1,42 @@
-#include "drivers/uart.h"
+#include "driver/uart.h"
 
 static int init_uart(s_device *dev)
 {
     DO_NOTHING_WITH(dev);
 
-    // Disabling UART
     write_mmio(CR_UART, MASK32);
 
-    // Disabling GPIO
     write_mmio(GPPUD, MASK32);
-    wait(DELAY);
+    usleep(DELAY);
 
-    // Disabling pin 14 and 15
     write_mmio(GPPUDCLK0, DISABLE_1415);
-    wait(DELAY);
+    usleep(DELAY);
 
-    // Make it takin' effect
     write_mmio(GPPUDCLK0, MASK32);
 
-    // Clearing interrupts
     write_mmio(ICR_UART, CLEAR_INTERRUPTS);
 
-    // Setting UART Baud Rate
     write_mmio(IBRD_UART, UART_DIVIDER);
     write_mmio(FBRD_UART, UART_FRAC_PART_REG);
 
-    // Setting UART rights
-    write_mmio(LCRH_UART, UART_RIGHTS);
+    write_mmio(LCRH_UART, UART_PERM);
 
-    // Masking all interrupts
     write_mmio(IMSC_UART, UART_MSK_INTERRUPTS);
 
-    // Enabling reading and writing
-    write_mmio(CR_UART, ENABLE_TRANSFERT);
+    write_mmio(CR_UART, ENABLE_TRANSFER);
 
     return 0;
 }
 
-static void putchar_uart(uint8_t byte)
+void putchar_uart(uint8_t byte)
 {
-    // Waiting for the device...
-    while (1)
-        if (!(read_mmio(FR_UART) & WRITE_OK))
-            break;
-    // Then write data.
+    while (read_mmio(FR_UART) & WRITE_OK);
     write_mmio(DR_UART, byte);
 }
 
 static uint8_t getchar_uart(void)
 {
-    // Waiting for the device...
-    while (1)
-        if (!(read_mmio(FR_UART) & READ_OK))
-            break;
-    // Then read data.
+    while (read_mmio(FR_UART) & READ_OK);
     return read_mmio(DR_UART);
 }
 
@@ -94,28 +77,17 @@ int init_uart_driver(void)
     if (!driver)
         return 0;
 
-    klog("[", 1, WHITE);
-    klog("...", 3, RED);
-    klog("]", 1, WHITE);
-
     driver->init = init_uart;
     driver->write = write_uart;
     driver->read = read_uart;
     driver->ioctl = ioctl_uart;
 
     int ret = insmod("/dev/uart", (void *)BASE_UART, driver);
-    wait(HUMAN_TIME / 2);
 
     if (ret < 0)
-    {
-        klog("\b\b\b\bKO", 6, RED);
-        klog("]\tUART driver initialization failed.\n", 37, WHITE);
-    }
+        klog_ko("UART driver initialization failed");
     else
-    {
-        klog("\b\b\b\bOK", 6, GREEN);
-        klog("]\tUART driver initialized!\n", 27, WHITE);
-    }
+        klog_ok("UART driver initialized");
 
     return ret;
 }

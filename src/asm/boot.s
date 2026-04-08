@@ -18,7 +18,7 @@ start:
     ldr sp, =(128 * (1024 * 1024))
     sub sp, sp, #0x4
 
-    //Set up registers
+    // Set up registers
     ldr r4, =_bss_start
     ldr r9, =_bss_end
     mov r5, #0
@@ -31,15 +31,15 @@ start:
     stmia r4!, {r5 - r8}
 
 2:
-    //Go to _bss_end
+    // Go to _bss_end
     cmp r4, r9
     blo 1b
 
-    //Call kernel entry point
+    // Call kernel entry point
     ldr r3, =k_start
     blx r3
 
 halt:
-    //Then halt!
+    // Then halt!
     wfe
     b halt

@@ -29,18 +29,18 @@ void print_parts(s_mbr *mbr)
     s_part *parts = get_parts(mbr);
     for (int i = 0; i < 4; i++)
     {
-        klog("PART[", 5, BLUE);
-        klog(itoa(i, 10), strlen(itoa(i, 10)), BLUE);
-        klog("] :\n\t", 5, BLUE);
-        klog("Start: ", 7, BLUE);
-        klog(itoa(parts[i].start, 10), strlen(itoa(parts[i].start, 10)), BLUE);
-        klog("\n\t", 2, BLUE);
-        klog("Size: ", 6, BLUE);
-        klog(itoa(parts[i].size, 10), strlen(itoa(parts[i].size, 10)), BLUE);
-        klog("\n\t", 2, BLUE);
-        klog("Type: ", 6, BLUE);
-        klog(itoa(parts[i].type, 10), strlen(itoa(parts[i].type, 10)), BLUE);
-        klog("\n\n", 2, BLUE);
+        klog("PART[");
+        klog(itoa(i, 10));
+        klog("]\n");
+        klog("\tStart: ");
+        klog(itoa(parts[i].start, 10));
+        klog("\n");
+        klog("\tSize: ");
+        klog(itoa(parts[i].size, 10));
+        klog("\n");
+        klog("\tType: ");
+        klog(itoa(parts[i].type, 10));
+        klog("\n");
     }
     kfree(parts);
 }

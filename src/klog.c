@@ -1,104 +1,118 @@
+#include "driver/uart.h"
 #include "klog.h"
 
-static s_console csl;
+static s_console console;
 
-void clear_klogs(void)
+void clear_klog(void)
 {
     for (int i = 0; i < SCREEN_WIDTH; i++)
         for (int j = 0; j < SCREEN_HEIGHT; j++)
-            putpixel(i, j, BLACK);
-    csl.x = 0;
-    csl.y = 0;
-}
-
-static void kikoo_thing(void)
-{
-    klog("Kernel booting ", 15, RED);
-    for (int i = 1; i <= 11; i++)
-    {
-        if (i % 4 == 0)
-            klog("\b\b\b", 3, RED);
-        else
-            klog(".", 1, RED);
-        for (int j = HUMAN_TIME * KIKOO_RATE; j; j--);
-    }
-    klog("\n\n\n", 3, RED);
-    klog("[", 1, WHITE);
-    klog("...", 3, RED);
-    klog("]", 1, WHITE);
-    for (int j = HUMAN_TIME * KIKOO_RATE; j; j--);
-    klog("\b\b\b\bOK", 6, GREEN);
-    klog("]\tKlogs initialized!\n", 21, WHITE);
+            put_pixel(i, j, BLACK);
+    console.x = 0;
+    console.y = 0;
 }
 
 void init_klog(void)
 {
-    csl.x = 0;
-    csl.y = 0;
-    csl.margin = MARGIN;
-    clear_klogs();
-    kikoo_thing();
+    console.x = 0;
+    console.y = 0;
+    console.margin = MARGIN;
+    clear_klog();
+    klog_ok("Klogs initialized");
 }
 
 static void scroll(void)
 {
     for (int i = 0; i < NBCOL; i++)
-        deletechar(csl.x * CHAR_SIZE + csl.margin, csl.margin);
+        clear_char(console.x * CHAR_SIZE + console.margin, console.margin);
     for (int i = 0; i < NBCOL; i++)
     {
         for (int j = 1; j < NBLIN; j++)
         {
-            replychar(i * CHAR_SIZE + csl.margin,
-                      j * FONT_SIZE + csl.margin,
-                      i * CHAR_SIZE + csl.margin,
-                      (j - 1) * FONT_SIZE + csl.margin);
-            deletechar(i * CHAR_SIZE + csl.margin,
-                       j * FONT_SIZE + csl.margin);
+            copy_char(i * CHAR_SIZE + console.margin,
+                      j * FONT_SIZE + console.margin,
+                      i * CHAR_SIZE + console.margin,
+                      (j - 1) * FONT_SIZE + console.margin);
+            clear_char(i * CHAR_SIZE + console.margin,
+                       j * FONT_SIZE + console.margin);
         }
     }
 }
 
-int klog(const char *str, uint32_t size, uint32_t color)
+static int klog_write(const char *str, uint32_t color)
 {
     int i;
-    for (i = 0; i < size && str[i]; i++)
+    for (i = 0; str[i]; i++)
     {
-        if (csl.x >= NBCOL)
+        if (str[i] == '\n')
+            putchar_uart('\r');
+        putchar_uart(str[i]);
+
+        if (console.x >= NBCOL)
         {
-            csl.x = 0;
-            if (csl.y == NBLIN - 1)
+            console.x = 0;
+            if (console.y == NBLIN - 1)
                 scroll();
             else
-                csl.y++;
+                console.y++;
         }
 
         switch (str[i])
         {
-            case '\n':
-                csl.x = 0;
-                if (csl.y == NBLIN - 1)
-                    scroll();
-                else
-                    csl.y++;
-                break;
-            case '\t':
-                if (csl.x + 4 < NBCOL)
-                    csl.x += 4;
-                break;
-            case '\b':
-                if (csl.x > 0)
-                {
-                    csl.x--;
-                    deletechar(csl.x * CHAR_SIZE + csl.margin,
-                               csl.y * FONT_SIZE + csl.margin);
-                }
-                break;
-            default:
-                drawchar(csl.x++ * CHAR_SIZE + csl. margin,
-                         csl.y * FONT_SIZE + csl.margin,
-                         str[i], color);
-                break;
+          case '\n':
+           console.x = 0;
+           if (console.y == NBLIN - 1)
+               scroll();
+           else
+               console.y++;
+           break;
+          case '\t':
+           if (console.x + 4 < NBCOL)
+               console.x += 4;
+           break;
+          case '\b':
+           if (console.x > 0)
+           {
+               console.x--;
+               clear_char(console.x * CHAR_SIZE + console.margin,
+                          console.y * FONT_SIZE + console.margin);
+           }
+           break;
+          default:
+           draw_char(console.x++ * CHAR_SIZE + console.margin,
+                     console.y * FONT_SIZE + console.margin,
+                     str[i], color);
+           break;
         }
     }
     return i;
+}
+
+int klog(const char *str)
+{
+    return klog_write(str, WHITE);
+}
+
+int klogc(const char *str, uint32_t color)
+{
+    return klog_write(str, color);
+}
+
+static void klog_tag(const char *tag, uint32_t color, const char *msg)
+{
+    klog("[");
+    klogc(tag, color);
+    klog("] ");
+    klog(msg);
+    klog("\n");
+}
+
+void klog_ok(const char *msg)
+{
+    klog_tag("OK", GREEN, msg);
+}
+
+void klog_ko(const char *msg)
+{
+    klog_tag("KO", RED, msg);
 }

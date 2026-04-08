@@ -1,82 +1,68 @@
-CROSS_PREFIX ?= arm-none-eabi-
-ASM_SRC := src/asm/boot.S src/asm/interrupts.S src/asm/utils.S
+CROSS := arm-none-eabi
+export CC := $(CROSS)-gcc
+export LD := $(CROSS)-ld
+export OBJCOPY := $(CROSS)-objcopy
+
+ASM_SRC := src/asm/boot.s src/asm/interrupts.s src/asm/utils.s
 C_SRC := src/utils.c src/mailbox.c src/graphics.c src/klog.c src/atags.c src/mem.c         \
 		 src/syscall.c src/timers.c src/interrupts.c src/process.c src/elf.c           \
 		 src/scheduler.c src/main.c
 C_SRC += src/fs/parts.c src/fs/vffs.c src/fs/devfs.c src/fs/fat32.c src/fs/vfs.c
-C_SRC += src/drivers/uart.c src/drivers/imports/emmc.c src/drivers/sdcard.c
-OBJ := $(ASM_SRC:.S=.o)
+C_SRC += src/driver/uart.c src/driver/sdcard.c
+C_SRC += import/src/emmc.c
+
+OBJ := $(ASM_SRC:.s=.o)
 OBJ += $(C_SRC:.c=.o)
 LINK := src/rpi-link.ld
 DFILES := $(shell find . -type f -name '*.d')
 
-QEMU := 1
-
 DEPENDFLAGS := -MD -MP
-INCLUDES    := -I include
-BASEFLAGS   := -fpic -nostdlib
-BASEFLAGS   += -ffreestanding -fomit-frame-pointer -mcpu=arm1176jzf-s
-WARNFLAGS   := -Wall -Wextra -Wshadow
-WARNFLAGS   += -Wredundant-decls -Winline
-WARNFLAGS   += -Wno-attributes -Wno-deprecated-declarations
-WARNFLAGS   += -Wno-div-by-zero -Wno-endif-labels -Wfloat-equal
-WARNFLAGS   += -Wformat=2 -Wno-format-extra-args -Winit-self
-WARNFLAGS   += -Winvalid-pch -Wmissing-format-attribute
-WARNFLAGS   += -Wmissing-include-dirs -Wno-multichar
-WARNFLAGS   += -Wredundant-decls -Wshadow
-WARNFLAGS   += -Wno-sign-compare -Wswitch -Wsystem-headers -Wundef
-WARNFLAGS   += -Wno-pragmas -Wno-unused-but-set-parameter
-WARNFLAGS   += -Wno-unused-but-set-variable -Wno-unused-result
-WARNFLAGS   += -Wwrite-strings -Wdisabled-optimization -Wpointer-arith
-WARNFLAGS   += -Werror
-SFLAGS      := $(INCLUDES) $(DEPENDFLAGS) -D__ASSEMBLY__
-CFLAGS      := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
-CFLAGS      += -I./include -std=gnu99
-LDFLAGS     := -L/usr/local/cross/lib/gcc/arm-bcm2708hardfp-linux-gnueabi/4.7.1 -lgcc
-
-include $(DFILES)
--include makefile.rules
+INCLUDES := -Iinclude/ -Iimport/include/
+BASEFLAGS := -fpic -nostdlib -std=gnu99
+BASEFLAGS += -ffreestanding -fomit-frame-pointer -mcpu=arm1176jzf-s
+WARNFLAGS := -Wall -Wextra -Wshadow
+WARNFLAGS += -Wredundant-decls -Winline
+WARNFLAGS += -Wno-attributes -Wno-deprecated-declarations
+WARNFLAGS += -Wno-div-by-zero -Wno-endif-labels -Wfloat-equal
+WARNFLAGS += -Wformat=2 -Wno-format-extra-args -Winit-self
+WARNFLAGS += -Winvalid-pch -Wmissing-format-attribute
+WARNFLAGS += -Wmissing-include-dirs -Wno-multichar
+WARNFLAGS += -Wno-sign-compare -Wswitch -Wsystem-headers -Wundef
+WARNFLAGS += -Wno-pragmas -Wno-unused-but-set-parameter
+WARNFLAGS += -Wno-unused-but-set-variable -Wno-unused-result
+WARNFLAGS += -Wwrite-strings -Wdisabled-optimization -Wpointer-arith
+WARNFLAGS += -Werror
+SFLAGS := $(INCLUDES) $(DEPENDFLAGS) -D__ASSEMBLY__ -mcpu=arm1176jzf-s
+CFLAGS := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
+LDFLAGS := $(shell $(CC) -print-libgcc-file-name)
 
 all: kernel user
+
+-include makefile.rules
+-include $(DFILES)
 
 kernel: kernel.img
 
 user:
-	$(MAKE) -C user/
+	$(MAKE) -C user/apps/
 
 kernel.elf: $(OBJ) $(LINK)
-	$(CROSS_PREFIX)ld $(OBJ) -T$(LINK) -o $@ $(LDFLAGS)
+	$(LD) $(OBJ) -T$(LINK) -o $@ $(LDFLAGS)
 
 kernel.img: kernel.elf
-	$(CROSS_PREFIX)objcopy kernel.elf -O binary kernel.img
+	$(OBJCOPY) kernel.elf -O binary kernel.img
 
 clean:
-	rm -f $(OBJ) $(DFILES) kernel.elf kernel.img
+	$(RM) $(OBJ) $(DFILES) kernel.elf kernel.img
+	$(MAKE) clean -C user/apps/
 
 distclean: clean
-	rm -f makefile.rules
+	$(RM) makefile.rules
 
 %.o: %.c
-ifeq ($(QEMU), 1)
-	$(CROSS_PREFIX)gcc -DQEMU $(CFLAGS) -c $< -o $@
-else
-	$(CROSS_PREFIX)gcc $(CFLAGS) -c $< -o $@
-endif
+	$(CC) $(CFLAGS) -c $< -o $@
 
-%.o: %.S
-	$(CROSS_PREFIX)gcc $(SFLAGS) -c $< -o $@
+%.o: %.s
+	$(CC) $(SFLAGS) -c $< -o $@
 
-boot: kernel.elf
-	qemu-system-arm -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio -sd /dev/sde
-
-debug: distclean
-	./configure --with-debug
-	$(MAKE) -C ./ _debug
-
-_debug: kernel.elf
-	qemu-system-arm -s -S -kernel kernel.elf -cpu arm1176 -m 256 -M raspi -serial stdio -sd /dev/sde
-
-install: kernel.img
-	$(SHELL) scripts/script.sh
-
-.PHONY: kernel.elf kernel.img configure
+.PHONY: all kernel user clean distclean

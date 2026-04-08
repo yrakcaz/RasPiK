@@ -2,6 +2,9 @@
 .*.swp
 *.elf
 *.img
+*.bin
 *.d
 *.rules
 .old/
+core*
+makefile.rules

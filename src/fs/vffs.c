@@ -2,10 +2,10 @@
 
 int create_vfile(s_vffs *vffs, const char *name)
 {
-    if (vffs->nbfile >= NBMAX_FILE)
+    if (vffs->nbfiles >= NBMAX_FILE)
         return -1;
 
-    for (int i = 0; i < vffs->nbfile; i++)
+    for (int i = 0; i < vffs->nbfiles; i++)
         if (!strcmp(vffs->list[i]->name, name))
             return -1;
 
@@ -26,14 +26,14 @@ int create_vfile(s_vffs *vffs, const char *name)
     }
 
     file->data[0] = EOF;
-    vffs->list[vffs->nbfile++] = file;
+    vffs->list[vffs->nbfiles++] = file;
 
     return 0;
 }
 
-s_vfile *getnode_vffs(s_vffs *vffs, const char *name)
+s_vfile *get_node_vffs(s_vffs *vffs, const char *name)
 {
-    for (int i = 0; i < vffs->nbfile; i++)
+    for (int i = 0; i < vffs->nbfiles; i++)
         if (!strcmp(vffs->list[i]->name, name))
             return vffs->list[i];
     return NULL;
@@ -41,15 +41,15 @@ s_vfile *getnode_vffs(s_vffs *vffs, const char *name)
 
 int remove_vfile(s_vffs *vffs, const char *name)
 {
-    for (int i = 0; i < vffs->nbfile; i++)
+    for (int i = 0; i < vffs->nbfiles; i++)
     {
         if (!strcmp(vffs->list[i]->name, name))
         {
             kfree(vffs->list[i]->data);
             kfree(vffs->list[i]);
-            for (int j = i; j < vffs->nbfile - 1; j++)
+            for (int j = i; j < vffs->nbfiles - 1; j++)
                 vffs->list[j] = vffs->list[j + 1];
-            vffs->nbfile--;
+            vffs->nbfiles--;
             return 0;
         }
     }
@@ -83,7 +83,7 @@ int write_vfile(s_vfile *file, uint32_t *offset, const void *buff, uint32_t len)
     file->size = *offset + len;
 
     int i;
-    for (i = *offset; i < len; i++)
+    for (i = *offset; i < *offset + len; i++)
     {
         file->data[i] = ((char *)buff)[count];
         count++;
@@ -98,7 +98,7 @@ int write_vfile(s_vfile *file, uint32_t *offset, const void *buff, uint32_t len)
 
 int chmod_vfile(s_vffs *vffs, const char *name, int perm)
 {
-    for (int i = 0; i < vffs->nbfile; i++)
+    for (int i = 0; i < vffs->nbfiles; i++)
     {
         if (!strcmp(vffs->list[i]->name, name))
         {
@@ -111,12 +111,12 @@ int chmod_vfile(s_vffs *vffs, const char *name, int perm)
 
 const char **readdir_vffs(s_vffs *vffs)
 {
-    const char **ret = kmalloc ((vffs->nbfile + 1) * sizeof (char *));
+    const char **ret = kmalloc ((vffs->nbfiles + 1) * sizeof (char *));
     if (!ret)
         return NULL;
 
     int i;
-    for (i = 0; i < vffs->nbfile; i++)
+    for (i = 0; i < vffs->nbfiles; i++)
         ret[i] = vffs->list[i]->name;
     ret[i] = NULL;
 
@@ -129,7 +129,7 @@ s_vffs *create_vffs(void)
     if (!vffs)
         return NULL;
 
-    vffs->nbfile = 0;
+    vffs->nbfiles = 0;
     for (int i = 0; i < NBMAX_FILE; i++)
         vffs->list[i] = NULL;
 

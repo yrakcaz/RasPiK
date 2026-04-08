@@ -2,8 +2,8 @@
 
 extern char *get_sp();
 
-static u_header h_list;
-static u_header *h_first = NULL;
+static u_header heap_list;
+static u_header *heap_start = NULL;
 
 void *sbrk(uint32_t increment)
 {
@@ -27,72 +27,72 @@ void kfree(void *ptr)
 {
     if (!ptr)
         return;
-    u_header *it = h_first;
-    u_header *blk = (u_header *)ptr - 1;
-    while (blk <= it || blk >= it->metadata.next)
+    u_header *cur = heap_start;
+    u_header *block = (u_header *)ptr - 1;
+    while (block <= cur || block >= cur->metadata.next)
     {
-        if ((blk > it || blk < it->metadata.next) && it >= it->metadata.next)
+        if ((block > cur || block < cur->metadata.next) && cur >= cur->metadata.next)
             break;
-        it = it->metadata.next;
+        cur = cur->metadata.next;
     }
-    if (blk + blk->metadata.len == it->metadata.next)
+    if (block + block->metadata.len == cur->metadata.next)
     {
-        blk->metadata.len += it->metadata.next->metadata.len;
-        blk->metadata.next = it->metadata.next->metadata.next;
+        block->metadata.len += cur->metadata.next->metadata.len;
+        block->metadata.next = cur->metadata.next->metadata.next;
     }
     else
-        blk->metadata.next = it->metadata.next;
-    if (it + it->metadata.len == blk)
+        block->metadata.next = cur->metadata.next;
+    if (cur + cur->metadata.len == block)
     {
-        it->metadata.len += blk->metadata.len;
-        it->metadata.next = blk->metadata.next;
+        cur->metadata.len += block->metadata.len;
+        cur->metadata.next = block->metadata.next;
     }
     else
-        it->metadata.next = blk;
+        cur->metadata.next = block;
 }
 
 void *kmalloc(uint32_t size)
 {
-    u_header *p;
-    u_header *prev = h_first;
+    u_header *cur;
+    u_header *prev_block = heap_start;
     unsigned real_sz = (size + sizeof(u_header) - 1) / sizeof(u_header) + 1;
-    if (!h_first)
+    if (!heap_start)
     {
-        prev = &h_list;
-        h_first = prev;
-        h_list.metadata.next = h_first;
-        h_list.metadata.len = 0;
+        prev_block = &heap_list;
+        heap_start = prev_block;
+        heap_list.metadata.next = heap_start;
+        heap_list.metadata.len = 0;
     }
-    p = prev->metadata.next;
+    cur = prev_block->metadata.next;
     while (1)
     {
-        if (p->metadata.len >= real_sz)
+        if (cur->metadata.len >= real_sz)
         {
-            if (p->metadata.len == real_sz)
-                prev->metadata.next = p->metadata.next;
+            if (cur->metadata.len == real_sz)
+                prev_block->metadata.next = cur->metadata.next;
             else
             {
-                p->metadata.len -= real_sz;
-                p += p->metadata.len;
-                p->metadata.len = real_sz;
+                cur->metadata.len -= real_sz;
+                cur += cur->metadata.len;
+                cur->metadata.len = real_sz;
             }
-            h_first = prev;
-            return (void *)(p + 1);
+            heap_start = prev_block;
+            return (void *)(cur + 1);
         }
-        if (p == h_first)
+        if (cur == heap_start)
         {
             if (real_sz < NBALLOC)
                 real_sz = NBALLOC;
             char *page = sbrk((uint32_t)(real_sz * sizeof(u_header)));
             if (page == (char*)-1)
                 return NULL;
-            u_header *blk = (u_header *)page;
-            blk->metadata.len = real_sz * sizeof(u_header);
-            kfree((void *)(blk + 1));
-            p = h_first;
+            u_header *new_block = (u_header *)page;
+            new_block->metadata.len = real_sz * sizeof(u_header);
+            kfree((void *)(new_block + 1));
+            cur = heap_start;
         }
-        prev = p;
-        p = p->metadata.next;
+        prev_block = cur;
+        cur = cur->metadata.next;
     }
     return NULL;
 }
@@ -124,16 +124,16 @@ void *krealloc(void *ptr, uint32_t size)
         kfree(ptr);
         return NULL;
     }
-    u_header *bp = (u_header *)ptr - 1;
-    uint32_t nbytes = sizeof (u_header) * (bp->metadata.len - 1);
+    u_header *block_hdr = (u_header *)ptr - 1;
+    uint32_t nbytes = sizeof (u_header) * (block_hdr->metadata.len - 1);
     if (size == nbytes)
         return ptr;
-    u_header *p = kmalloc(size);
-    if (!p)
+    u_header *new_ptr = kmalloc(size);
+    if (!new_ptr)
         return NULL;
     if (size < nbytes)
         nbytes = size;
-    kmemcpy(p, ptr, nbytes);
+    kmemcpy(new_ptr, ptr, nbytes);
     kfree(ptr);
-    return p;
+    return new_ptr;
 }

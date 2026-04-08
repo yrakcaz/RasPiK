@@ -2,6 +2,7 @@
 # define TIMERS_H
 
 # include <stdint.h>
+
 # include "klog.h"
 
 # define BASE_TIMERARM   0x2000B400
@@ -29,7 +30,7 @@ typedef struct timerarm
     volatile uint32_t counter;
 } s_timerarm;
 
-s_timerarm *timerarm;
+extern s_timerarm *timerarm;
 
 # define BASE_TIMERSYS   0x20003000
 
@@ -44,10 +45,12 @@ typedef struct timersys
     volatile uint32_t cmp3;
 } s_timersys;
 
-s_timersys *timersys;
+extern s_timersys *timersys;
+
+# define USEC_PER_SEC 1000000
 
 void init_timers(void);
 uint64_t get_time(void);
-void wait(uint32_t musec);
+void usleep(uint32_t musec);
 
 #endif /* !TIMERS_H */

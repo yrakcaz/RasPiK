@@ -2,9 +2,9 @@
 # define ATAGS_H
 
 # include <stdint.h>
+
 # include "graphics.h"
 
-/* Usefull defines for atags parsing. */
 # define ANONE   0x00000000
 # define ACORE   0x54410001
 # define AMEM    0x54410002
@@ -16,7 +16,6 @@
 # define AFB     0x54410008
 # define ACMND   0x54410009
 
-/* Atags structures */
 typedef struct aheader
 {
     uint32_t size;
@@ -96,7 +95,6 @@ typedef struct acmd
     char cmd;
 } s_acmd;
 
-/* External atags functions. */
 void print_atags(s_aheader *atags);
 
 #endif /* !ATAGS_H */

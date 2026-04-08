@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            gcc-arm-none-eabi \
+            binutils-arm-none-eabi \
+            qemu-system-arm \
+            dosfstools \
+            mtools
+
+      - name: Build
+        run: ./configure --with-qemu && make
+
+      - name: Boot and verify serial output
+        run: |
+          timeout 10s scripts/qemu.sh --no-graphics 2>/dev/null | tee serial.txt || true
+
+          grep -q "\[OK\] Klogs initialized"               serial.txt
+          grep -q "\[OK\] Timers initialized"              serial.txt
+          grep -q "\[OK\] Interrupt vector initialized"    serial.txt
+          grep -q "\[OK\] Syscall table initialized"       serial.txt
+          grep -q "\[OK\] Processes initialized"           serial.txt
+          grep -q "\[OK\] Virtual File System initialized" serial.txt
+          grep -q "\[OK\] UART driver initialized"         serial.txt
+          grep -q "\[OK\] SD card driver initialized"      serial.txt
+          grep -q "\[OK\] Devices mounted"                 serial.txt

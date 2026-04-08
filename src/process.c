@@ -1,10 +1,14 @@
 #include "process.h"
 
+s_proc *current_process;
+int nbprocs;
+int real_nbprocs;
+
 static uint32_t stacks[NBMAX_PROC];
 
 extern uint32_t get_sp(void);
 
-int add_process(const char *name, uint32_t pc, char **args, int status/* stdio later...*/)
+int add_process(const char *name, uint32_t pc, char **args, int status)
 {
     s_proc *process = kmalloc(sizeof (s_proc));
     if (!process)
@@ -13,13 +17,13 @@ int add_process(const char *name, uint32_t pc, char **args, int status/* stdio l
     DISABLE_INTERRUPTS();
 
     process->name = name;
-    process->pid = nbproc;
+    process->pid = nbprocs;
     process->ppid = !current_process ? -1 : current_process->pid;
     process->status = status;
-    process->nbrun = 0;
+    process->run_count = 0;
     process->pc = pc;
     current_process->retval = 0;
-    current_process->waited = 0;
+    current_process->wait_time = 0;
 
     int argc;
     for (argc = 0; args[argc]; argc++);
@@ -55,35 +59,32 @@ int add_process(const char *name, uint32_t pc, char **args, int status/* stdio l
 
     for (int i = 0; i < NBMAX_FD; i++)
         process->fd_table[i].addr = NULL;
-    //TODO : STDIOS here!
 
-    switch (real_nbproc)
+    switch (real_nbprocs)
     {
-        case 0:
-            current_process = process;
-            current_process->next = process;
-            current_process->prev = process;
-            break;
-        case 1:
-            current_process->next = process;
-            process->next = current_process;
-            current_process->prev = process;
-            process->prev = current_process;
-            break;
-        default:
-            current_process->next->prev = process;
-            process->next = current_process->next;
-            current_process->next = process;
-            process->prev = current_process;
-            break;
+      case 0:
+       current_process = process;
+       current_process->next = process;
+       current_process->prev = process;
+       break;
+      case 1:
+       current_process->next = process;
+       process->next = current_process;
+       current_process->prev = process;
+       process->prev = current_process;
+       break;
+      default:
+       current_process->next->prev = process;
+       process->next = current_process->next;
+       current_process->next = process;
+       process->prev = current_process;
+       break;
     }
-    nbproc++;
-    real_nbproc++;
+    nbprocs++;
+    real_nbprocs++;
 
-    //TODO : Create corresponding file?
-
-    if (real_nbproc == 1)
-        current_process->nbrun++;
+    if (real_nbprocs == 1)
+        current_process->run_count++;
 
     ENABLE_INTERRUPTS();
 
@@ -100,7 +101,7 @@ int remove_process(int pid)
 
     if (pid == 1)
     {
-        klog("\n\n*** SYSTEM HALTING ***\n", 25, RED);
+        klogc("System halting\n", RED);
         while (1)
             asm volatile("wfe");
     }
@@ -115,8 +116,8 @@ int remove_process(int pid)
             process->prev->next = process->next;
             process->next->prev = process->prev;
             kfree(process);
-            real_nbproc--;
-            if (real_nbproc == 1)
+            real_nbprocs--;
+            if (real_nbprocs == 1)
                 current_process->status = WAIT;
             ENABLE_INTERRUPTS();
             return process->pid;
@@ -124,21 +125,17 @@ int remove_process(int pid)
         process = process->next;
     } while (process->pid != base);
 
-    //TODO : Kill children processes?
-
     ENABLE_INTERRUPTS();
     return -1;
 }
 
 int fork_call(uint32_t addr, char **args)
 {
-    //TODO : STDIO later
     return add_process(current_process->name, addr, args, WAIT);
 }
 
 int fork_exec(const char *path, char **args)
 {
-    //TODO : STDIO later
     uint32_t entry = load_elf(path);
     return add_process(path, entry, args, WAIT);
 }
@@ -162,7 +159,7 @@ int waitpid(int pid, int *retval)
     if (!pid)
         return -1;
 
-    proc->waited = 1;
+    proc->wait_time = 1;
     while (proc->status != TERM);
     *retval = proc->retval;
 
@@ -198,17 +195,11 @@ void exit(int status)
 
 void init_process(void)
 {
-    klog("[", 1, WHITE);
-    klog("...", 3, RED);
-    klog("]", 1, WHITE);
-
     for (int i = 0; i < NBMAX_PROC; i++)
         stacks[i] = 0;
     current_process = NULL;
-    nbproc = 1;
-    real_nbproc = 0;
+    nbprocs = 1;
+    real_nbprocs = 0;
 
-    wait(HUMAN_TIME / 2);
-    klog("\b\b\b\bOK", 6, GREEN);
-    klog("]\tProcesses initialized!\n", 25, WHITE);
+    klog_ok("Processes initialized");
 }

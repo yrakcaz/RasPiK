@@ -12,7 +12,7 @@ int add_device(s_devfs *devfs, const char *name, void *addr, s_driver *driver)
     device->perm = PERM_READ | PERM_WRITE;
     device->lock = 0;
 
-    if (devfs->nbdevice >= NBMAX_DEVICE - 1)
+    if (devfs->nbdevices >= NBMAX_DEVICE - 1)
     {
         kfree(driver);
         kfree(device);
@@ -27,21 +27,21 @@ int add_device(s_devfs *devfs, const char *name, void *addr, s_driver *driver)
         kfree(device);
     }
     else
-        devfs->list[devfs->nbdevice++] = device;
+        devfs->list[devfs->nbdevices++] = device;
 
     return ret;
 }
 
 int remove_device(s_devfs *devfs, const char *name)
 {
-    for (int i = 0; i < devfs->nbdevice; i++)
+    for (int i = 0; i < devfs->nbdevices; i++)
     {
         if (!strcmp(devfs->list[i]->name, name))
         {
             kfree(devfs->list[i]->driver);
             kfree(devfs->list[i]);
-            devfs->nbdevice--;
-            for (int j = i; j < devfs->nbdevice; j++)
+            devfs->nbdevices--;
+            for (int j = i; j < devfs->nbdevices; j++)
                 devfs->list[j] = devfs->list[j + 1];
             return 0;
         }
@@ -49,9 +49,9 @@ int remove_device(s_devfs *devfs, const char *name)
     return -1;
 }
 
-s_device *getnode_devfs(s_devfs *devfs, const char *name)
+s_device *get_node_devfs(s_devfs *devfs, const char *name)
 {
-    for (int i = 0; i < devfs->nbdevice; i++)
+    for (int i = 0; i < devfs->nbdevices; i++)
         if (!strcmp(devfs->list[i]->name, name))
             return devfs->list[i];
     return NULL;
@@ -59,7 +59,7 @@ s_device *getnode_devfs(s_devfs *devfs, const char *name)
 
 int chmod_device(s_devfs *devfs, const char *name, int perm)
 {
-    for (int i = 0; i < devfs->nbdevice; i++)
+    for (int i = 0; i < devfs->nbdevices; i++)
     {
         if (!strcmp(devfs->list[i]->name, name))
         {
@@ -72,12 +72,12 @@ int chmod_device(s_devfs *devfs, const char *name, int perm)
 
 const char **readdir_devfs(s_devfs *devfs)
 {
-    const char **ret = kmalloc(devfs->nbdevice + 1 * sizeof (const char *));
+    const char **ret = kmalloc((devfs->nbdevices + 1) * sizeof (const char *));
     if (!ret)
         return NULL;
 
     int i;
-    for (i = 0; i < devfs->nbdevice; i++)
+    for (i = 0; i < devfs->nbdevices; i++)
         ret[i] = devfs->list[i]->name;
     ret[i] = NULL;
 
@@ -90,7 +90,7 @@ s_devfs *create_devfs(void)
     if (!devfs)
         return NULL;
 
-    devfs->nbdevice = 0;
+    devfs->nbdevices = 0;
     for (int i = 0; i < NBMAX_DEVICE; i++)
         devfs->list[i] = NULL;
 

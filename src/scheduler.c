@@ -4,7 +4,7 @@ static void switch_context(void)
 {
     asm volatile("mov sp, %[addr]"
                  :: [addr]"r"((uint32_t)(current_process->sp)));
-    if (current_process->nbrun > 1)
+    if (current_process->run_count > 1)
     {
         asm volatile("pop {r0, lr}");
         asm volatile("add sp, sp, r0");
@@ -24,55 +24,44 @@ static void switch_context(void)
 
 void schedule(void)
 {
-    if (!current_process || !real_nbproc)
+    if (!current_process || !real_nbprocs)
         return;
 
-    /* Save current process stack */
     asm volatile("mov %0, r0\n\t" : "=r"(current_process->sp));
     if (current_process->status == RUN)
         current_process->status = WAIT;
 
-    /* Choose next process */
     do
     {
         if (current_process->next->status == TERM)
         {
-            if (!current_process->next->waited || current_process->next->waited == HUMAN_TIME)
+            if (!current_process->next->wait_time || current_process->next->wait_time == USEC_PER_SEC)
                 remove_process(current_process->next->pid);
             else
-                current_process->next->waited++;
+                current_process->next->wait_time++;
         }
         current_process = current_process->next;
     } while (current_process->status != WAIT);
     current_process->status = RUN;
-    current_process->nbrun++;
+    current_process->run_count++;
 
-    /* Then switch context */
     switch_context();
 }
 
-void endloop(void)
+static void endloop(void)
 {
     while(1);
 }
 
 int init_scheduler(void)
 {
-    klog("[", 1, WHITE);
-    klog("...", 3, RED);
-    klog("]", 1, WHITE);
-
-    wait(HUMAN_TIME / 2);
-
     if (add_process("init", (uint32_t)&endloop, NULL, WAIT) < 0)
     {
-        klog("\b\b\b\bKO", RED, 6);
-        klog("]\tScheduler initialization failed.\n", 35, WHITE);
+        klog_ko("Scheduler initialization failed");
         return 0;
     }
 
-    klog("\b\b\b\bOK", 6, GREEN);
-    klog("]\tScheduler initialized!\n", 25, WHITE);
+    klog_ok("Scheduler initialized");
 
     return 1;
 }

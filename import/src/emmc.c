@@ -30,7 +30,7 @@
  * Broadcom BCM2835 Peripherals Guide
  */
 
-#include "drivers/imports/emmc.h"
+#include "emmc.h"
 
 static char driver_name[] = "emmc";
 static char device_name[] = "emmc0";
@@ -308,7 +308,7 @@ static int bcm_2708_power_cycle()
     if(bcm_2708_power_off() < 0)
         return -1;
 
-    wait(5000);
+    usleep(5000);
 
     return bcm_2708_power_on();
 }
@@ -383,29 +383,29 @@ static int emmc_switch_clock_rate(uint32_t base_clock, uint32_t target_rate)
 
     // Wait for the command inhibit (CMD and DAT) bits to clear
     while(read_mmio(EMMC_BASE + EMMC_STATUS) & 0x3)
-        wait(1000);
+        usleep(1000);
 
     // Set the SD clock off
     uint32_t control1 = read_mmio(EMMC_BASE + EMMC_CONTROL1);
     control1 &= ~(1 << 2);
     write_mmio(EMMC_BASE + EMMC_CONTROL1, control1);
-    wait(2000);
+    usleep(2000);
 
     // Write the new divider
     control1 &= ~0xffe0;        // Clear old setting + clock generator select
     control1 |= divider;
     write_mmio(EMMC_BASE + EMMC_CONTROL1, control1);
-    wait(2000);
+    usleep(2000);
 
     // Enable the SD clock
     control1 |= (1 << 2);
     write_mmio(EMMC_BASE + EMMC_CONTROL1, control1);
-    wait(2000);
+    usleep(2000);
 
     return 0;
 }
 
-static void TIMEOUT_WAIT(int cond, uint64_t usec)
+static void TIMEOUT_usleep(int cond, uint64_t usec)
 {
     uint64_t time = get_time();
     do
@@ -422,7 +422,7 @@ static int emmc_reset_cmd()
     uint32_t control1 = read_mmio(EMMC_BASE + EMMC_CONTROL1);
     control1 |= SD_RESET_CMD;
     write_mmio(EMMC_BASE + EMMC_CONTROL1, control1);
-    TIMEOUT_WAIT((read_mmio(EMMC_BASE + EMMC_CONTROL1) & SD_RESET_CMD) == 0, 1000000);
+    TIMEOUT_usleep((read_mmio(EMMC_BASE + EMMC_CONTROL1) & SD_RESET_CMD) == 0, 1000000);
     if((read_mmio(EMMC_BASE + EMMC_CONTROL1) & SD_RESET_CMD) != 0)
         return -1;
     return 0;
@@ -434,7 +434,7 @@ static int emmc_reset_dat()
     uint32_t control1 = read_mmio(EMMC_BASE + EMMC_CONTROL1);
     control1 |= SD_RESET_DAT;
     write_mmio(EMMC_BASE + EMMC_CONTROL1, control1);
-    TIMEOUT_WAIT((read_mmio(EMMC_BASE + EMMC_CONTROL1) & SD_RESET_DAT) == 0, 1000000);
+    TIMEOUT_usleep((read_mmio(EMMC_BASE + EMMC_CONTROL1) & SD_RESET_DAT) == 0, 1000000);
     if((read_mmio(EMMC_BASE + EMMC_CONTROL1) & SD_RESET_DAT) != 0)
         return -1;
     return 0;
@@ -488,7 +488,7 @@ static void emmc_issue_command_int(struct emmc_block_dev *dev, uint32_t cmd_reg,
 
     // Check Command Inhibit
     while(read_mmio(EMMC_BASE + EMMC_STATUS) & 0x1)
-        wait(1000);
+        usleep(1000);
 
     // Is the command with busy?
     if((cmd_reg & SD_CMD_RSPNS_TYPE_MASK) == SD_CMD_RSPNS_TYPE_48B)
@@ -502,7 +502,7 @@ static void emmc_issue_command_int(struct emmc_block_dev *dev, uint32_t cmd_reg,
 
             // Wait for the data line to be free
             while(read_mmio(EMMC_BASE + EMMC_STATUS) & 0x2)
-                wait(1000);
+                usleep(1000);
         }
     }
 
@@ -543,10 +543,10 @@ static void emmc_issue_command_int(struct emmc_block_dev *dev, uint32_t cmd_reg,
     // Set command reg
     write_mmio(EMMC_BASE + EMMC_CMDTM, cmd_reg);
 
-    wait(2000);
+    usleep(2000);
 
     // Wait for command complete interrupt
-    TIMEOUT_WAIT(read_mmio(EMMC_BASE + EMMC_INTERRUPT) & 0x8001, timeout);
+    TIMEOUT_usleep(read_mmio(EMMC_BASE + EMMC_INTERRUPT) & 0x8001, timeout);
     uint32_t irpts = read_mmio(EMMC_BASE + EMMC_INTERRUPT);
 
     // Clear command complete status
@@ -560,7 +560,7 @@ static void emmc_issue_command_int(struct emmc_block_dev *dev, uint32_t cmd_reg,
         return;
     }
 
-    wait(2000);
+    usleep(2000);
 
     // Get response data
     switch(cmd_reg & SD_CMD_RSPNS_TYPE_MASK)
@@ -595,7 +595,7 @@ static void emmc_issue_command_int(struct emmc_block_dev *dev, uint32_t cmd_reg,
         uint32_t *cur_buf_addr = (uint32_t *)dev->buf;
         while(cur_block < dev->blocks_to_transfer)
         {
-            TIMEOUT_WAIT(read_mmio(EMMC_BASE + EMMC_INTERRUPT) & (wr_irpt | 0x8000), timeout);
+            TIMEOUT_usleep(read_mmio(EMMC_BASE + EMMC_INTERRUPT) & (wr_irpt | 0x8000), timeout);
             irpts = read_mmio(EMMC_BASE + EMMC_INTERRUPT);
             write_mmio(EMMC_BASE + EMMC_INTERRUPT, 0xffff0000 | wr_irpt);
 
@@ -637,7 +637,7 @@ static void emmc_issue_command_int(struct emmc_block_dev *dev, uint32_t cmd_reg,
             write_mmio(EMMC_BASE + EMMC_INTERRUPT, 0xffff0002);
         else
         {
-            TIMEOUT_WAIT(read_mmio(EMMC_BASE + EMMC_INTERRUPT) & 0x8002, timeout);
+            TIMEOUT_usleep(read_mmio(EMMC_BASE + EMMC_INTERRUPT) & 0x8002, timeout);
             irpts = read_mmio(EMMC_BASE + EMMC_INTERRUPT);
             write_mmio(EMMC_BASE + EMMC_INTERRUPT, 0xffff0002);
 
@@ -662,7 +662,7 @@ static void emmc_issue_command_int(struct emmc_block_dev *dev, uint32_t cmd_reg,
             write_mmio(EMMC_BASE + EMMC_INTERRUPT, 0xffff000a);
         else
         {
-            TIMEOUT_WAIT(read_mmio(EMMC_BASE + EMMC_INTERRUPT) & 0x800a, timeout);
+            TIMEOUT_usleep(read_mmio(EMMC_BASE + EMMC_INTERRUPT) & 0x800a, timeout);
             irpts = read_mmio(EMMC_BASE + EMMC_INTERRUPT);
             write_mmio(EMMC_BASE + EMMC_INTERRUPT, 0xffff000a);
 
@@ -828,7 +828,7 @@ int emmc_card_init(struct block_device **dev)
     control1 &= ~(1 << 2);
     control1 &= ~(1 << 0);
     write_mmio(EMMC_BASE + EMMC_CONTROL1, control1);
-    TIMEOUT_WAIT((read_mmio(EMMC_BASE + EMMC_CONTROL1) & (0x7 << 24)) == 0, 1000000);
+    TIMEOUT_usleep((read_mmio(EMMC_BASE + EMMC_CONTROL1) & (0x7 << 24)) == 0, 1000000);
     if((read_mmio(EMMC_BASE + EMMC_CONTROL1) & (0x7 << 24)) != 0)
         return -1;
 
@@ -837,7 +837,7 @@ int emmc_card_init(struct block_device **dev)
     capabilities_1 = read_mmio(EMMC_BASE + EMMC_CAPABILITIES_1);
 
     // Check for a valid card
-    TIMEOUT_WAIT(read_mmio(EMMC_BASE + EMMC_STATUS) & (1 << 16), 500000);
+    TIMEOUT_usleep(read_mmio(EMMC_BASE + EMMC_STATUS) & (1 << 16), 500000);
     uint32_t status_reg = read_mmio(EMMC_BASE + EMMC_STATUS);
     if((status_reg & (1 << 16)) == 0)
         return -1;
@@ -862,16 +862,16 @@ int emmc_card_init(struct block_device **dev)
 
     control1 |= (7 << 16);        // data timeout = TMCLK * 2^10
     write_mmio(EMMC_BASE + EMMC_CONTROL1, control1);
-    TIMEOUT_WAIT(read_mmio(EMMC_BASE + EMMC_CONTROL1) & 0x2, 0x1000000);
+    TIMEOUT_usleep(read_mmio(EMMC_BASE + EMMC_CONTROL1) & 0x2, 0x1000000);
     if((read_mmio(EMMC_BASE + EMMC_CONTROL1) & 0x2) == 0)
         return -1;
 
     // Enable the SD clock
-    wait(2000);
+    usleep(2000);
     control1 = read_mmio(EMMC_BASE + EMMC_CONTROL1);
     control1 |= 4;
     write_mmio(EMMC_BASE + EMMC_CONTROL1, control1);
-    wait(2000);
+    usleep(2000);
 
     // Mask off sending interrupts to the ARM
     write_mmio(EMMC_BASE + EMMC_IRPT_EN, 0);
@@ -884,7 +884,7 @@ int emmc_card_init(struct block_device **dev)
 #endif
     write_mmio(EMMC_BASE + EMMC_IRPT_MASK, irpt_mask);
 
-    wait(2000);
+    usleep(2000);
 
     // Prepare the device structure
     struct emmc_block_dev *ret;
@@ -997,7 +997,7 @@ int emmc_card_init(struct block_device **dev)
             card_is_busy = 0;
         }
         else
-            wait(500000);
+            usleep(500000);
     }
 
     // At this point, we know the card is definitely an SD card, so will definitely
@@ -1005,7 +1005,7 @@ int emmc_card_init(struct block_device **dev)
     emmc_switch_clock_rate(base_clock, SD_CLOCK_NORMAL);
 
     // A small wait before the voltage switch
-    wait(5000);
+    usleep(5000);
 
     // Switch to 1.8V mode if possible
     if(ret->card_supports_18v)
@@ -1042,7 +1042,7 @@ int emmc_card_init(struct block_device **dev)
         write_mmio(EMMC_BASE + EMMC_CONTROL0, control0);
 
         // Wait 5 ms
-        wait(5000);
+        usleep(5000);
 
         // Check the 1.8V signal enable is set
         control0 = read_mmio(EMMC_BASE + EMMC_CONTROL0);
@@ -1059,7 +1059,7 @@ int emmc_card_init(struct block_device **dev)
         write_mmio(EMMC_BASE + EMMC_CONTROL1, control1);
 
         // Wait 1 ms
-        wait(10000);
+        usleep(10000);
 
         // Check DAT[3:0]
         status_reg = read_mmio(EMMC_BASE + EMMC_STATUS);

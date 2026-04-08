@@ -2,9 +2,10 @@
 # define MAILBOX_H
 
 # include <stdint.h>
+
 # include "mmio.h"
-# include "utils.h"
 # include "timers.h"
+# include "utils.h"
 
 # define MAILBOX_BASE    0x2000B880
 

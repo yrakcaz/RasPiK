@@ -3,7 +3,6 @@
 
 # include <stdint.h>
 
-// Write value to mmio register.
 static inline void write_mmio(uint32_t reg, uint32_t val)
 {
     uint32_t *addr = (uint32_t *)reg;
@@ -13,7 +12,6 @@ static inline void write_mmio(uint32_t reg, uint32_t val)
                     );
 }
 
-// Read value from mmio register.
 static inline uint32_t read_mmio(uint32_t reg)
 {
     uint32_t *addr = (uint32_t *)reg;

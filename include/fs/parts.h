@@ -28,6 +28,6 @@ typedef struct part
 } s_part;
 
 s_part *get_parts(s_mbr *mbr);
-void print_parts(s_mbr *mbr); //JUST FOR DEBUGING...
+void print_parts(s_mbr *mbr);
 
 #endif /* !PARTS_H */

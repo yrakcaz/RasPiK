@@ -2,7 +2,7 @@
 
 void write_mailbox(uint8_t chan, uint32_t data)
 {
-    while (read_mmio(MAILBOX_BASE + MAILBOX_STATE) & MAILBOX_FULL) {}
+    while (read_mmio(MAILBOX_BASE + MAILBOX_STATE) & MAILBOX_FULL);
     sync_mem();
     write_mmio((MAILBOX_BASE + MAILBOX_WRITE), chan | (data & DATAMASK32));
     sync_mem();

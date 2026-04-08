@@ -1,50 +1,62 @@
+#include "atags.h"
+#include "driver/sdcard.h"
+#include "driver/uart.h"
+#include "fs/vfs.h"
+#include "interrupts.h"
 #include "klog.h"
 #include "mem.h"
-#include "timers.h"
-#include "interrupts.h"
-#include "atags.h"
-#include "syscall.h"
 #include "process.h"
 #include "scheduler.h"
-#include "fs/vfs.h"
-#include "drivers/uart.h"
-#include "drivers/sdcard.h"
+#include "syscall.h"
+#include "timers.h"
 
-void draw_star(void)
+static void print_banner(void)
+{
+    const char *lines[] = {
+        " ____           ____  _ _  __\n",
+        "|  _ \\ __ _ ___|  _ \\(_) |/ /\n",
+        "| |_) / _` / __| |_) | | ' /\n",
+        "|  _ < (_| \\__ \\  __/| | . \\\n",
+        "|_| \\_\\__,_|___/_|   |_|_|\\_\\\n",
+        NULL
+    };
+    for (int i = 0; lines[i]; i++)
+        klogc(lines[i], YELLOW);
+    klog("\n");
+}
+
+static void spinner(void)
 {
     static int i = 0;
     switch (i)
     {
-        case 0:
-            klog("-", 1, RED);
-            break;
-        case 1:
-            klog("\\", 1, GREEN);
-            break;
-        case 2:
-            klog("|", 1, BLUE);
-            break;
-        case 3:
-            klog("/", 1, YELLOW);
-            i = -1;
-            break;
-        default:
-            break;
+      case 0:
+       klogc("-", RED);
+       break;
+      case 1:
+       klogc("\\", GREEN);
+       break;
+      case 2:
+       klogc("|", BLUE);
+       break;
+      case 3:
+       klogc("/", YELLOW);
+       i = -1;
+       break;
+      default:
+       break;
     }
-    wait(HUMAN_TIME / 3);
-    klog("\b", 1, WHITE);
+    usleep(USEC_PER_SEC / 3);
+    klog("\b");
     i++;
 }
 
-//Kernel entry_point...
 void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
 {
-    //We'll treat these after if needed...
     DO_NOTHING_WITH(r0);
     DO_NOTHING_WITH(r1);
-    DO_NOTHING_WITH(atags); // Use print_atags to display it...
+    DO_NOTHING_WITH(atags);
 
-    //Initializations
     init_graphics();
     init_klog();
     init_timers();
@@ -57,8 +69,10 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     mount_devices();
     init_scheduler();
 
-    klog("\n\n", 2, WHITE);
+    print_banner();
+    print_vfs();
+    klog("\n");
 
     for (;;)
-        draw_star();
+        spinner();
 }
