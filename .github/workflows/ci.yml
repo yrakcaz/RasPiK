@@ -21,18 +21,36 @@ jobs:
             mtools
 
       - name: Build
-        run: ./configure --with-qemu && make
+        run: |
+          sed -i '/for (;;)/i\    exec("/sdcard/example.bin", NULL);' src/main.c
+          ./configure --with-qemu && make
 
       - name: Boot and verify serial output
         run: |
           timeout 10s scripts/qemu.sh --no-graphics 2>/dev/null | tee serial.txt || true
 
-          grep -q "\[OK\] Klogs initialized"               serial.txt
-          grep -q "\[OK\] Timers initialized"              serial.txt
-          grep -q "\[OK\] Interrupt vector initialized"    serial.txt
-          grep -q "\[OK\] Syscall table initialized"       serial.txt
-          grep -q "\[OK\] Processes initialized"           serial.txt
-          grep -q "\[OK\] Virtual File System initialized" serial.txt
-          grep -q "\[OK\] UART driver initialized"         serial.txt
-          grep -q "\[OK\] SD card driver initialized"      serial.txt
-          grep -q "\[OK\] Devices mounted"                 serial.txt
+          grep -q  "\[OK\] Klogs initialized"               serial.txt
+          grep -q  "\[OK\] Timers initialized"              serial.txt
+          grep -q  "\[OK\] Interrupt vector initialized"    serial.txt
+          grep -q  "\[OK\] Syscall table initialized"       serial.txt
+          grep -q  "\[OK\] Processes initialized"           serial.txt
+          grep -q  "\[OK\] Virtual File System initialized" serial.txt
+          grep -q  "\[OK\] UART driver initialized"         serial.txt
+          grep -q  "\[OK\] SD card driver initialized"      serial.txt
+          grep -q  "\[OK\] sdcard mounted"                  serial.txt
+          grep -qE "getpid: [0-9]+"                        serial.txt
+          grep -qE "gettime: [0-9]+ us"                    serial.txt
+          grep -q  "brk: -1"                               serial.txt
+          grep -q  "kill: 0"                               serial.txt
+          grep -q  "ioctl: -1"                             serial.txt
+          grep -q  "readdir /dev: console"                 serial.txt
+          grep -qE "stat example\.bin: [0-9]+ bytes"       serial.txt
+          grep -q  "seek SEEK_SET: 0"                      serial.txt
+          grep -q  "read: 16 bytes"                        serial.txt
+          grep -q  "mount /userfs: 0"                      serial.txt
+          grep -q  "write vffs: 5 bytes"                   serial.txt
+          grep -q  "read vffs: 5 bytes"                    serial.txt
+          grep -q  "stat vffs: 5 bytes"                    serial.txt
+          grep -q  "remove: 0"                             serial.txt
+          grep -q  "unmount /userfs: 0"                    serial.txt
+          grep -q  "System halting"                        serial.txt

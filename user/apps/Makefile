@@ -1,15 +1,16 @@
-SRC := test.c
-OBJ := $(SRC:.c=.o)
-LINK := apps.ld
-LDFLAGS := $(shell $(CC) -print-libgcc-file-name)
+SRC = example.c
+BIN = $(SRC:.c=.bin)
+OBJ = $(SRC:.c=.o)
+LDSCRIPT = ../sdk/raspik.ld
+LDFLAGS := $(shell $(CC) -print-libgcc-file-name) -L../sdk -lraspik
 
-all: test.bin
+all: $(BIN)
 
-test.bin: $(OBJ) $(LINK)
-	$(LD) $(OBJ) -T$(LINK) -o $@ $(LDFLAGS)
+%.bin: %.o $(LDSCRIPT)
+	$(LD) $< -T$(LDSCRIPT) -o $@ $(LDFLAGS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -I../sdk $(STDFLAGS) $(WARNFLAGS) $(ARCHFLAGS) $(CONFIGFLAGS) -c $< -o $@
 
 clean:
 	$(RM) *.o *.bin

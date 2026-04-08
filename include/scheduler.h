@@ -1,8 +1,8 @@
 #ifndef SCHEDULER_H
 # define SCHEDULER_H
 
-# include "process.h"
 # include "interrupts.h"
+# include "process.h"
 
 void schedule(void);
 int init_scheduler(void);

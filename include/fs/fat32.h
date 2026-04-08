@@ -1,7 +1,7 @@
 #ifndef FAT32_H
 # define FAT32_H
 
-# include "fs/parts.h"
+# include "fs/mbr.h"
 
 // LFN (long file names) are not supported.
 // Spaces are not allowed in file names.
@@ -10,6 +10,11 @@
 # define TYPEFAT32_LBA 0x0C
 
 # define BLK_SIZE  512
+
+# define FAT32_DELETED      0xE5
+# define FAT32_DIRENT_END   0x00
+# define FAT32_CLUSTER_MASK 0x0FFFFFFF
+# define FAT32_CLUSTER_BAD  0x0FFFFFF7
 
 # define FAT32_RO  (1 << 0)
 # define FAT32_HID (1 << 1)

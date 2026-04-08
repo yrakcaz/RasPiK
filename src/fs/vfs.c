@@ -156,7 +156,7 @@ int close(int fd)
 
 int read(int fd, void *buf, uint32_t len)
 {
-    if (fd > NBMAX_FD || current_process->fd_table[fd].addr == NULL)
+    if (fd < 0 || fd >= NBMAX_FD || current_process->fd_table[fd].addr == NULL)
         return -1;
 
     void *addr = current_process->fd_table[fd].addr;
@@ -175,7 +175,7 @@ int read(int fd, void *buf, uint32_t len)
 
 int write(int fd, const void *buf, uint32_t len)
 {
-    if (fd > NBMAX_FD || current_process->fd_table[fd].addr == NULL ||
+    if (fd < 0 || fd >= NBMAX_FD || current_process->fd_table[fd].addr == NULL ||
         (current_process->fd_table[fd].mode & O_RDONLY) == O_RDONLY)
         return -1;
 
@@ -186,6 +186,66 @@ int write(int fd, const void *buf, uint32_t len)
        return write_vfile(addr, &(current_process->fd_table[fd].offset), buf, len);
       case DEVICES:
        return ((s_device *)addr)->driver->write(addr, &(current_process->fd_table[fd].offset), buf, len);
+      default:
+       return -1;
+    }
+}
+
+int seek(int fd, uint32_t offset, int whence)
+{
+    if (fd < 0 || fd >= NBMAX_FD || current_process->fd_table[fd].addr == NULL)
+        return -1;
+    uint32_t len;
+    switch (current_process->fd_table[fd].type)
+    {
+      case VFILES:
+       len = ((s_vfile *)current_process->fd_table[fd].addr)->size;
+       break;
+      case DEVICES:
+       len = 0;
+       break;
+      case FAT32:
+       len = ((s_fatfile *)current_process->fd_table[fd].addr)->dir->size;
+       break;
+      default:
+       return -1;
+    }
+    switch (whence)
+    {
+      case SEEK_SET:
+       current_process->fd_table[fd].offset = offset;
+       break;
+      case SEEK_CUR:
+       current_process->fd_table[fd].offset += offset;
+       break;
+      case SEEK_END:
+       current_process->fd_table[fd].offset = (len - 1) + offset;
+       break;
+      default:
+       return -1;
+    }
+    return current_process->fd_table[fd].offset;
+}
+
+int stat(int fd, s_stat *sb)
+{
+    if (fd < 0 || fd >= NBMAX_FD || !sb)
+        return -1;
+
+    void *addr = current_process->fd_table[fd].addr;
+    if (!addr)
+        return -1;
+
+    switch (current_process->fd_table[fd].type)
+    {
+      case VFILES:
+       sb->st_size = ((s_vfile *)addr)->size;
+       return 0;
+      case DEVICES:
+       return -1;
+      case FAT32:
+       sb->st_size = ((s_fatfile *)addr)->dir->size;
+       return 0;
       default:
        return -1;
     }
@@ -255,45 +315,9 @@ const char **readdir(const char *path)
     }
 }
 
-int seek(int fd, uint32_t offset, int whence)
-{
-    if (fd > NBMAX_FD || current_process->fd_table[fd].addr == NULL)
-        return -1;
-    uint32_t len;
-    switch (current_process->fd_table[fd].type)
-    {
-      case VFILES:
-       len = ((s_vfile *)current_process->fd_table[fd].addr)->size;
-       break;
-      case DEVICES:
-       len = 0;
-       break;
-      case FAT32:
-       len = ((s_fatdir *)current_process->fd_table[fd].addr)->size;
-       break;
-      default:
-       return -1;
-    }
-    switch (whence)
-    {
-      case SEEK_SET:
-       current_process->fd_table[fd].offset = offset;
-       break;
-      case SEEK_CUR:
-       current_process->fd_table[fd].offset += offset;
-       break;
-      case SEEK_END:
-       current_process->fd_table[fd].offset = (len - 1) + offset;
-       break;
-      default:
-       return -1;
-    }
-    return current_process->fd_table[fd].offset;
-}
-
 int ioctl(int fd, int cmd, int args)
 {
-    if (fd < 0 || fd > NBMAX_FD)
+    if (fd < 0 || fd >= NBMAX_FD)
         return -1;
 
     void *addr = current_process->fd_table[fd].addr;
@@ -313,28 +337,23 @@ int ioctl(int fd, int cmd, int args)
     }
 }
 
-int stat(int fd, s_stat *sb)
+int insmod(const char *path, void *addr, s_driver *driver)
 {
-    if (fd < 0 || fd > NBMAX_FD || !sb)
+    char **parsed = parse_path(path);
+    if (!parsed)
         return -1;
 
-    void *addr = current_process->fd_table[fd].addr;
-    if (!addr)
-        return -1;
-
-    switch (current_process->fd_table[fd].type)
+    for (int i = 0; i < vfsroot.nbmountpoints; i++)
     {
-      case VFILES:
-       sb->st_size = ((s_vfile *)addr)->size;
-       return -1;
-      case DEVICES:
-       return -1;
-      case FAT32:
-       sb->st_size = ((s_fatfile *)addr)->dir->size;
-       return 0;
-      default:
-       return -1;
+        if (!strcmp(parsed[0], vfsroot.list[i].name))
+        {
+            if (vfsroot.list[i].type != DEVICES)
+                return -1;
+            return add_device(vfsroot.list[i].fs, parsed[1], addr, driver);
+        }
     }
+
+    return -1;
 }
 
 static int add_vffs(const char *path)
@@ -465,25 +484,6 @@ int chmod(const char *path, int mode)
     return ret;
 }
 
-int insmod(const char *path, void *addr, s_driver *driver)
-{
-    char **parsed = parse_path(path);
-    if (!path)
-        return -1;
-
-    for (int i = 0; i < vfsroot.nbmountpoints; i++)
-    {
-        if (!strcmp(parsed[0], vfsroot.list[i].name))
-        {
-            if (vfsroot.list[i].type != DEVICES)
-                return -1;
-            return add_device(vfsroot.list[i].fs, parsed[1], addr, driver);
-        }
-    }
-
-    return -1;
-}
-
 void print_vfs(void)
 {
     for (int i = 0; i < vfsroot.nbmountpoints; i++)
@@ -539,17 +539,5 @@ int init_vfs(void)
     }
 
     klog_ok("Virtual File System initialized");
-    return 1;
-}
-
-int mount_devices(void)
-{
-    if (mount("/dev/sdcard", "sdcard", FAT32) < 0)
-    {
-        klog_ko("Devices mounting failed");
-        return 0;
-    }
-
-    klog_ok("Devices mounted");
     return 1;
 }

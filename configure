@@ -22,5 +22,5 @@ for arg in "$@"; do
 done
 
 > makefile.rules
-if [ "$debug" = 1 ]; then echo "CFLAGS+=-g3 -O0 -DDEBUG" >> makefile.rules; fi
-if [ "$qemu" = 1 ]; then echo "CFLAGS+=-DQEMU" >> makefile.rules; fi
+if [ "$debug" = 1 ]; then echo "CONFIGFLAGS+=-g3 -O0 -DDEBUG" >> makefile.rules; fi
+if [ "$qemu" = 1 ]; then echo "CONFIGFLAGS+=-DQEMU" >> makefile.rules; fi

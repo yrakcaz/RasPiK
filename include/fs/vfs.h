@@ -62,29 +62,27 @@ typedef struct stat
     // Add other stat fields here as needed.
 } s_stat;
 
+// file
 int open(const char *path, int mode);
 int close(int fd);
-
 int read(int fd, void *buf, uint32_t len);
 int write(int fd, const void *buf, uint32_t len);
-
+int seek(int fd, uint32_t offset, int whence);
+int stat(int fd, s_stat *stat);
 int remove(const char *path);
 const char **readdir(const char *path);
 
-int seek(int fd, uint32_t offset, int whence);
+// device
 int ioctl(int fd, int cmd, int args);
+int insmod(const char *path, void *addr, s_driver *driver);
 
-int stat(int fd, s_stat *stat);
-
+// vfs
 int mount(const char *devpath, const char *mountpath, e_fstype type);
 int unmount(const char *path);
-
 int chmod(const char *path, int mode);
-int insmod(const char *path, void *addr, s_driver *driver);
 
 void print_vfs(void);
 
 int init_vfs(void);
-int mount_devices(void);
 
 #endif /* !VFS_H */

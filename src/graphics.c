@@ -157,24 +157,7 @@ static int init_framebuffer(void)
     return 1;
 }
 
-int init_graphics(void)
-{
-    framebuffer = (s_fb *)FRAME_BUFFER;
-    framebuffer->width = SCREEN_WIDTH;
-    framebuffer->height = SCREEN_HEIGHT;
-    framebuffer->v_width = framebuffer->width;
-    framebuffer->v_height = framebuffer->height;
-    framebuffer->pitch = 0;
-    framebuffer->depth = SCREEN_DEPTH;
-    framebuffer->x_off = 0;
-    framebuffer->y_off = 0;
-    framebuffer->ptr = 0;
-    framebuffer->size = 0;
-
-    return init_framebuffer();
-}
-
-s_color hex_to_rgb(uint32_t color)
+static s_color hex_to_rgb(uint32_t color)
 {
     s_color ret;
     ret.r = (color & 0xFF0000) >> 16;
@@ -183,7 +166,7 @@ s_color hex_to_rgb(uint32_t color)
     return ret;
 }
 
-uint32_t rgb_to_hex(s_color color)
+static uint32_t rgb_to_hex(s_color color)
 {
     return ((color.r << 16) |
             (color.g << 8) |
@@ -205,7 +188,7 @@ void put_pixel(uint32_t x, uint32_t y, uint32_t color)
 #endif
 }
 
-uint32_t get_pixel(uint32_t x, uint32_t y)
+static uint32_t get_pixel(uint32_t x, uint32_t y)
 {
     s_color rgb;
     uint32_t offset = (y * framebuffer->pitch) + (x * 3);
@@ -255,4 +238,21 @@ void copy_char(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2)
             put_pixel(x2 + j, y2 + i, color);
         }
     }
+}
+
+int init_graphics(void)
+{
+    framebuffer = (s_fb *)FRAME_BUFFER;
+    framebuffer->width = SCREEN_WIDTH;
+    framebuffer->height = SCREEN_HEIGHT;
+    framebuffer->v_width = framebuffer->width;
+    framebuffer->v_height = framebuffer->height;
+    framebuffer->pitch = 0;
+    framebuffer->depth = SCREEN_DEPTH;
+    framebuffer->x_off = 0;
+    framebuffer->y_off = 0;
+    framebuffer->ptr = 0;
+    framebuffer->size = 0;
+
+    return init_framebuffer();
 }

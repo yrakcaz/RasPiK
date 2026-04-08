@@ -5,7 +5,7 @@
 
 # include "klog.h"
 
-// Memory management is currently implemented as a simple sbrk-based allocator.
+// Memory management is currently implemented as a simple brk-based allocator.
 // A proper implementation would add paging and MMU support for the ARM1176JZF-S.
 
 # define NULL    0x00000000
@@ -21,7 +21,7 @@ typedef union header
     long align;
 } u_header;
 
-void *sbrk(uint32_t increment);
+int brk(void *addr);
 
 void kfree(void *ptr);
 void *kmalloc(uint32_t size);

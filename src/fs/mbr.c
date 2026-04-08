@@ -1,4 +1,4 @@
-#include "fs/parts.h"
+#include "fs/mbr.h"
 
 s_part *get_parts(s_mbr *mbr)
 {

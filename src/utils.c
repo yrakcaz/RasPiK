@@ -88,3 +88,17 @@ int strcmp(const char *str1, const char *str2)
             return 1;
     return 0;
 }
+
+void uint32_to_hex(uint32_t val, char *buf)
+{
+    const char *hex = "0x00000000";
+    for (int i = 0; i < 10; i++)
+        buf[i] = hex[i];
+    buf[10] = '\0';
+    for (int i = 9; i >= 2; i--)
+    {
+        int d = val & 0xF;
+        buf[i] = d < 10 ? '0' + d : 'a' + d - 10;
+        val >>= 4;
+    }
+}

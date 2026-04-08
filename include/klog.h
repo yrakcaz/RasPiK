@@ -16,8 +16,9 @@ typedef struct console
 
 void clear_klog(void);
 void init_klog(void);
+int klog_write(const char *str, uint32_t len, uint32_t color);
+int klog_color(const char *str, uint32_t color);
 int klog(const char *str);
-int klogc(const char *str, uint32_t color);
 void klog_ok(const char *msg);
 void klog_ko(const char *msg);
 

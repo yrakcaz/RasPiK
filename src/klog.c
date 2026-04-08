@@ -39,10 +39,10 @@ static void scroll(void)
     }
 }
 
-static int klog_write(const char *str, uint32_t color)
+int klog_write(const char *str, uint32_t len, uint32_t color)
 {
-    int i;
-    for (i = 0; str[i]; i++)
+    uint32_t i;
+    for (i = 0; i < len; i++)
     {
         if (str[i] == '\n')
             putchar_uart('\r');
@@ -88,20 +88,20 @@ static int klog_write(const char *str, uint32_t color)
     return i;
 }
 
-int klog(const char *str)
+int klog_color(const char *str, uint32_t color)
 {
-    return klog_write(str, WHITE);
+    return klog_write(str, strlen(str), color);
 }
 
-int klogc(const char *str, uint32_t color)
+int klog(const char *str)
 {
-    return klog_write(str, color);
+    return klog_write(str, strlen(str), WHITE);
 }
 
 static void klog_tag(const char *tag, uint32_t color, const char *msg)
 {
     klog("[");
-    klogc(tag, color);
+    klog_color(tag, color);
     klog("] ");
     klog(msg);
     klog("\n");

@@ -1,5 +1,5 @@
-#ifndef PARTS_H
-# define PARTS_H
+#ifndef MBR_H
+# define MBR_H
 
 # include "mem.h"
 
@@ -30,4 +30,4 @@ typedef struct part
 s_part *get_parts(s_mbr *mbr);
 void print_parts(s_mbr *mbr);
 
-#endif /* !PARTS_H */
+#endif /* !MBR_H */

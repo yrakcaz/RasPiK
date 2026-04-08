@@ -51,11 +51,12 @@ extern int real_nbprocs;
 
 int add_process(const char *name, uint32_t pc, char **args, int status);
 int remove_process(int pid);
-int fork_call(uint32_t addr, char **args);
-int fork_exec(const char *path, char **args);
-int waitpid(int pid, int *retval);
-int kill(int pid, int status);
+int clone(uint32_t addr, char **args);
+int spawn(const char *path, char **args);
 void exit(int status);
+int kill(int pid, int status);
+int getpid(void);
+int waitpid(int pid, int *retval);
 void init_process(void);
 
 #endif /* !PROCESS_H */

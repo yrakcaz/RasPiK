@@ -1,4 +1,5 @@
 #include "atags.h"
+#include "driver/console.h"
 #include "driver/sdcard.h"
 #include "driver/uart.h"
 #include "fs/vfs.h"
@@ -7,7 +8,7 @@
 #include "mem.h"
 #include "process.h"
 #include "scheduler.h"
-#include "syscall.h"
+#include "syscalls.h"
 #include "timers.h"
 
 static void print_banner(void)
@@ -21,7 +22,7 @@ static void print_banner(void)
         NULL
     };
     for (int i = 0; lines[i]; i++)
-        klogc(lines[i], YELLOW);
+        klog_color(lines[i], YELLOW);
     klog("\n");
 }
 
@@ -31,16 +32,16 @@ static void spinner(void)
     switch (i)
     {
       case 0:
-       klogc("-", RED);
+       klog_color("-", RED);
        break;
       case 1:
-       klogc("\\", GREEN);
+       klog_color("\\", GREEN);
        break;
       case 2:
-       klogc("|", BLUE);
+       klog_color("|", BLUE);
        break;
       case 3:
-       klogc("/", YELLOW);
+       klog_color("/", YELLOW);
        i = -1;
        break;
       default:
@@ -64,10 +65,15 @@ void k_start(uint32_t r0, uint32_t r1, s_aheader *atags)
     init_syscalls();
     init_process();
     init_vfs();
+    init_console_driver();
     init_uart_driver();
     init_sdcard_driver();
-    mount_devices();
     init_scheduler();
+
+    if (mount("/dev/sdcard", "sdcard", FAT32) < 0)
+        klog_ko("Failed to mount sdcard");
+    else
+        klog_ok("sdcard mounted");
 
     print_banner();
     print_vfs();

@@ -1,5 +1,37 @@
 #include "fs/devfs.h"
 
+int init_noop(s_device *dev)
+{
+    DO_NOTHING_WITH(dev);
+    return 0;
+}
+
+int read_noop(s_device *dev, uint32_t *offset, void *buf, uint32_t len)
+{
+    DO_NOTHING_WITH(dev);
+    DO_NOTHING_WITH(offset);
+    DO_NOTHING_WITH(buf);
+    DO_NOTHING_WITH(len);
+    return -1;
+}
+
+int write_noop(s_device *dev, uint32_t *offset, const void *buf, uint32_t len)
+{
+    DO_NOTHING_WITH(dev);
+    DO_NOTHING_WITH(offset);
+    DO_NOTHING_WITH(buf);
+    DO_NOTHING_WITH(len);
+    return -1;
+}
+
+int ioctl_noop(s_device *dev, int cmd, int args)
+{
+    DO_NOTHING_WITH(dev);
+    DO_NOTHING_WITH(cmd);
+    DO_NOTHING_WITH(args);
+    return -1;
+}
+
 int add_device(s_devfs *devfs, const char *name, void *addr, s_driver *driver)
 {
     s_device *device = kmalloc(sizeof (s_device));

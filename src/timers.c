@@ -14,12 +14,9 @@ void init_timers(void)
     klog_ok("Timers initialized");
 }
 
-uint64_t get_time(void)
+uint32_t gettime(void)
 {
-    uint64_t time = timersys->high;
-    time <<= 32;
-    time |= timersys->low;
-    return time;
+    return timersys->low;
 }
 
 void usleep(uint32_t musec)

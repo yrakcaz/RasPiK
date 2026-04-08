@@ -1,26 +1,32 @@
 #include "mem.h"
 
+extern char _end;
 extern char *get_sp();
 
+static char *heap_end = NULL;
 static u_header heap_list;
 static u_header *heap_start = NULL;
 
-void *sbrk(uint32_t increment)
+int brk(void *addr)
 {
-    extern char _end;
-    static char *heap_end;
-    char *previous_heap_end;
+    if (!heap_end)
+        heap_end = &_end;
+    if ((char *)addr > get_sp() || (char *)addr < &_end)
+        return -1;
+    heap_end = (char *)addr;
+    return 0;
+}
+
+static void *sbrk(uint32_t increment)
+{
+    char *prev;
 
     if (!heap_end)
         heap_end = &_end;
-
-    previous_heap_end = heap_end;
-
-    if (heap_end + increment > get_sp())
+    prev = heap_end;
+    if (brk(heap_end + increment) < 0)
         return (void *)-1;
-
-    heap_end += increment;
-    return previous_heap_end;
+    return prev;
 }
 
 void kfree(void *ptr)
@@ -81,13 +87,12 @@ void *kmalloc(uint32_t size)
         }
         if (cur == heap_start)
         {
-            if (real_sz < NBALLOC)
-                real_sz = NBALLOC;
-            char *page = sbrk((uint32_t)(real_sz * sizeof(u_header)));
+            unsigned alloc_sz = real_sz < NBALLOC ? NBALLOC : real_sz;
+            char *page = sbrk((uint32_t)(alloc_sz * sizeof(u_header)));
             if (page == (char*)-1)
                 return NULL;
             u_header *new_block = (u_header *)page;
-            new_block->metadata.len = real_sz * sizeof(u_header);
+            new_block->metadata.len = alloc_sz;
             kfree((void *)(new_block + 1));
             cur = heap_start;
         }
@@ -119,7 +124,7 @@ void *krealloc(void *ptr, uint32_t size)
 {
     if (!ptr)
         return kmalloc(size);
-    if (size <= 0)
+    if (!size)
     {
         kfree(ptr);
         return NULL;

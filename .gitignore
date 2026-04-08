@@ -6,5 +6,6 @@
 *.d
 *.rules
 .old/
+*.a
 core*
 makefile.rules

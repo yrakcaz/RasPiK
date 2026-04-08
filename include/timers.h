@@ -50,7 +50,7 @@ extern s_timersys *timersys;
 # define USEC_PER_SEC 1000000
 
 void init_timers(void);
-uint64_t get_time(void);
+uint32_t gettime(void);
 void usleep(uint32_t musec);
 
 #endif /* !TIMERS_H */

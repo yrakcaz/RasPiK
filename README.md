@@ -14,10 +14,11 @@ A lightweight bare-metal kernel for the Raspberry Pi (ARM1176JZF-S), written in 
 [OK] Syscall table initialized
 [OK] Processes initialized
 [OK] Virtual File System initialized
+[OK] Console driver initialized
 [OK] UART driver initialized
 [OK] SD card driver initialized
-[OK] Devices mounted
 [OK] Scheduler initialized
+[OK] sdcard mounted
  ____           ____  _ _  __
 |  _ \ __ _ ___|  _ \(_) |/ /
 | |_) / _` / __| |_) | | ' /
@@ -26,9 +27,9 @@ A lightweight bare-metal kernel for the Raspberry Pi (ARM1176JZF-S), written in 
 
 /tmp (vffs)
 /dev (devfs)
-        uart sdcard
+        console uart sdcard
 /sdcard (fat32)
-        TEST.BIN
+        EXAMPLE.BIN
 ```
 
 ## Features
@@ -100,10 +101,12 @@ scripts/deploy.sh <device>
 src/            kernel C source files
 src/asm/        ARM assembly (boot, interrupt vector, utils)
 src/driver/     UART and SD card drivers
-src/fs/         VFS, FAT32, devfs, partitions
+src/fs/         VFS, FAT32, devfs, vffs, partitions
 include/        kernel headers
 include/driver/ driver headers
+include/fs/     filesystem headers
 import/         third-party source imported verbatim (see import/README.md)
-user/           user-space test application
+user/apps/      user-space example application
+user/sdk/       user-space SDK (syscall wrappers and headers)
 scripts/        build and deployment helper scripts
 ```

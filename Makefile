@@ -1,68 +1,80 @@
-CROSS := arm-none-eabi
-export CC := $(CROSS)-gcc
-export LD := $(CROSS)-ld
-export OBJCOPY := $(CROSS)-objcopy
+CROSS = arm-none-eabi
+export CC = $(CROSS)-gcc
+export LD = $(CROSS)-ld
+export AR = $(CROSS)-ar
+export OBJCOPY = $(CROSS)-objcopy
 
-ASM_SRC := src/asm/boot.s src/asm/interrupts.s src/asm/utils.s
-C_SRC := src/utils.c src/mailbox.c src/graphics.c src/klog.c src/atags.c src/mem.c         \
-		 src/syscall.c src/timers.c src/interrupts.c src/process.c src/elf.c           \
-		 src/scheduler.c src/main.c
-C_SRC += src/fs/parts.c src/fs/vffs.c src/fs/devfs.c src/fs/fat32.c src/fs/vfs.c
-C_SRC += src/driver/uart.c src/driver/sdcard.c
+S_SRC = src/asm/boot.s src/asm/interrupts.s src/asm/utils.s
+C_SRC = src/atags.c src/elf.c src/graphics.c src/interrupts.c \
+        src/klog.c src/mailbox.c src/main.c src/mem.c         \
+        src/process.c src/scheduler.c src/syscalls.c          \
+        src/timers.c src/utils.c
+C_SRC += src/driver/console.c src/driver/sdcard.c src/driver/uart.c
+C_SRC += src/fs/devfs.c src/fs/fat32.c src/fs/mbr.c src/fs/vffs.c src/fs/vfs.c
 C_SRC += import/src/emmc.c
 
-OBJ := $(ASM_SRC:.s=.o)
+OBJ = $(S_SRC:.s=.o)
 OBJ += $(C_SRC:.c=.o)
-LINK := src/rpi-link.ld
+LDSCRIPT = src/raspik-kernel.ld
 DFILES := $(shell find . -type f -name '*.d')
 
-DEPENDFLAGS := -MD -MP
-INCLUDES := -Iinclude/ -Iimport/include/
-BASEFLAGS := -fpic -nostdlib -std=gnu99
-BASEFLAGS += -ffreestanding -fomit-frame-pointer -mcpu=arm1176jzf-s
-WARNFLAGS := -Wall -Wextra -Wshadow
-WARNFLAGS += -Wredundant-decls -Winline
-WARNFLAGS += -Wno-attributes -Wno-deprecated-declarations
-WARNFLAGS += -Wno-div-by-zero -Wno-endif-labels -Wfloat-equal
-WARNFLAGS += -Wformat=2 -Wno-format-extra-args -Winit-self
-WARNFLAGS += -Winvalid-pch -Wmissing-format-attribute
-WARNFLAGS += -Wmissing-include-dirs -Wno-multichar
-WARNFLAGS += -Wno-sign-compare -Wswitch -Wsystem-headers -Wundef
-WARNFLAGS += -Wno-pragmas -Wno-unused-but-set-parameter
-WARNFLAGS += -Wno-unused-but-set-variable -Wno-unused-result
-WARNFLAGS += -Wwrite-strings -Wdisabled-optimization -Wpointer-arith
-WARNFLAGS += -Werror
-SFLAGS := $(INCLUDES) $(DEPENDFLAGS) -D__ASSEMBLY__ -mcpu=arm1176jzf-s
-CFLAGS := $(INCLUDES) $(DEPENDFLAGS) $(BASEFLAGS) $(WARNFLAGS)
+CONFIGFLAGS =
+DEPENDFLAGS = -MD -MP
+STDFLAGS = -std=gnu99
+ARCHFLAGS = -mcpu=arm1176jzf-s
+KERNELFLAGS = -fpic -nostdlib
+KERNELFLAGS += -ffreestanding -fomit-frame-pointer
+WARNFLAGS = -Wall -Wdisabled-optimization -Werror -Wextra              \
+            -Wfloat-equal -Wformat=2 -Winit-self -Winline              \
+            -Winvalid-pch -Wmissing-format-attribute                   \
+            -Wmissing-include-dirs -Wno-attributes                     \
+            -Wno-deprecated-declarations -Wno-div-by-zero              \
+            -Wno-endif-labels -Wno-format-extra-args -Wno-multichar    \
+            -Wno-pragmas -Wno-sign-compare                             \
+            -Wno-unused-but-set-parameter -Wno-unused-but-set-variable \
+            -Wno-unused-result -Wpointer-arith -Wredundant-decls       \
+            -Wshadow -Wswitch -Wsystem-headers -Wundef -Wwrite-strings
+ASFLAGS = $(DEPENDFLAGS) -D__ASSEMBLY__ $(ARCHFLAGS) $(CONFIGFLAGS)
+CFLAGS = -Iinclude/ -Iimport/include/ $(DEPENDFLAGS) $(STDFLAGS) $(KERNELFLAGS) \
+         $(WARNFLAGS) $(ARCHFLAGS) $(CONFIGFLAGS)
 LDFLAGS := $(shell $(CC) -print-libgcc-file-name)
 
-all: kernel user
+export ARCHFLAGS
+export CONFIGFLAGS
+export STDFLAGS
+export WARNFLAGS
+
+all: kernel apps
 
 -include makefile.rules
 -include $(DFILES)
 
 kernel: kernel.img
 
-user:
-	$(MAKE) -C user/apps/
-
-kernel.elf: $(OBJ) $(LINK)
-	$(LD) $(OBJ) -T$(LINK) -o $@ $(LDFLAGS)
-
 kernel.img: kernel.elf
 	$(OBJCOPY) kernel.elf -O binary kernel.img
 
-clean:
-	$(RM) $(OBJ) $(DFILES) kernel.elf kernel.img
-	$(MAKE) clean -C user/apps/
+kernel.elf: $(OBJ) $(LDSCRIPT)
+	$(LD) $(OBJ) -T$(LDSCRIPT) -o $@ $(LDFLAGS)
 
-distclean: clean
-	$(RM) makefile.rules
+%.o: %.s
+	$(CC) $(ASFLAGS) -c $< -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-%.o: %.s
-	$(CC) $(SFLAGS) -c $< -o $@
+apps: sdk
+	$(MAKE) -C user/apps/
 
-.PHONY: all kernel user clean distclean
+sdk:
+	$(MAKE) -C user/sdk/
+
+distclean: clean
+	$(RM) makefile.rules
+
+clean:
+	$(RM) $(OBJ) $(DFILES) kernel.elf kernel.img
+	$(MAKE) -C user/sdk/ clean
+	$(MAKE) -C user/apps/ clean
+
+.PHONY: all kernel apps sdk clean distclean

@@ -96,8 +96,9 @@ int exec(const char *path, char **args)
     if (addr == -1)
         return -1;
 
-    int i;
-    for (i = 0; args[i]; i++);
+    int i = 0;
+    if (args)
+        for (; args[i]; i++);
     asm volatile("mov r0, %0" :: "r"((uint32_t)addr));
     asm volatile("push {r0}");
     asm volatile("mov r0, %0" :: "r"((uint32_t)i));

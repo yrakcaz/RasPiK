@@ -4,7 +4,7 @@
 # include "klog.h"
 # include "mem.h"
 # include "scheduler.h"
-# include "syscall.h"
+# include "syscalls.h"
 # include "timers.h"
 
 # define BASE_INTERRUPTS 0x2000B200
@@ -34,7 +34,7 @@ typedef struct interrupts
 
 extern s_interrupts *irq_controller;
 
-typedef void (*funcptr)(int, int, int, int);
+typedef int (*funcptr)(int, int, int, int);
 
 /* Bad exceptions */
 void handle_undef(void);
@@ -42,7 +42,7 @@ void handle_unused(void);
 void handle_fiq(void);
 
 /* Other interrupts */
-void handle_swi(int r0, int r1, int r2, int r3);
+void handle_swi(unsigned number, unsigned *reg);
 void handle_pref_abort(void);
 void handle_data_abort(void);
 void handle_irq(void);

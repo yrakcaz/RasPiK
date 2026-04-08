@@ -30,8 +30,8 @@
 
 ## Syscalls
 
-- [ ] Kernel land
-- [ ] User land
+- [x] Kernel land
+- [x] User land
 
 ## File Systems
 
@@ -51,6 +51,8 @@
 - [ ] Mailbox property interface for framebuffer pixel order
 - [ ] Recode UART driver properly
 - [ ] Recode graphics and klog management
+- [x] Expose /dev/console via VFS
+- [ ] Expose /dev/fb via VFS
 - [ ] HDMI / tty with buffer swapping
 - [ ] LEDs
 - [ ] GPIO
@@ -60,11 +62,14 @@
 ## Processes & Scheduling
 
 - [x] Process structure (with fd table and context)
-- [x] Scheduler
-- [x] Fork
+- [ ] Scheduler (experimental, mostly broken without MMU)
+- [x] clone() — shared address space, separate execution context
+- [x] spawn() — new process from ELF path (like posix_spawn)
+- [ ] Real fork() — requires MMU for address space copying
 - [x] ELF binary execution
 - [x] Task context switching
 - [ ] Priority queue and timing in scheduler
+- [ ] Fix waitpid()/exit() reap ordering (use-after-free if called concurrently)
 - [ ] Per-process fd table with STDIOs and file locking
 - [ ] Environment variables
 
@@ -72,6 +77,10 @@
 
 - [ ] Switch to user mode
 - [ ] libc basics (errno)
+
+## SDK
+
+- [ ] Unify kernel ABI definitions under include/uapi/ to avoid manual duplication between kernel headers and raspik.h
 
 ## General
 

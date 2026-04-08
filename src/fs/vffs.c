@@ -49,6 +49,7 @@ int remove_vfile(s_vffs *vffs, const char *name)
             kfree(vffs->list[i]);
             for (int j = i; j < vffs->nbfiles - 1; j++)
                 vffs->list[j] = vffs->list[j + 1];
+            vffs->list[vffs->nbfiles - 1] = NULL;
             vffs->nbfiles--;
             return 0;
         }

@@ -407,10 +407,10 @@ static int emmc_switch_clock_rate(uint32_t base_clock, uint32_t target_rate)
 
 static void TIMEOUT_usleep(int cond, uint64_t usec)
 {
-    uint64_t time = get_time();
+    uint64_t time = gettime();
     do
     {
-        uint64_t time1 = get_time();
+        uint64_t time1 = gettime();
         if (time1 >= time + usec)
             break;
     } while(!cond);

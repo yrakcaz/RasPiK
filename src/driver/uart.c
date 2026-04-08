@@ -63,14 +63,6 @@ static int read_uart(s_device *dev, uint32_t *offset, void *str, uint32_t size)
     return i;
 }
 
-static int ioctl_uart(s_device *dev, int cmd, int args)
-{
-    DO_NOTHING_WITH(dev);
-    DO_NOTHING_WITH(cmd);
-    DO_NOTHING_WITH(args);
-    return 0;
-}
-
 int init_uart_driver(void)
 {
     s_driver *driver = kmalloc(sizeof (s_driver));
@@ -80,7 +72,7 @@ int init_uart_driver(void)
     driver->init = init_uart;
     driver->write = write_uart;
     driver->read = read_uart;
-    driver->ioctl = ioctl_uart;
+    driver->ioctl = ioctl_noop;
 
     int ret = insmod("/dev/uart", (void *)BASE_UART, driver);
 

@@ -1,5 +1,9 @@
 #include "scheduler.h"
 
+// Experimental. Without MMU support there is no address space isolation, stacks
+// are tiny, and processes can freely corrupt each other. Do not rely on this for
+// anything beyond basic testing.
+
 static void switch_context(void)
 {
     asm volatile("mov sp, %[addr]"

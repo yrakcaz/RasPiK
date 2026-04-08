@@ -2,7 +2,7 @@
 .globl start
 
 start:
-    mov r4, #0x8000
+    mov r4, #0x4000000
     cps #0x13
     add sp, r4, #0x2400
     cps #0x17

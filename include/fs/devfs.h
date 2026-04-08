@@ -33,6 +33,11 @@ typedef struct devfs
     int nbdevices;
 } s_devfs;
 
+int init_noop(s_device *dev);
+int read_noop(s_device *dev, uint32_t *offset, void *buf, uint32_t len);
+int write_noop(s_device *dev, uint32_t *offset, const void *buf, uint32_t len);
+int ioctl_noop(s_device *dev, int cmd, int args);
+
 int add_device(s_devfs *devfs, const char *name, void *addr, s_driver *driver);
 int remove_device(s_devfs *devfs, const char *name);
 s_device *get_node_devfs(s_devfs *devfs, const char *name);

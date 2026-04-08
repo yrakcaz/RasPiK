@@ -67,188 +67,6 @@ void remove_fat32(s_fat32 *fat32)
     kfree(fat32);
 }
 
-const char **readdir_fat32(s_fat32 *fat32)
-{
-    s_fatdir *dir = kmalloc(fat32->cluslen * fat32->seclen);
-    if (!dir)
-        return NULL;
-
-    int fd = open(fat32->devpath, O_RDONLY);
-    if (fd < 0)
-    {
-        kfree(dir);
-        return NULL;
-    }
-
-    if (seek(fd, fat32->root, SEEK_SET) < 0)
-    {
-        close(fd);
-        kfree(dir);
-        return NULL;
-    }
-
-    uint32_t size = fat32->cluslen * fat32->seclen;
-    if (read(fd, dir, size) != size)
-    {
-        close(fd);
-        kfree(dir);
-        return NULL;
-    }
-    close(fd);
-
-    uint32_t maxnbfile = fat32->cluslen * fat32->seclen / sizeof (s_fatdir);
-    const char **ret = kmalloc(maxnbfile * sizeof (char *));
-    if (!ret)
-    {
-        kfree(dir);
-        return NULL;
-    }
-
-    uint32_t count = 0;
-    for (uint32_t i = 0; i < maxnbfile; i++)
-    {
-        if ((dir[i].attrs & FAT32_VOL) || (dir[i].attrs & FAT32_DIR))
-            continue;
-        if (dir[i].name[0] == 0xE5)
-            continue;
-        if (dir[i].name[0] == 0x00)
-            break;
-
-        char *filename = kmalloc(13 * sizeof (char));
-        if (!filename)
-        {
-            kfree(ret);
-            kfree(dir);
-            return NULL;
-        }
-
-        int pos = 0;
-        for (int j = 0; j < 8 && dir[i].name[j] && dir[i].name[j] != ' '; j++)
-            filename[pos++] = dir[i].name[j];
-        filename[pos++] = '.';
-        for (int j = 0; j < 3; j++)
-            filename[pos++] = dir[i].ext[j];
-        filename[pos] = '\0';
-
-        ret[count++] = filename;
-    }
-
-    ret[count] = NULL;
-
-    kfree(dir);
-    return ret;
-}
-
-static char upper(char c)
-{
-    if (c >= 'a' && c <= 'z')
-        return (c - 'a' + 'A');
-    return c;
-}
-
-static int check_filename(s_fatdir file, const char *name)
-{
-    for (int i = 0; i < 8 && file.name[i] && file.name[i] != ' '; i++)
-        if (file.name[i] != upper(name[i]))
-            return 0;
-    for (int i = strlen(name) - 1, j = 2; j >= 0; j--, i--)
-        if (file.ext[j] != upper(name[i]))
-            return 0;
-    return 1;
-}
-
-s_fatfile *get_node_fat32(s_fat32 *fat32, const char *name)
-{
-    s_fatdir *dir = kmalloc(fat32->cluslen * fat32->seclen);
-    if (!dir)
-        return NULL;
-
-    int fd = open(fat32->devpath, O_RDONLY);
-    if (fd < 0)
-    {
-        kfree(dir);
-        return NULL;
-    }
-
-    if (seek(fd, fat32->root, SEEK_SET) < 0)
-    {
-        close(fd);
-        kfree(dir);
-        return NULL;
-    }
-
-    uint32_t size = fat32->cluslen * fat32->seclen;
-    if (read(fd, dir, size) != size)
-    {
-        close(fd);
-        kfree(dir);
-        return NULL;
-    }
-    close(fd);
-
-    uint32_t maxnbfile = fat32->cluslen * fat32->seclen / sizeof (s_fatdir);
-    for (int i = 0; i < maxnbfile; i++)
-    {
-        if ((dir[i].attrs & FAT32_VOL) || (dir[i].attrs & FAT32_DIR))
-            continue;
-        if (dir[i].name[0] == 0xE5)
-            continue;
-        if (dir[i].name[0] == 0x00)
-            break;
-
-        if (check_filename(dir[i], name))
-        {
-            s_fatfile *file = kmalloc(sizeof (s_fatfile));
-            if (!file)
-            {
-                kfree(dir);
-                return NULL;
-            }
-            file->info = fat32;
-            file->dir = dir + i;
-            return file;
-        }
-    }
-
-    kfree(dir);
-    return NULL;
-}
-
-static int read_shortfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
-                          uint32_t len, uint32_t *total, void *buf)
-{
-    for (uint32_t i = 0; i < nbsectors; i++)
-    {
-        char *buff = kmalloc(BLK_SIZE);
-        if (!buff)
-            return -1;
-        int fd = open(file->info->devpath, O_RDONLY);
-        if (fd < 0 || seek(fd, sector, SEEK_SET) < 0)
-        {
-            if (fd < 0)
-                close(fd);
-            kfree(buff);
-            return -1;
-        }
-
-        if (read(fd, buff, BLK_SIZE) <= 0)
-        {
-            close(fd);
-            kfree(buff);
-            return -1;
-        }
-        uint32_t nbcpy = len > BLK_SIZE ? BLK_SIZE : len;
-        for (int j = 0; j < nbcpy; j++)
-            ((char *)buf)[(*total)++] = buff[j];
-        len -= nbcpy;
-        sector++;
-
-        close(fd);
-        kfree(buff);
-    }
-    return 0;
-}
-
 static int byte_to_int(char *buf)
 {
     return (buf [0] + (buf[1] << 8) + (buf[2] << 16) + (buf[3] << 24));
@@ -287,7 +105,208 @@ static int get_entry(s_fat32 *info, uint32_t cluster)
     int entry = byte_to_int(&buff[index]);
 
     close(fd);
+    kfree(buff);
     return entry;
+}
+
+const char **readdir_fat32(s_fat32 *fat32)
+{
+    uint32_t cluster_size = fat32->cluslen * fat32->seclen;
+    uint32_t entries_per_cluster = cluster_size / sizeof (s_fatdir);
+    uint32_t max_entries = entries_per_cluster * 8;
+
+    const char **ret = kmalloc((max_entries + 1) * sizeof (char *));
+    if (!ret)
+        return NULL;
+
+    uint32_t count = 0;
+    uint32_t sector = fat32->root;
+    uint32_t curclus = 2;
+    int done = 0;
+
+    while (!done)
+    {
+        s_fatdir *dir = kmalloc(cluster_size);
+        if (!dir)
+            break;
+
+        int fd = open(fat32->devpath, O_RDONLY);
+        if (fd < 0)
+        {
+            kfree(dir);
+            break;
+        }
+
+        if (seek(fd, sector, SEEK_SET) < 0 || read(fd, dir, cluster_size) != cluster_size)
+        {
+            close(fd);
+            kfree(dir);
+            break;
+        }
+        close(fd);
+
+        for (uint32_t i = 0; i < entries_per_cluster && count < max_entries; i++)
+        {
+            if ((dir[i].attrs & FAT32_VOL) || (dir[i].attrs & FAT32_DIR))
+                continue;
+            if (dir[i].name[0] == FAT32_DELETED)
+                continue;
+            if (dir[i].name[0] == FAT32_DIRENT_END) { done = 1; break; }
+
+            char *filename = kmalloc(13 * sizeof (char));
+            if (!filename) { done = 1; break; }
+
+            int pos = 0;
+            for (int j = 0; j < 8 && dir[i].name[j] && dir[i].name[j] != ' '; j++)
+                filename[pos++] = dir[i].name[j];
+            filename[pos++] = '.';
+            for (int j = 0; j < 3; j++)
+                filename[pos++] = dir[i].ext[j];
+            filename[pos] = '\0';
+
+            ret[count++] = filename;
+        }
+
+        kfree(dir);
+
+        if (done)
+            break;
+
+        int entry = get_entry(fat32, curclus);
+        if (entry < 0)
+            break;
+        entry &= FAT32_CLUSTER_MASK;
+        if (entry >= FAT32_CLUSTER_BAD)
+            break;
+
+        curclus = entry;
+        sector = fat32->root + ((curclus - 2) * fat32->cluslen);
+    }
+
+    ret[count] = NULL;
+    return ret;
+}
+
+static char upper(char c)
+{
+    if (c >= 'a' && c <= 'z')
+        return (c - 'a' + 'A');
+    return c;
+}
+
+static int check_filename(s_fatdir file, const char *name)
+{
+    for (int i = 0; i < 8 && file.name[i] && file.name[i] != ' '; i++)
+        if (file.name[i] != upper(name[i]))
+            return 0;
+    for (int i = strlen(name) - 1, j = 2; j >= 0; j--, i--)
+        if (file.ext[j] != upper(name[i]))
+            return 0;
+    return 1;
+}
+
+s_fatfile *get_node_fat32(s_fat32 *fat32, const char *name)
+{
+    uint32_t cluster_size = fat32->cluslen * fat32->seclen;
+    uint32_t entries_per_cluster = cluster_size / sizeof (s_fatdir);
+
+    uint32_t sector = fat32->root;
+    uint32_t curclus = 2;
+
+    while (1)
+    {
+        s_fatdir *dir = kmalloc(cluster_size);
+        if (!dir)
+            return NULL;
+
+        int fd = open(fat32->devpath, O_RDONLY);
+        if (fd < 0)
+        {
+            kfree(dir);
+            return NULL;
+        }
+
+        if (seek(fd, sector, SEEK_SET) < 0 || read(fd, dir, cluster_size) != cluster_size)
+        {
+            close(fd);
+            kfree(dir);
+            return NULL;
+        }
+        close(fd);
+
+        for (uint32_t i = 0; i < entries_per_cluster; i++)
+        {
+            if ((dir[i].attrs & FAT32_VOL) || (dir[i].attrs & FAT32_DIR))
+                continue;
+            if (dir[i].name[0] == FAT32_DELETED)
+                continue;
+            if (dir[i].name[0] == FAT32_DIRENT_END)
+            {
+                kfree(dir);
+                return NULL;
+            }
+
+            if (check_filename(dir[i], name))
+            {
+                s_fatfile *file = kmalloc(sizeof (s_fatfile));
+                if (!file)
+                {
+                    kfree(dir);
+                    return NULL;
+                }
+                file->info = fat32;
+                file->dir = dir + i;
+                return file;
+            }
+        }
+
+        kfree(dir);
+
+        int entry = get_entry(fat32, curclus);
+        if (entry < 0)
+            return NULL;
+        entry &= FAT32_CLUSTER_MASK;
+        if (entry >= FAT32_CLUSTER_BAD)
+            return NULL;
+
+        curclus = entry;
+        sector = fat32->root + ((curclus - 2) * fat32->cluslen);
+    }
+}
+
+static int read_shortfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
+                          uint32_t len, uint32_t *total, void *buf)
+{
+    for (uint32_t i = 0; i < nbsectors; i++)
+    {
+        char *buff = kmalloc(BLK_SIZE);
+        if (!buff)
+            return -1;
+        int fd = open(file->info->devpath, O_RDONLY);
+        if (fd < 0 || seek(fd, sector, SEEK_SET) < 0)
+        {
+            if (fd < 0)
+                close(fd);
+            kfree(buff);
+            return -1;
+        }
+
+        if (read(fd, buff, BLK_SIZE) <= 0)
+        {
+            close(fd);
+            kfree(buff);
+            return -1;
+        }
+        uint32_t nbcpy = len > BLK_SIZE ? BLK_SIZE : len;
+        for (int j = 0; j < nbcpy; j++)
+            ((char *)buf)[(*total)++] = buff[j];
+        len -= nbcpy;
+        sector++;
+
+        close(fd);
+        kfree(buff);
+    }
+    return 0;
 }
 
 static int read_longfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
@@ -342,8 +361,8 @@ static int read_longfile(uint32_t nbsectors, s_fatfile *file, uint32_t sector,
         if (entry < 0)
             break;
 
-        entry &= 0x0FFFFFFF;
-        if (entry >= 0x0FFFFFF7)
+        entry &= FAT32_CLUSTER_MASK;
+        if (entry >= FAT32_CLUSTER_BAD)
             break;
 
         sector = file->info->root + ((entry - 2) * file->info->cluslen);

@@ -22,11 +22,15 @@ int add_process(const char *name, uint32_t pc, char **args, int status)
     process->status = status;
     process->run_count = 0;
     process->pc = pc;
-    current_process->retval = 0;
-    current_process->wait_time = 0;
+    if (current_process)
+    {
+        current_process->retval = 0;
+        current_process->wait_time = 0;
+    }
 
-    int argc;
-    for (argc = 0; args[argc]; argc++);
+    int argc = 0;
+    if (args)
+        for (; args[argc]; argc++);
     process->r0 = (uint32_t)argc;
     process->r1 = (uint32_t)args;
 
@@ -101,7 +105,7 @@ int remove_process(int pid)
 
     if (pid == 1)
     {
-        klogc("System halting\n", RED);
+        klog_color("System halting\n", RED);
         while (1)
             asm volatile("wfe");
     }
@@ -112,6 +116,7 @@ int remove_process(int pid)
     {
         if (process->pid == pid)
         {
+            int pid_ret = process->pid;
             stacks[process->stack_idx] = 0;
             process->prev->next = process->next;
             process->next->prev = process->prev;
@@ -120,7 +125,7 @@ int remove_process(int pid)
             if (real_nbprocs == 1)
                 current_process->status = WAIT;
             ENABLE_INTERRUPTS();
-            return process->pid;
+            return pid_ret;
         }
         process = process->next;
     } while (process->pid != base);
@@ -129,41 +134,29 @@ int remove_process(int pid)
     return -1;
 }
 
-int fork_call(uint32_t addr, char **args)
+// Like Linux clone(): separate execution context, shared address space.
+// Will need revisiting once MMU support is in place.
+int clone(uint32_t addr, char **args)
 {
     return add_process(current_process->name, addr, args, WAIT);
 }
 
-int fork_exec(const char *path, char **args)
+// Like posix_spawn(): new process from an ELF path.
+// No address space isolation until MMU support is added.
+int spawn(const char *path, char **args)
 {
     uint32_t entry = load_elf(path);
+    if (entry == (uint32_t)-1)
+        return -1;
     return add_process(path, entry, args, WAIT);
 }
 
-static s_proc *get_process(int pid)
+void exit(int status)
 {
-    s_proc *proc = current_process;
-    int base = proc->pid;
-    do
-    {
-        if (proc->pid == pid)
-            return proc;
-        proc = proc->next;
-    } while (proc->pid != base);
-    return NULL;
-}
-
-int waitpid(int pid, int *retval)
-{
-    s_proc *proc = get_process(pid);
-    if (!pid)
-        return -1;
-
-    proc->wait_time = 1;
-    while (proc->status != TERM);
-    *retval = proc->retval;
-
-    return 0;
+    current_process->retval = status;
+    kill(current_process->pid, TERM);
+    // Skips scheduler-driven reap; breaks waitpid() if it's ever called concurrently.
+    remove_process(current_process->pid);
 }
 
 int kill(int pid, int status)
@@ -187,10 +180,35 @@ int kill(int pid, int status)
     return -1;
 }
 
-void exit(int status)
+int getpid(void)
 {
-    current_process->retval = status;
-    kill(current_process->pid, TERM);
+    return current_process ? current_process->pid : -1;
+}
+
+static s_proc *get_process(int pid)
+{
+    s_proc *proc = current_process;
+    int base = proc->pid;
+    do
+    {
+        if (proc->pid == pid)
+            return proc;
+        proc = proc->next;
+    } while (proc->pid != base);
+    return NULL;
+}
+
+int waitpid(int pid, int *retval)
+{
+    s_proc *proc = get_process(pid);
+    if (!proc)
+        return -1;
+
+    proc->wait_time = 1;
+    while (proc->status != TERM);
+    *retval = proc->retval;
+
+    return 0;
 }
 
 void init_process(void)
