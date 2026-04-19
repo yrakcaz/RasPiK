@@ -1,0 +1,4 @@
+{
+    "name": "RasPiK",
+    "onCreateCommand": "sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi qemu-system-arm dosfstools mtools fdisk gdb-multiarch"
+}
